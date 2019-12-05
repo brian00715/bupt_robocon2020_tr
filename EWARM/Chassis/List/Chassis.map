@@ -1,12 +1,12 @@
 ###############################################################################
 #
-# IAR ELF Linker V8.30.1.114/W32 for ARM                  01/Dec/2019  22:03:03
+# IAR ELF Linker V8.30.1.114/W32 for ARM                  03/Dec/2019  20:07:12
 # Copyright 2007-2018 IAR Systems AB.
 #
 #    Output file  =  E:\Robocon_Value\Chassis\EWARM\Chassis\Exe\Chassis.out
 #    Map file     =  E:\Robocon_Value\Chassis\EWARM\Chassis\List\Chassis.map
 #    Command line =  
-#        -f C:\Users\DELL\AppData\Local\Temp\EW2EF8.tmp
+#        -f C:\Users\DELL\AppData\Local\Temp\EW6426.tmp
 #        (E:\Robocon_Value\Chassis\EWARM\Chassis\Obj\adc.o
 #        E:\Robocon_Value\Chassis\EWARM\Chassis\Obj\can.o
 #        E:\Robocon_Value\Chassis\EWARM\Chassis\Obj\can_func.o
@@ -318,7 +318,7 @@ initialize by copy { rw };
     .data            inited   0x2000'2270    0x48  xlocale_c.o [2]
                             - 0x2000'22b8  0x22b8
 
-"P2", part 2 of 3:                         0x84a0
+"P2", part 2 of 3:                         0x84a4
   .bss               zero     0x2000'22b8   0xfa0  point.o [1]
   .bss               zero     0x2000'3258   0xfa0  point.o [1]
   .bss               zero     0x2000'41f8   0xfa0  point.o [1]
@@ -343,33 +343,34 @@ initialize by copy { rw };
   .bss               zero     0x2000'a660    0x40  usart.o [1]
   .bss               zero     0x2000'a6a0    0x28  can.o [1]
   .bss               zero     0x2000'a6c8    0x28  can_utils.o [1]
-  .bss               zero     0x2000'a6f0    0x18  dlmalloc.o [2]
-  .bss               zero     0x2000'a708    0x14  configure.o [1]
-  .bss               zero     0x2000'a71c    0x14  main.o [1]
-  .bss               zero     0x2000'a730     0x8  motordriver.o [1]
-  .bss               zero     0x2000'a738     0x4  cmd.o [1]
-  .bss               zero     0x2000'a73c     0x4  flags.o [1]
+  .bss               zero     0x2000'a6f0    0x18  configure.o [1]
+  .bss               zero     0x2000'a708    0x18  dlmalloc.o [2]
+  .bss               zero     0x2000'a720    0x14  main.o [1]
+  .bss               zero     0x2000'a734     0x4  cmd.o [1]
+  .bss               zero     0x2000'a738     0x8  motordriver.o [1]
   .bss               zero     0x2000'a740     0x4  flags.o [1]
   .bss               zero     0x2000'a744     0x4  flags.o [1]
-  .bss               zero     0x2000'a748     0x4  laser.o [1]
-  .bss               zero     0x2000'a74c     0x4  strtok.o [2]
-  .bss               zero     0x2000'a750     0x4  xfail_s.o [2]
-  .bss               zero     0x2000'a754     0x4  xgetmemchunk.o [2]
-                            - 0x2000'a758  0x84a0
+  .bss               zero     0x2000'a748     0x4  flags.o [1]
+  .bss               zero     0x2000'a74c     0x4  laser.o [1]
+  .bss               zero     0x2000'a750     0x4  strtok.o [2]
+  .bss               zero     0x2000'a754     0x4  xfail_s.o [2]
+  .bss               zero     0x2000'a758     0x4  xgetmemchunk.o [2]
+                            - 0x2000'a75c  0x84a4
 
 "P2", part 3 of 3:                         0x1800
-  CSTACK                      0x2000'a758  0x1200  <Block>
-    CSTACK           uninit   0x2000'a758  0x1200  <Block tail>
-  HEAP                        0x2000'b958   0x600  <Block>
-    HEAP             uninit   0x2000'b958   0x600  <Block tail>
-                            - 0x2000'bf58  0x1800
+  CSTACK                      0x2000'a760  0x1200  <Block>
+    CSTACK           uninit   0x2000'a760  0x1200  <Block tail>
+  HEAP                        0x2000'b960   0x600  <Block>
+    HEAP             uninit   0x2000'b960   0x600  <Block tail>
+                            - 0x2000'bf60  0x1800
 
 Unused ranges:
 
          From           To      Size
          ----           --      ----
    0x800'8ac5   0x80f'ffff  0xf'753b
-  0x2000'bf58  0x2001'ffff  0x1'40a8
+  0x2000'a75c  0x2000'a75f       0x4
+  0x2000'bf60  0x2001'ffff  0x1'40a0
 
 
 *******************************************************************************
@@ -379,8 +380,8 @@ Unused ranges:
           Address      Size
           -------      ----
 Zero (__iar_zero_init3)
-    1 destination range, total size 0x84a0:
-          0x2000'22b8  0x84a0
+    1 destination range, total size 0x84a4:
+          0x2000'22b8  0x84a4
 
 Copy/lz77 (__iar_lz77_init_single3)
     1 source range, total size 0xe23 (40% of destination):
@@ -409,7 +410,7 @@ E:\Robocon_Value\Chassis\EWARM\Chassis\Obj: [1]
     chassis_handle.o            344                64
     cmd.o                       492      136      492
     cmd_func.o                  216
-    configure.o                  40                20
+    configure.o                  40                24
     dma.o                       136
     flags.o                                        12
     gpio.o                      302
@@ -436,7 +437,7 @@ E:\Robocon_Value\Chassis\EWARM\Chassis\Obj: [1]
     utils.o                     124
     vec.o                       332
     -------------------------------------------------
-    Total:                   16 612    3 574   42 204
+    Total:                   16 612    3 574   42 208
 
 dl7M_tlf.a: [2]
     abort.o                       6
@@ -515,7 +516,7 @@ shb_l.a: [5]
     Gaps                         56        2
     Linker created                        33    6 144
 -----------------------------------------------------
-    Grand Total:             31 858    3 667   48 984
+    Grand Total:             31 858    3 667   48 988
 
 
 *******************************************************************************
@@ -536,8 +537,8 @@ APBPrescTable            0x800'7b74    0x8  Data  Gb  system_stm32f4xx.o [1]
 Arrive_distance         0x2000'0114    0x4  Data  Gb  chassis.o [1]
 BusFault_Handler         0x800'79d7    0x2  Code  Gb  stm32f4xx_it.o [1]
 CAN1_RX0_IRQHandler      0x800'79fb    0x6  Code  Gb  stm32f4xx_it.o [1]
-CSTACK$$Base            0x2000'a758          --   Gb  - Linker created -
-CSTACK$$Limit           0x2000'b958          --   Gb  - Linker created -
+CSTACK$$Base            0x2000'a760          --   Gb  - Linker created -
+CSTACK$$Limit           0x2000'b960          --   Gb  - Linker created -
 CacheMore                0x800'2181   0x24  Code  Lc  xlocale_c.o [2]
 ChassisHandle           0x2000'a4e0   0x40  Data  Gb  chassis_handle.o [1]
 DMA1_Stream5_IRQHandler
@@ -556,7 +557,7 @@ DMA_CalcBaseAndBitshift
                          0x800'68d5   0x26  Code  Lc  stm32f4xx_hal_dma.o [1]
 DMA_CalcBaseAndBitshift::flagBitshiftOffset
                          0x800'68fc    0x8  Data  Lc  stm32f4xx_hal_dma.o [1]
-DMA_RxOK_Flag           0x2000'a740    0x4  Data  Gb  flags.o [1]
+DMA_RxOK_Flag           0x2000'a744    0x4  Data  Gb  flags.o [1]
 DMA_RxOK_Flag_vega      0x2000'0198    0x4  Data  Gb  cmd.o [1]
 DMA_SetConfig            0x800'68b5   0x20  Code  Lc  stm32f4xx_hal_dma.o [1]
 DMAaRxBuffer            0x2000'019c   0x64  Data  Gb  cmd.o [1]
@@ -611,8 +612,8 @@ HAL_UART_Transmit_DMA    0x800'5173   0x78  Code  Gb  stm32f4xx_hal_uart.o [1]
 HAL_UART_TxCpltCallback
                          0x800'41f5    0x2  Code  Gb  cmd.o [1]
 HCAN                    0x2000'a6c8   0x28  Data  Gb  can_utils.o [1]
-HEAP$$Base              0x2000'b958          --   Gb  - Linker created -
-HEAP$$Limit             0x2000'bf58          --   Gb  - Linker created -
+HEAP$$Base              0x2000'b960          --   Gb  - Linker created -
+HEAP$$Limit             0x2000'bf60          --   Gb  - Linker created -
 HardFault_Handler        0x800'79d3    0x2  Code  Gb  stm32f4xx_it.o [1]
 HashTable_create         0x800'571f   0x44  Code  Gb  hash.o [1]
 HashTable_get            0x800'5801   0x54  Code  Gb  hash.o [1]
@@ -672,7 +673,7 @@ _PutfldFull              0x800'1405  0x2d8  Code  Lc  xprintffull.o [2]
 _PutstrFull              0x800'17d3   0xc6  Code  Lc  xprintffull.o [2]
 _PuttxtFull              0x800'16dd   0xf6  Code  Lc  xprintffull.o [2]
 _SNProut                 0x800'229f   0x1a  Code  Gb  xsnprout.o [2]
-_Strtok_ssave           0x2000'a74c    0x4  Data  Lc  strtok.o [2]
+_Strtok_ssave           0x2000'a750    0x4  Data  Lc  strtok.o [2]
 __NVIC_SetPriority       0x800'77bd   0x1a  Code  Lc  stm32f4xx_hal_cortex.o [1]
 __aeabi_assert           0x800'6ebd   0x24  Code  Gb  ABIassert.o [5]
 __aeabi_cdcmpeq          0x800'779d         Code  Gb  DblCmpEq.o [3]
@@ -697,7 +698,7 @@ __aeabi_uldivmod         0x800'23c5         Code  Gb  I64DivMod.o [4]
 __cmain                  0x800'7b25         Code  Gb  cmain.o [4]
 __data_GetMemChunk       0x800'1189   0x2c  Code  Gb  xgetmemchunk.o [2]
 __data_GetMemChunk::start
-                        0x2000'a754    0x4  Data  Lc  xgetmemchunk.o [2]
+                        0x2000'a758    0x4  Data  Lc  xgetmemchunk.o [2]
 __exit                   0x800'11b5   0x14  Code  Gb  exit.o [5]
 __iar_Atan64             0x800'6269  0x170  Code  Gb  iar_Atan64.o [3]
 __iar_Fail_s             0x800'2229   0x1c  Code  Gb  xfail_s.o [2]
@@ -770,10 +771,10 @@ atan2f                   0x800'3be9         Code  Gb  atan2f.o [3]
 atan2l                   0x800'46d1  0x140  Code  Gb  atan2_64.o [3]
 buffer_count            0x2000'a374    0x4  Data  Gb  cmd.o [1]
 calculate_laser_angle    0x800'3eb1   0x62  Code  Gb  laser.o [1]
-can_TX_data             0x2000'a730    0x8  Data  Gb  motordriver.o [1]
+can_TX_data             0x2000'a738    0x8  Data  Gb  motordriver.o [1]
 can_callback_table      0x2000'0058    0x4  Data  Lc  can_utils.o [1]
 can_exc_callback         0x800'4435   0x2a  Code  Gb  can_utils.o [1]
-can_exc_callback_flag   0x2000'a73c    0x4  Data  Gb  flags.o [1]
+can_exc_callback_flag   0x2000'a740    0x4  Data  Gb  flags.o [1]
 can_func_init            0x800'6265    0x2  Code  Gb  can_func.o [1]
 can_id_init              0x800'7295   0x28  Code  Gb  configure.o [1]
 can_init                 0x800'43c5   0x70  Code  Gb  can_utils.o [1]
@@ -811,7 +812,7 @@ cmd_help_func            0x800'4151   0x1c  Code  Gb  cmd.o [1]
 cmd_init                 0x800'40a1   0x28  Code  Gb  cmd.o [1]
 cmd_long                 0x800'7919    0x6  Code  Gb  cmd_func.o [1]
 cmd_parse                0x800'40f1   0x2c  Code  Gb  cmd.o [1]
-cmd_table               0x2000'a738    0x4  Data  Lc  cmd.o [1]
+cmd_table               0x2000'a734    0x4  Data  Lc  cmd.o [1]
 cmd_wave_test            0x800'78ff   0x18  Code  Gb  cmd_func.o [1]
 cmpAtom                  0x800'56ed    0xc  Code  Lc  hash.o [1]
 cos                      0x800'4c55    0x4  Code  Gb  cos_sin64.o [3]
@@ -819,7 +820,7 @@ cosl                     0x800'4c55    0x4  Code  Gb  cos_sin64.o [3]
 culculate_distance       0x800'3f15   0x64  Code  Gb  laser.o [1]
 culculate_k_b_params     0x800'3f79   0x56  Code  Gb  laser.o [1]
 exit                     0x800'7b47    0x4  Code  Gb  exit.o [2]
-flag                    0x2000'a71c   0x10  Data  Gb  main.o [1]
+flag                    0x2000'a720   0x10  Data  Gb  main.o [1]
 freeKeyAtom              0x800'56fd    0x2  Code  Lc  hash.o [1]
 hadc1                   0x2000'a408   0x48  Data  Gb  adc.o [1]
 hashAtom                 0x800'56f9    0x4  Code  Lc  hash.o [1]
@@ -839,7 +840,7 @@ huart5                  0x2000'a560   0x40  Data  Gb  usart.o [1]
 huart6                  0x2000'a660   0x40  Data  Gb  usart.o [1]
 id_cmp                   0x800'4525   0x10  Code  Lc  can_utils.o [1]
 inc                      0x800'61ad   0x7a  Code  Gb  main.o [1]
-inc::time_1ms_cnt       0x2000'a72c    0x4  Data  Lc  main.o [1]
+inc::time_1ms_cnt       0x2000'a730    0x4  Data  Lc  main.o [1]
 init_mparams             0x800'01a3   0x32  Code  Lc  dlmalloc.o [2]
 init_top                 0x800'01d5   0x36  Code  Lc  dlmalloc.o [2]
 kal_adc_L               0x2000'0298   0x18  Data  Gb  karman.o [1]
@@ -848,7 +849,7 @@ kal_distance_L          0x2000'0268   0x18  Data  Gb  karman.o [1]
 kal_distance_R          0x2000'0280   0x18  Data  Gb  karman.o [1]
 laser_L                 0x2000'a450   0x48  Data  Gb  laser.o [1]
 laser_R                 0x2000'a498   0x48  Data  Gb  laser.o [1]
-laser_enable            0x2000'a748    0x4  Data  Gb  laser.o [1]
+laser_enable            0x2000'a74c    0x4  Data  Gb  laser.o [1]
 laser_exe                0x800'3fcf   0x42  Code  Gb  laser.o [1]
 laser_init               0x800'3e31   0x4a  Code  Gb  laser.o [1]
 laser_ypos_correct       0x800'3e7b    0xc  Code  Gb  laser.o [1]
@@ -859,7 +860,7 @@ localeconv               0x800'21e9    0x4  Code  Gb  xlocale_c.o [2]
 main                     0x800'6081   0x98  Code  Gb  main.o [1]
 memchr                   0x800'22b9         Code  Gb  memchr.o [4]
 motor_canset3speed       0x800'3b81   0x68  Code  Gb  motordriver.o [1]
-mparams                 0x2000'a6f0   0x18  Data  Lc  dlmalloc.o [2]
+mparams                 0x2000'a708   0x18  Data  Lc  dlmalloc.o [2]
 pCMD_USART              0x2000'0194    0x4  Data  Gb  cmd.o [1]
 point_arrive             0x800'3315   0x1e  Code  Gb  chassis.o [1]
 point_tracer_angle_return
@@ -877,7 +878,7 @@ points_pos9             0x2000'9018  0xfa0  Data  Gb  point.o [1]
 position_y_dir_pid      0x2000'00d4   0x20  Data  Gb  chassis.o [1]
 prepend_alloc            0x800'020b  0x346  Code  Lc  dlmalloc.o [2]
 print_buffer            0x2000'0200   0x68  Data  Gb  cmd.o [1]
-recive_id               0x2000'a714    0x8  Data  Gb  configure.o [1]
+recive_id               0x2000'a6fc    0xc  Data  Gb  configure.o [1]
 rx_buffer               0x2000'0048    0x8  Data  Lc  can_utils.o [1]
 rx_id                   0x2000'0054    0x4  Data  Lc  can_utils.o [1]
 s                       0x2000'0118   0x18  Data  Lc  cmd.o [1]
@@ -886,10 +887,10 @@ scalblnl                 0x800'2869         Code  Gb  ldexp.o [3]
 scalbn                   0x800'2869         Code  Gb  ldexp.o [3]
 scalbnl                  0x800'2869         Code  Gb  ldexp.o [3]
 scale                    0x800'19ab   0x46  Code  Lc  xprintffull.o [2]
-sec_hand                0x2000'a750    0x4  Data  Lc  xfail_s.o [2]
+sec_hand                0x2000'a754    0x4  Data  Lc  xfail_s.o [2]
 segment_holding          0x800'0189   0x1a  Code  Lc  dlmalloc.o [2]
-send_id                 0x2000'a708    0xc  Data  Gb  configure.o [1]
-send_wave_flag          0x2000'a744    0x4  Data  Gb  flags.o [1]
+send_id                 0x2000'a6f0    0xc  Data  Gb  configure.o [1]
+send_wave_flag          0x2000'a748    0x4  Data  Gb  flags.o [1]
 simplelib_init           0x800'7229   0x2c  Code  Gb  simplelib.o [1]
 simplelib_run            0x800'7255   0x20  Code  Gb  simplelib.o [1]
 sin                      0x800'4c59    0x4  Code  Gb  cos_sin64.o [3]
@@ -935,7 +936,7 @@ vsnprintf                0x800'59d9   0x3c  Code  Gb  vsnprint.o [2]
 
   31 858 bytes of readonly  code memory
    3 667 bytes of readonly  data memory
-  48 984 bytes of readwrite data memory
+  48 988 bytes of readwrite data memory
 
 Errors: none
 Warnings: none

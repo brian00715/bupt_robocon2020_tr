@@ -35,6 +35,7 @@ typedef struct {
 typedef struct can_id_recive{
     uint32_t handle_button_id;//手柄按键
     uint32_t handle_rocker_id;//手柄摇杆
+    uint32_t pos_id;
 }Can_id_recive;
 
 extern Can_id_recive recive_id;
