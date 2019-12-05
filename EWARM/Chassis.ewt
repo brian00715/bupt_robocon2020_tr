@@ -1237,46 +1237,34 @@
             <group>
                 <name>Simplelib</name>
                 <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\can_func.c</name>
+                    <name>$PROJ_DIR$\..\simplelib\can\can_func.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\can_utils.c</name>
+                    <name>$PROJ_DIR$\..\simplelib\can\can_utils.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\cmd.c</name>
+                    <name>$PROJ_DIR$\..\simplelib\cmd\cmd.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\cmd_func.c</name>
+                    <name>$PROJ_DIR$\..\simplelib\cmd\cmd_func.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\flags.c</name>
+                    <name>$PROJ_DIR$\..\simplelib\core\flags.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\flash.c</name>
+                    <name>$PROJ_DIR$\..\simplelib\flash\flash.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\hash.c</name>
+                    <name>$PROJ_DIR$\..\simplelib\utils\hash.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\mtr_driver.c</name>
+                    <name>$PROJ_DIR$\..\simplelib\simplelib.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\nrf24l01.c</name>
+                    <name>$PROJ_DIR$\..\simplelib\flash\stmflash.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\nrf_comm.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\simplelib.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\stmflash.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\usart_utils.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\simplelib\Src\utils.c</name>
+                    <name>$PROJ_DIR$\..\simplelib\utils\utils.c</name>
                 </file>
             </group>
             <group>

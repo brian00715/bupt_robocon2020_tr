@@ -111,38 +111,18 @@ int main(void)
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   
-  simplelib_init(&huart2, &hcan1);
-  can_id_init();
-  chassis_init();
-  laser_init();
+  simplelib_init(&huart1, &hcan1);
+  // can_id_init();
+  // chassis_init();
+  // laser_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  flag.main_run_flag = 1;
-    
   while (1)
   {
     simplelib_run();
-
-    if(flag.chassis_control_flag == 1)
-    {
-      flag.chassis_control_flag = 0;
-      laser_exe();
-      chassis_exe();
-      if(chassis_status.run_point_test == 1)
-      {
-        chassis_vector_test();
-      }
-      if(chassis_status.go_to_point == 1)
-      {
-
-      }
-      if(flag.chassis_handle_flag == 0 && flag.chassis_automate_flag == 0 && chassis_status.go_to_point == 0 && chassis_status.run_point_test == 0)
-      {
-        chassis_gostraight(0,0,chassis.angle,0);   //锁死
-      }
-    }  
+    /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
@@ -201,12 +181,12 @@ if(flag.main_run_flag == 1) {
 
   time_1ms_cnt++;  
   if(time_1ms_cnt % 500 == 0) {
-      HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);      //小灯闪烁
+      //HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);      //小灯闪烁
     }
-  if(time_1ms_cnt % 12000 == 0 && chassis_status.vega_is_ready == 0) {
-        chassis_status.vega_is_ready = 1;
-        uprintf("Vega init done!!!\r\n");
-    }
+  // if(time_1ms_cnt % 12000 == 0 && chassis_status.vega_is_ready == 0) {
+  //       chassis_status.vega_is_ready = 1;
+  //       uprintf("Vega init done!!!\r\n");
+  //   }
         
   if(chassis_status.vega_is_ready == 1 && time_1ms_cnt % 5 == 0)  {
     flag.chassis_control_flag = 1;

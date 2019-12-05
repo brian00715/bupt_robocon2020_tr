@@ -6,7 +6,7 @@
 #include "stm32f4xx_hal.h"
 #include "simplelib.h"
 
-#define VEGA_USART huart1
+
    
 void vega_action_reset();//vega??
 
