@@ -1,13 +1,4 @@
-/*******************************************************************************
-Copyright:      BUPT
-File name:      chassis_handle.c
-Description:    主要放手柄的控制程序
-方便封装
-Author:         ZH
-Version：       1.0
-Data:           2019/10/21
-History:        none
-*******************************************************************************/
+
 
 #ifndef __CHASSIS_HANDLE_H
 #define __CHASSIS_HANDLE_H
@@ -40,9 +31,9 @@ typedef struct{
 extern CHASSIS_HANDLE ChassisHandle;
 
 /*Function Area*/
-void chassis_handle_button(can_msg *data);
-void chassis_rocker( can_msg *data);
-void chassis_handle_control();
+void handle_button(can_msg *data);
+void handle_rocker( can_msg *data);
+void handle_exe();
 
 
 

@@ -36,6 +36,10 @@ float PID_Release(PID_Struct *PID,float target,float now);
 void reset_PID(PID_Struct * s);
 void PID_init();
 
+float Angle_Limit_180(float angle);
+float Angle_Limit_PI(float angle);
+void Coordinate_System_Transform(float now[3],float now_in_target[3] , float target[3]);
+
 #endif // SL_UTILS
 
 #ifdef __cplusplus

@@ -27,7 +27,7 @@ CAN_RxHeaderTypeDef RxHeader;
 uint32_t TxMailbox;
 can_msg can_rx_data;
 can_msg can_tx_data;
-uint32_t std_id[] = {0};
+uint32_t std_id[] = {230};
 //uint32_t ext_id[] = {};
 
 static can_msg rx_buffer = {0};
@@ -104,7 +104,7 @@ int can_send_msg(uint16_t std_id, can_msg *msg) {
   uprintf("%d %d %d\r\n", std_id, msg->in[0], msg->in[1]);
   #endif //DEBUG
   if (HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox) != HAL_OK) {
-    //uprintf("Error: CAN can't send msg.\r\n");
+    uprintf("Error: CAN can't send msg.\r\n");
     return 1;
   }
   return 0;

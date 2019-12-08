@@ -14,8 +14,10 @@ typedef struct _kal_struct{
 /*Variable Area*/
 extern Kal_Struct kal_distance_L;
 extern Kal_Struct kal_distance_R;
+extern Kal_Struct kal_distance_S;
 extern Kal_Struct kal_adc_L;
 extern Kal_Struct kal_adc_R;
+extern Kal_Struct kal_adc_S;
 
 /*Function Area*/
 float KalMan(Kal_Struct *kal,float x);

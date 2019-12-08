@@ -7,25 +7,25 @@ Version：       1.0
 Data:           2019/12/01
 *******************************************************************************/
 #include "motordriver.h"
-#include "configure.h"
-#include "utils.h"
 
-can_msg can_TX_data;
+#define MAX_CHASSIS_MOTOR_SPEED 630
+ 
+void motor_chassis_speed(int s1,int s2,int s3){
+    can_msg can_TX_data[3];
+    Limit(s1,MAX_CHASSIS_MOTOR_SPEED);
+    Limit(s2,MAX_CHASSIS_MOTOR_SPEED);
+    Limit(s3,MAX_CHASSIS_MOTOR_SPEED);
+    
+    //TODO: 可更改选项，三个电机速度用同一个canid发送
 
-void motor_canset3speed(int s1,int s2,int s3)
-{
-    Limit(s1,MAX_MOTOR_SPEED);
-    Limit(s2,MAX_MOTOR_SPEED);
-    Limit(s3,MAX_MOTOR_SPEED);
-    //TODO why
+    can_TX_data[0].in[0] = 1;
+    can_TX_data[1].in[0] = 1;
+    can_TX_data[2].in[0] = 1;
+    can_TX_data[0].in[0] = s1;
+    can_TX_data[1].in[0] = s2;
+    can_TX_data[2].in[0] = s3;
     
-    if(s1 < 0) s1 = MAX_MOTOR_SPEED - s1;
-    if(s2 < 0) s2 = MAX_MOTOR_SPEED - s2;
-    if(s3 < 0) s3 = MAX_MOTOR_SPEED - s3;
-    
-    can_TX_data.ui16[0] = (uint16_t)s1;
-    can_TX_data.ui16[1] = (uint16_t)s2;
-    can_TX_data.ui16[2] = (uint16_t)s3;
-    
-    can_send_msg(send_id.motor0_id, &can_TX_data);
+    can_send_msg(send_id.motor0_id, &can_TX_data[0]);
+    can_send_msg(send_id.motor1_id, &can_TX_data[1]);
+    can_send_msg(send_id.motor2_id, &can_TX_data[2]);
 }

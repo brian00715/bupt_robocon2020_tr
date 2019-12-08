@@ -30,3 +30,41 @@ void reset_PID(PID_Struct *s) {
     s->last_err = 0;
     s->last_d = 0;
 }
+
+
+
+float Angle_Limit_180(float angle){
+ while(angle>180)
+ {
+     angle -= 360;
+ }
+ while(angle<=-180)
+ {
+     angle += 360;
+ }
+ return angle;
+}
+float Angle_Limit_PI(float angle){
+ while(angle > PI)
+ {
+     angle -= 2*PI;
+ }
+ while(angle<=-PI)
+ {
+     angle += 2*PI;
+ }
+ return angle;
+}
+
+/**?????
+ * now ?????
+ * now_in_target ???????????????????????
+ * target ?????
+*/
+void Coordinate_System_Transform(float now[3],float now_in_target[3] , float target[3]){
+  float c = cos(-now_in_target[2]);
+  float s = sin(-now_in_target[2]);
+  target[0] = now[0] * c + now[1]* s - now_in_target[0];
+  target[1] = now[0] *(-s) + now[1]* c - now_in_target[1];
+  target[2] = Angle_Limit_PI( now[2]-now_in_target[2]);
+}

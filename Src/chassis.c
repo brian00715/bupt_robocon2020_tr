@@ -7,8 +7,7 @@ Version：       1.0
 Data:           2019/12/01
 *******************************************************************************/
 #include "chassis.h"
-#include "chassis_handle.h"
-#include "laser.h"
+
 
 Chassis chassis;
 Chassis_Status chassis_status;
@@ -55,6 +54,7 @@ void chassis_init(void)
 /**底盘更新坐标*/
 void chassis_update(void)
 { 
+  //TODO vegadanwei
   chassis.pos_x = chassis.vega_pos_x/1000 + chassis.vega_init_pos_x;    //m
   chassis.pos_y = chassis.vega_pos_y/1000 + chassis.vega_init_pos_y;    //m
   chassis.angle = (chassis.vega_angle / 180.f) * PI + chassis.vega_init_angle;    //弧度
@@ -144,7 +144,7 @@ void chassis_gostraight(int speed , float angle, float turn, int is_handle)
     laser_motor2 = 0;
   }
   //FIXME  角度
-  motor_canset3speed((int)(Chassis_motor0 + turn_output + laser_motor0),
+  motor_chassis_speed((int)(Chassis_motor0 + turn_output + laser_motor0),
                      (int)(Chassis_motor2 + turn_output + laser_motor2),
                      (int)(Chassis_motor1 + turn_output + laser_motor1));
 }
@@ -294,10 +294,10 @@ int chassis_go_track(Point points_pos[],int point_num)
   {
     //TODO 激光laser为偏角
     laser_enable = 1;
-    calculate_laser_angle(laser_L.distance , laser_R.distance);
+    laser_calculate_angle(laser_left.distance , laser_right.distance);
     chassis.vega_init_angle = chassis.laser_angle + points_pos[point_num].target_angle - chassis.angle;//计算偏移角
-    float laser_ypos = (laser_L.distance + laser_R.distance) / 2;
-    chassis.laser_pwm = (int)laser_ypos_correct(0.33, laser_ypos , &laser_ypos_pid);
+    float laser_ypos = (laser_left.distance + laser_right.distance) / 2;
+    chassis.laser_pwm = (int)laser_culculate_y(0.33, laser_ypos , &laser_ypos_pid);
     chassis.laser_pwm_angle = PI;//PI仅测试用
   }
   
@@ -369,7 +369,7 @@ void chassis_exe()
   }
   if(flag.chassis_handle_flag == 1)
   {
-    chassis_handle_control();
+    handle_exe();
   }
 }
 

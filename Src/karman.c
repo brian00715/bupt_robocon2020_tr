@@ -2,19 +2,19 @@
 Copyright:      Bupt
 File name:      karman.c
 Description:    ¿¨¶ûÂüÂË²¨º¯Êý
-Author:         Leo
+Author:         19th
 Version£º       1.0
 Data:           2019/11/24
-History:        ÎÞ
-Bug:            ÎÞ
 *******************************************************************************/
 #include "karman.h"
 
 Kal_Struct kal_distance_L={1,0,0.01,37.1160,0,1};
 Kal_Struct kal_distance_R={1,0,0.01,37.1160,0,1};
+Kal_Struct kal_distance_S={1,0,0.01,37.1160,0,1};
 
 Kal_Struct kal_adc_L={1,0,0.01,37.1160,0,1};
 Kal_Struct kal_adc_R={1,0,0.01,37.1160,0,1};
+Kal_Struct kal_adc_S={1,0,0.01,37.1160,0,1};
 
 
 float KalMan(Kal_Struct *kal,float x){

@@ -5,7 +5,9 @@
         "calculate.h": "c",
         "cmd.h": "c",
         "imitate_spi.h": "c",
-        "stm32f4xx_hal.h": "c"
+        "stm32f4xx_hal.h": "c",
+        "utils.h": "c",
+        "vega.h": "c"
     }
 
 }

@@ -22,14 +22,12 @@ extern "C" {
 #include "utils.h"
 #include "chassis.h"
 
-#define PI 3.1415926535
-#define VEGA_USART huart1
-
 /*Struct Area*/
 typedef struct {
     uint32_t motor0_id;//电机id
     uint32_t motor1_id;
     uint32_t motor2_id;
+    uint32_t lcd_id;
 }Can_id_send;
 
 typedef struct can_id_recive{
@@ -37,16 +35,11 @@ typedef struct can_id_recive{
     uint32_t handle_rocker_id;//手柄摇杆
     uint32_t pos_id;
 }Can_id_recive;
-
-extern Can_id_recive recive_id;
-
-
 /*Function Area*/
 void can_id_init();
-
-
 /*Variable Area*/
 extern Can_id_send send_id;
+extern Can_id_recive recive_id;
 #ifdef __cplusplus
 }
 #endif

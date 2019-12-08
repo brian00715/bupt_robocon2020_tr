@@ -8,18 +8,19 @@ Data:           2019/10/9
 *******************************************************************************/
 #include "configure.h"
 
-
 Can_id_send send_id;
 Can_id_recive recive_id;
 
 void can_id_init()
 {
-    send_id.motor0_id = 400;
-    send_id.motor1_id = 401;
-    send_id.motor2_id = 402;  
+    send_id.motor0_id = 100;
+    send_id.motor1_id = 101;
+    send_id.motor2_id = 102;  
+    send_id.lcd_id = 99;
     
     recive_id.handle_button_id = 325;
-    recive_id.handle_rocker_id = 324;    
+    recive_id.handle_rocker_id = 324; 
+    recive_id.pos_id = 88;    
 }
 
 

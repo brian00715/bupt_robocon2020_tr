@@ -8,10 +8,10 @@
 #include "usart.h"
 #include "can.h"
 #include "simplelib.h"
+#include "configure.h"
+#include "utils.h"
 
-#define MAX_MOTOR_SPEED 630
-
-void motor_canset3speed(int s1,int s2,int s0);
+void motor_chassis_speed(int s1,int s2,int s0);
 
 #ifdef __cplusplus
 }

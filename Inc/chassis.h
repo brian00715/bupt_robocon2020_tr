@@ -22,6 +22,8 @@ extern "C" {
 #include "point.h"
 #include "utils.h"
 #include "laser.h"
+#include "chassis_handle.h"
+
 /*Define Area*/
 
 /*Struct Area*/
@@ -73,6 +75,12 @@ typedef struct
   int run_point;
 } Chassis_Status;
 
+/*Variable Area*/
+extern Chassis chassis;
+extern Chassis_Status chassis_status;
+extern PID_Struct position_y_dir_pid;
+extern float Arrive_distance;
+
 /*Function Area*/
 void chassis_zero();
 void chassis_init(void);
@@ -89,11 +97,6 @@ int  chassis_go_track(struct point points_pos[],int point_num);
 void chassis_exe();
 void chassis_run_point(int trace_count);
 
-/*Variable Area*/
-extern Chassis chassis;
-extern Chassis_Status chassis_status;
-extern PID_Struct position_y_dir_pid;
-extern float Arrive_distance;
 
 #ifdef __cplusplus
 }
