@@ -43,7 +43,7 @@ vec vec_mul_i(vec a, double b)
   a.y *= b;
   return a;
 }
-/**向量法向*/
+/**向量法向顺时针90度*/
 vec vec_normal(vec a)//顺时针90度法向 
 {
   vec tmp;

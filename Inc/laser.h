@@ -51,12 +51,12 @@ extern int laser_enable;
 
 /*Function Area*/
 
-void laser_culculate_kb(LASER *sensor);
+void laser_calculate_kb(LASER *sensor);
 void laser_adc_split(LASER* laser_l,LASER* laser_r,LASER* laser_s);
 
-float laser_culculate_distance(LASER *sensor , Kal_Struct *kal_laser_distance , Kal_Struct *kal_laser_adc);
-float laser_culculate_x(float target ,float laser_pos , PID_Struct *laser_pid);
-float laser_culculate_y(float target ,float laser_pos , PID_Struct *laser_pid);
+float laser_calculate_distance(LASER *sensor , Kal_Struct *kal_laser_distance , Kal_Struct *kal_laser_adc);
+float laser_calculate_x(float target ,float laser_pos , PID_Struct *laser_pid);
+float laser_calculate_y(float target ,float laser_pos , PID_Struct *laser_pid);
 float laser_calculate_angle(float laser_pos_L, float laser_pos_R);
 
 void laser_init();

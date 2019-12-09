@@ -66,6 +66,7 @@ typedef struct
   int go_to_point;                                               
     
   int is_begin;                   //用于给point_num赋值的标志位
+  
   int count;                      //跑点的计数
   int point_num;                  //一段轨迹中的总点数，目前每段轨迹中的点相等
   int trace_count;                //轨迹计数  
@@ -77,25 +78,31 @@ typedef struct
 
 /*Variable Area*/
 extern Chassis chassis;
-extern Chassis_Status chassis_status;
-extern PID_Struct position_y_dir_pid;
-extern float Arrive_distance;
+extern Chassis_Status chassis_status ;
+extern PID_Struct position_y_dir_pid ;
+extern PID_Struct angle_pid ;
+extern float Arrive_distance ;
 
 /*Function Area*/
-void chassis_zero();
-void chassis_init(void);
-void chassis_update(void);
+void chassis_init_status();
 void chassis_init_pos(float x,float y);
+void chassis_init(void);
 
-//Until Functions:
-float chassis_angle_subtract(float a, float b);
-void chassis_gostraight(int speed , float angle, float turn, int is_handle);
-void go_to_point_test(float point_x , float point_y);
-void vector_track_ctrl(vec now, vec target, vec direct, float target_angle);
-void chassis_vector_test();
-int  chassis_go_track(struct point points_pos[],int point_num);
+float chassis_calculate_traceangle(float point_x , float point_y);
+int chassis_calculate_linespeed(float point_x , float point_y , int start_speed , int final_speed , int max_speed);
+
+void chassis_canset_motorspeed(int s1,int s2,int s3);
+void chassis_move(int speed , float direction, float target_angle);
+void chassis_move_vector(vec now_speed_vec, vec target_speed_vec, vec distance_vec, float target_angle);
+int chassis_move_trace(Point points_pos[],int point_num);
+void chassis_move_traces(int trace_rank);
+
+void chassis_goto_point(float point_x , float point_y);
+void chassis_goto_vector(vec target_position);
+
+void chassis_finish_onetrace();
+void chassis_pos_update();
 void chassis_exe();
-void chassis_run_point(int trace_count);
 
 
 #ifdef __cplusplus

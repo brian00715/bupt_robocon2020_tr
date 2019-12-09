@@ -23,7 +23,7 @@ PID_Struct laser_xpos_pid = {700,50,0,0,0,0,0,0.005};
 
 int laser_enable = 0;
 /**激光线性方程参数*/
-void laser_culculate_kb(LASER *sensor){
+void laser_calculate_kb(LASER *sensor){
   sensor->k_param = (sensor->FAR_distance - sensor->NEAR_distance) / (sensor->FAR_voltage - sensor->NEAR_voltage);
   sensor->b_param = sensor->FAR_distance - sensor->k_param * sensor->FAR_voltage;
   uprintf("k is %f and b is %f\r\n", sensor->k_param, sensor->b_param);
@@ -38,7 +38,7 @@ void laser_adc_split(LASER* laser_l,LASER* laser_r,LASER* laser_s){
   }
 }
 /**激光计算距离*/
-float laser_culculate_distance(LASER *sensor , Kal_Struct *kal_laser_distance , Kal_Struct *kal_laser_adc){
+float laser_calculate_distance(LASER *sensor , Kal_Struct *kal_laser_distance , Kal_Struct *kal_laser_adc){
   float sum_up = 0;
   float distance;
   for (int i = 0; i < AVERAGE_AMOUNT; i++){
@@ -53,7 +53,7 @@ float laser_culculate_distance(LASER *sensor , Kal_Struct *kal_laser_distance , 
 }
 //TODO :激光计算x  y  angle 的方式
 /**激光计算x*/
-float laser_culculate_x(float target ,float laser_pos , PID_Struct *laser_pid){
+float laser_calculate_x(float target ,float laser_pos , PID_Struct *laser_pid){
   if(laser_enable != 1){
     return 0;
   }
@@ -67,7 +67,7 @@ float laser_culculate_x(float target ,float laser_pos , PID_Struct *laser_pid){
   return pwm;
 }
 /**激光计算y*/
-float laser_culculate_y(float target ,float laser_pos , PID_Struct *laser_pid){
+float laser_calculate_y(float target ,float laser_pos , PID_Struct *laser_pid){
   if(laser_enable != 1){
     return 0;
   }
@@ -113,11 +113,11 @@ void laser_init(){
   laser_side.FAR_voltage = 2649;
 
   uprintf("Left---");
-  laser_culculate_kb(&laser_left);
+  laser_calculate_kb(&laser_left);
   uprintf("Right---");
-  laser_culculate_kb(&laser_right);
+  laser_calculate_kb(&laser_right);
   uprintf("Side---");
-  laser_culculate_kb(&laser_side);
+  laser_calculate_kb(&laser_side);
   
   if (HAL_ADC_Start_DMA(&hadc1,(uint32_t *)laser_adc, 3*AVERAGE_AMOUNT) != HAL_OK){
     while (1);
@@ -126,13 +126,14 @@ void laser_init(){
 /**激光执行函数: 获取三个激光的距离;计算x y angle*/
 void laser_exe(){
   laser_adc_split(&laser_left,&laser_right,&laser_side);
-  laser_left.distance = laser_culculate_distance(&laser_left , &kal_distance_L , &kal_adc_L);
+  laser_left.distance = laser_calculate_distance(&laser_left , &kal_distance_L , &kal_adc_L);
   //TODO : ERROR_ON_LR有啥用????
-  laser_right.distance = laser_culculate_distance(&laser_right , &kal_distance_R , &kal_adc_R) + ERROR_ON_LR;
-  laser_side.distance = laser_culculate_distance(&laser_side , &kal_distance_S , &kal_adc_S);
+  laser_right.distance = laser_calculate_distance(&laser_right , &kal_distance_R , &kal_adc_R) + ERROR_ON_LR;
+  laser_side.distance = laser_calculate_distance(&laser_side , &kal_distance_S , &kal_adc_S);
 
-  chassis.laser_pos_x = laser_calculate_x(laser_left.distance , laser_right.distance);
-  chassis.laser_pos_y = laser_calculate_y(laser_left.distance , laser_right.distance);
+//TODO :下面三个函数待修改
+  // chassis.laser_pos_x = laser_calculate_x(laser_left.distance , laser_right.distance,);
+  // chassis.laser_pos_y = laser_calculate_y(laser_left.distance , laser_right.distance);
   chassis.laser_angle = laser_calculate_angle(laser_left.distance , laser_right.distance);
 }
 /**激光打印三个距离*/

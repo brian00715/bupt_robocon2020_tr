@@ -282,7 +282,8 @@ void usart_exc_DMA_vega()
                     chassis.vega_angle = posture.ActVal[0];
                     chassis.vega_pos_x = posture.ActVal[3];
                     chassis.vega_pos_y = posture.ActVal[4];
-                    chassis_update();
+                    //TODO posupdate会随dma进行
+                    chassis_pos_update();
                     DMA_RxOK_Flag_vega = 0;
                     memset(DMAUSART_RX_BUF_vega,0,98);
                     return;

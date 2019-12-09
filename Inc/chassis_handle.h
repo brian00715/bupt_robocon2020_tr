@@ -26,9 +26,9 @@ typedef struct{
   int handle_max_speed;
   int mode;
   int btstate[10];
-}CHASSIS_HANDLE;
+}Chassis_Handle;
 /*Variable Area*/
-extern CHASSIS_HANDLE ChassisHandle;
+extern Chassis_Handle chassis_handle;
 
 /*Function Area*/
 void handle_button(can_msg *data);

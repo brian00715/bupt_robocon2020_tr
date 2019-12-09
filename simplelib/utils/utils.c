@@ -32,7 +32,6 @@ void reset_PID(PID_Struct *s) {
 }
 
 
-
 float Angle_Limit_180(float angle){
  while(angle>180)
  {
@@ -55,6 +54,30 @@ float Angle_Limit_PI(float angle){
  }
  return angle;
 }
+
+/**??????*/
+float Angle_Subtract(float a, float b)
+{
+  float out = a - b; 
+  return Angle_Limit_PI(out);
+}
+//TODO :??
+float Angle_Between_Points(float start_x, float start_y , float end_x , float end_y)
+{
+    float angle=0;
+  if(start_x == end_x){
+    if(start_y < end_y)
+    angle=PI/2;
+    if(start_y = end_y)
+    angle=0;
+    if(start_y > end_y)
+    angle=-PI/2;
+  } 
+  else{
+  angle=atan2f( end_y-start_y , end_x-start_x );}
+  return angle;
+}
+
 
 /**?????
  * now ?????

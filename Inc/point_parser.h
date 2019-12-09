@@ -25,6 +25,7 @@ typedef struct{
   char name[16];
   int rank;
 }PointContainer;
+
 extern PointContainer pContainer[];
 
 PointContainer* GetTargetTarck(char tName[]);
