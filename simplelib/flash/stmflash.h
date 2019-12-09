@@ -11,7 +11,6 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_flash.h"
 #include "usart.h"
-//////////////////////////////////////////////////////////////////////////////////	 
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //ALIENTEK STM32F429开发板
 //STM32内部FLASH读写 驱动代码	   
@@ -55,7 +54,6 @@ void Test_Write(u32 WriteAddr,u32 WriteData);
 
 #include "stm32f0xx_hal.h"
 #include "stm32f0xx_hal_flash.h"
-//TODO??bug
 #define STM32_FLASH_BASE					0x08000000 // STM32F07xB FLASH 地址
 #define FLASH_SAVE_ADDR                     0x08010000 // FLASH 内容保存
 

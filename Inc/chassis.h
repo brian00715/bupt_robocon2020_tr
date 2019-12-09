@@ -18,10 +18,10 @@ extern "C" {
 #include "stm32f4xx_hal.h"
 #include "main.h"
 #include "vec.h"
-#include "motordriver.h"
 #include "point.h"
 #include "utils.h"
 #include "laser.h"
+#include "configure.h"
 #include "chassis_handle.h"
 
 /*Define Area*/
