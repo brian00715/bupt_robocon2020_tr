@@ -1196,27 +1196,30 @@
         <group>
             <name>User</name>
             <group>
+                <name>Driver</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\laser.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\lcd.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\robomaster.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\vega.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\vesc_can.c</name>
+                </file>
+            </group>
+            <group>
                 <name>Movement</name>
                 <file>
                     <name>$PROJ_DIR$\..\Src\chassis.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\chassis_handle.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\configure.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\karman.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\laser.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\robomaster.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\vec.c</name>
                 </file>
             </group>
             <group>
@@ -1226,12 +1229,6 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\point_parser.c</name>
-                </file>
-            </group>
-            <group>
-                <name>Sensor</name>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\vega.c</name>
                 </file>
             </group>
             <group>
@@ -1295,6 +1292,18 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\usart.c</name>
+                </file>
+            </group>
+            <group>
+                <name>Tool</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\configure.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\karman.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\vec.c</name>
                 </file>
             </group>
         </group>

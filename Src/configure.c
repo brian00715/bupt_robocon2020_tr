@@ -24,4 +24,8 @@ void can_id_init()
     recive_id.pos_id = 88;    //自己的全场定位
 }
 
+void time_exe(){
+    
+}
+
 

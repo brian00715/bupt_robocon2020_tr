@@ -33,11 +33,13 @@
 #include "chassis.h"
 #include "laser.h"
 #include "configure.h"
+#include "lcd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+Clock clock={0};
+void clock_exe();
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -64,12 +66,15 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 Flag flag={
-  0,  //main_run_flag
+  0,  //main_flag
   0,  //chassis_control_flag
   0,  //chassis_handle_flag
   0,  //chassis_auto_flag
-  0   //chassis_laser_flag
+  0,  //chassis_laser_flag
+  0,   //lcd_flag
+  0    //clock_1s_flag
 };
+
 /* USER CODE END 0 */
 
 /**
@@ -116,7 +121,11 @@ int main(void)
   can_id_init();
   chassis_init();
   laser_init();
-  flag.main_run_flag=1;
+  lcd_init();
+  flag.main_flag=1;
+
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -124,6 +133,9 @@ int main(void)
   while (1)
   {
     simplelib_run();
+    clock_exe();
+    lcd_exe();
+
     
     /* USER CODE END WHILE */
 
@@ -180,36 +192,49 @@ void SystemClock_Config(void)
 void inc(void)
 {
 static int time_1ms_cnt = 0;
-if(flag.main_run_flag == 1) {
+if(flag.main_flag == 1) {
   time_1ms_cnt++;  
-  //vega
-  if(time_1ms_cnt % 15000 == 0 && chassis_status.vega_is_ready == 0) {
-    chassis_status.vega_is_ready = 1;
-    HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-    uprintf("Vega init done!!!\r\n");
-  }
   //1000ms  
   if(time_1ms_cnt % 1000 == 0) {
-    
+    flag.clock_1s_flag = 1;
   }
   //500ms  
   if(time_1ms_cnt % 500 == 0) {
     HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin); //led闪烁
   }
-  //50ms
-  if(time_1ms_cnt % 50 == 0) {
-    
+  //20ms
+  if(time_1ms_cnt % 20 == 0) {
+    flag.lcd_flag = 1;
   }
   //5ms      
   if(time_1ms_cnt % 5 == 0)  {
     if(chassis_status.vega_is_ready == 1){flag.chassis_control_flag = 1;}
   }
 
+
+
+  //vega
+  if(time_1ms_cnt % 15000 == 0 && chassis_status.vega_is_ready == 0) {
+    chassis_status.vega_is_ready = 1;
+    HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+    uprintf("Vega init done!!!\r\n");
+  }
   if(time_1ms_cnt >= 60000){
       time_1ms_cnt = 0;
   }
 }
 }
+
+
+void clock_exe(){
+  if(flag.clock_1s_flag==1){
+    clock.sec++;
+    clock.min += clock.sec/60;
+    clock.sec %= 60;
+    flag.clock_1s_flag = 0;
+  }  
+}
+
 
 /* USER CODE END 4 */
 

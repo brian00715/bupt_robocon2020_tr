@@ -15,18 +15,18 @@ Data:           2019/11/24
 int trackTotalNum = 12;
   
 PointContainer pContainer[]={
-    TrackAdd(points_pos0,POINTS_NUM,"CATCH_1",1),
-    TrackAdd(points_pos0,POINTS_NUM,"TOUCHDOWN_1",2),
-    TrackAdd(points_pos0,POINTS_NUM,"KICK_1",3),
-    TrackAdd(points_pos0,POINTS_NUM,"CATCH_2",4),
-    TrackAdd(points_pos0,POINTS_NUM,"TOUCHDOWN_2",5),
-    TrackAdd(points_pos0,POINTS_NUM,"TOUCHDOWN_3",6),
-    TrackAdd(points_pos0,POINTS_NUM,"TOUCHDOWN_4",7),
-    TrackAdd(points_pos0,POINTS_NUM,"KICK_2",8),
-    TrackAdd(points_pos0,POINTS_NUM,"KICK_3",9),
-    TrackAdd(points_pos0,POINTS_NUM,"KICK_4",10),
-    TrackAdd(points_pos0,POINTS_NUM,"CATCH_5",11),
-    TrackAdd(points_pos0,POINTS_NUM,"KICK_5",12)
+    TrackAdd(points_pos1,POINTS_NUM,"CATCH_1",1),
+    TrackAdd(points_pos2,POINTS_NUM,"TOUCHDOWN_1",2),
+    TrackAdd(points_pos3,POINTS_NUM,"KICK_1",3),
+    TrackAdd(points_pos4,POINTS_NUM,"CATCH_2",4),
+    TrackAdd(points_pos5,POINTS_NUM,"TOUCHDOWN_2",5),
+    TrackAdd(points_pos6,POINTS_NUM,"TOUCHDOWN_3",6),
+    TrackAdd(points_pos7,POINTS_NUM,"TOUCHDOWN_4",7),
+    TrackAdd(points_pos8,POINTS_NUM,"KICK_2",8),
+    TrackAdd(points_pos9,POINTS_NUM,"KICK_3",9),
+    TrackAdd(points_pos10,POINTS_NUM,"KICK_4",10),
+    TrackAdd(points_pos11,POINTS_NUM,"CATCH_5",11),
+    TrackAdd(points_pos12,POINTS_NUM,"KICK_5",12)
 };
 
 PointContainer* GetTargetTarck(char tName[]){

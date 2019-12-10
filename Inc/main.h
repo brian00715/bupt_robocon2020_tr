@@ -80,13 +80,21 @@ void Error_Handler(void);
 #define YBP1_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
 typedef struct{
-  int main_run_flag;
+  uint8_t min;
+  uint8_t sec;
+}Clock;
+extern Clock clock;
+typedef struct{
+  int main_flag;
   int chassis_control_flag;
   int chassis_handle_flag;
   int chassis_auto_flag;
   int chassis_laser_flag;
+  int lcd_flag;
+  int clock_1s_flag;
 }Flag;
 extern Flag flag;
+
 
 
 void inc(void);

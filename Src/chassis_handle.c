@@ -12,7 +12,7 @@ PID_Struct handle_angle_pid = {1,0,0,0,0,5000,0,0.005};//手柄偏高角控制
 
 void handle_button(can_msg *data)
 {
-  if(0 == flag.main_run_flag) return;
+  if(0 == flag.main_flag) return;
  
  //TODO手柄按键功能
  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));
@@ -47,7 +47,7 @@ default:break;
 
 void handle_rocker(can_msg *data)
 {
-  if(0 == flag.main_run_flag || flag.chassis_handle_flag == 0) return;
+  if(0 == flag.main_flag || flag.chassis_handle_flag == 0) return;
   
   //TODO :手柄摇杆零偏
   //常数修改零偏
@@ -63,7 +63,7 @@ void handle_rocker(can_msg *data)
 //TODO handle_button 在哪里使用参数can_msg来源 手柄发送问题
 void handle_exe()
 {
-  if(0 == flag.main_run_flag || flag.chassis_handle_flag == 0) return;
+  if(0 == flag.main_flag || flag.chassis_handle_flag == 0) return;
   
   chassis.fangle = atan2(chassis_handle.ly, chassis_handle.lx);
   //TODO 为手柄控制加入pid
