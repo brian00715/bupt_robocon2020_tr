@@ -301,7 +301,7 @@ void CAN1_RX0_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-// 添加的代�??
+// 添加的代�???
    if(__HAL_UART_GET_FLAG(&CMD_USART, UART_FLAG_IDLE) != RESET){
      HAL_UART_IDLECallback(&CMD_USART);
      return ;
@@ -319,7 +319,7 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-// 添加的代�??
+// 添加的代�???
    if(__HAL_UART_GET_FLAG(&VEGA_USART, UART_FLAG_IDLE) != RESET){
      HAL_UART_IDLECallback(&VEGA_USART);
      return ;
@@ -337,7 +337,7 @@ void USART2_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-  // 添加的代�??
+  // 添加的代�???
    if(__HAL_UART_GET_FLAG(&CMD_USART, UART_FLAG_IDLE) != RESET){
      HAL_UART_IDLECallback(&CMD_USART);
      return ;
@@ -369,7 +369,7 @@ void DMA1_Stream7_IRQHandler(void)
 void UART5_IRQHandler(void)
 {
   /* USER CODE BEGIN UART5_IRQn 0 */
-// 添加的代�?
+// 添加的代�??
    if(__HAL_UART_GET_FLAG(&VEGA_USART, UART_FLAG_IDLE) != RESET){
      HAL_UART_IDLECallback(&VEGA_USART);
      return ;

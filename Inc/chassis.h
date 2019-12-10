@@ -16,13 +16,11 @@ extern "C" {
 #include <math.h>
 #include "simplelib.h"
 #include "stm32f4xx_hal.h"
-#include "main.h"
+
 #include "vec.h"
-#include "point.h"
-#include "utils.h"
-#include "laser.h"
 #include "configure.h"
-#include "chassis_handle.h"
+#include "utils.h"
+#include "point.h"
 
 /*Define Area*/
 
@@ -50,9 +48,7 @@ typedef struct
   float laser_pos_x;        //laser
   float laser_pos_y;
   float laser_angle;
-  //TODO laser控制需定义一个pidstruct
-  int laser_pwm;           //laser control pid
-  float laser_pwm_angle;
+
   
   int fspeed;
   float fangle;

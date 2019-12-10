@@ -47,7 +47,6 @@ extern LASER_ADC laser_adc[AVERAGE_AMOUNT];
 extern PID_Struct laser_ypos_pid;
 extern PID_Struct laser_xpos_pid;
 
-extern int laser_enable;
 
 /*Function Area*/
 
@@ -55,9 +54,9 @@ void laser_calculate_kb(LASER *sensor);
 void laser_adc_split(LASER* laser_l,LASER* laser_r,LASER* laser_s);
 
 float laser_calculate_distance(LASER *sensor , Kal_Struct *kal_laser_distance , Kal_Struct *kal_laser_adc);
-float laser_calculate_x(float target ,float laser_pos , PID_Struct *laser_pid);
-float laser_calculate_y(float target ,float laser_pos , PID_Struct *laser_pid);
-float laser_calculate_angle(float laser_pos_L, float laser_pos_R);
+float laser_calculate_x();
+float laser_calculate_y();
+float laser_calculate_angle();
 
 void laser_init();
 void laser_exe();

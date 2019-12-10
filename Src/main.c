@@ -67,7 +67,8 @@ Flag flag={
   0,  //main_run_flag
   0,  //chassis_control_flag
   0,  //chassis_handle_flag
-  0   //chassis_automate_flag
+  0,  //chassis_auto_flag
+  0   //chassis_laser_flag
 };
 /* USER CODE END 0 */
 
@@ -123,6 +124,7 @@ int main(void)
   while (1)
   {
     simplelib_run();
+    
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -178,29 +180,34 @@ void SystemClock_Config(void)
 void inc(void)
 {
 static int time_1ms_cnt = 0;
-if(flag.main_run_flag == 1) {  
-
+if(flag.main_run_flag == 1) {
   time_1ms_cnt++;  
+  //vega
+  if(time_1ms_cnt % 15000 == 0 && chassis_status.vega_is_ready == 0) {
+    chassis_status.vega_is_ready = 1;
+    HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+    uprintf("Vega init done!!!\r\n");
+  }
+  //1000ms  
+  if(time_1ms_cnt % 1000 == 0) {
+    
+  }
+  //500ms  
   if(time_1ms_cnt % 500 == 0) {
-      HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin); //led闪烁
-//      if(chassis_status.vega_is_ready == 0){
-//        HAL_GPIO_TogglePin(LED2_GPIO_Port,LED2_Pin);} //vegaled闪烁
-    }
-  if(time_1ms_cnt % 12000 == 0 && chassis_status.vega_is_ready == 0) {
-        chassis_status.vega_is_ready = 1;
-//         HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-        uprintf("Vega init done!!!\r\n");
-    }
-        
-  if(chassis_status.vega_is_ready == 1 && time_1ms_cnt % 5 == 0)  {
-    flag.chassis_control_flag = 1;
-  }   
-
-  if(time_1ms_cnt >= 60000)
-  {
-      time_1ms_cnt = 0;
+    HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin); //led闪烁
+  }
+  //50ms
+  if(time_1ms_cnt % 50 == 0) {
+    
+  }
+  //5ms      
+  if(time_1ms_cnt % 5 == 0)  {
+    if(chassis_status.vega_is_ready == 1){flag.chassis_control_flag = 1;}
   }
 
+  if(time_1ms_cnt >= 60000){
+      time_1ms_cnt = 0;
+  }
 }
 }
 

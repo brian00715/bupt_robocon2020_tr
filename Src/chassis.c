@@ -7,6 +7,10 @@ Version：       1.0
 Data:           2019/12/09
 *******************************************************************************/
 #include "chassis.h"
+#include "chassis_handle.h"
+#include "laser.h"
+#include "point_parser.h"
+
 
 #define MAX_CHASSIS_MOTOR_SPEED 630           //! chassis_canset_motorspeed中对电机速度限幅
 #define MAX_CHASSIS_ANGLE_SPEED 350                 //! chassis_move中对自转速度做限幅
@@ -19,7 +23,7 @@ PID_Struct angle_pid = {-1000,0,0,0,0,5000,0,0.005};//偏高角控制
 
 float Arrive_distance = 0.005;
 
-//TODO 使用坐标解算  角度
+//TODO  角度
 float ERR_angle_m2 = -PI/3 , ERR_angle_m1 = -PI/3 + 1*2*PI/3 , ERR_angle_m0 = -PI/3 + 2*2*PI/3; //三轮与全场定位模块安装偏角
 /*****************************初始化*************************/
 
@@ -32,9 +36,7 @@ void chassis_init_status(){
   chassis_status.run_point_test = 0;
   chassis_status.vega_is_ready = 0;       //初始化前不ready
   chassis_status.is_begin = 1;
-  
-  //TODO chassis初始化的controlflag
-  flag.chassis_control_flag = 0;//五毫秒跑一次
+  flag.chassis_control_flag = 0;//控制周期5ms
 }
 /**底盘位置初始化*/
 void chassis_init_pos(float x,float y){
@@ -51,6 +53,7 @@ void chassis_init_pos(float x,float y){
 void chassis_init(void){
   chassis_init_pos(points_pos0[0].x , points_pos0[0].y);
   chassis_init_status();
+  point_print_path(); //轨迹排序打印
 }
 /****************************计算**************************/
 
@@ -73,8 +76,6 @@ void chassis_canset_motorspeed(int s1,int s2,int s3){
     Limit(s1,MAX_CHASSIS_MOTOR_SPEED);
     Limit(s2,MAX_CHASSIS_MOTOR_SPEED);
     Limit(s3,MAX_CHASSIS_MOTOR_SPEED);
-    
-    //TODO: 可更改选项，三个电机速度用同一个canid发送
 
     can_TX_data[0].in[0] = 1;
     can_TX_data[1].in[0] = 1;
@@ -95,7 +96,6 @@ void chassis_move(int speed , float direction, float target_angle){
   float speed_out_2 = -(speed*cos((ERR_angle_m2 + chassis.angle) - direction));  
   float angle_output = 0;
 
-  //TODO： 手柄角度pid不同，若后期加入手柄可通过flag.handle来
   angle_output = PID_Release(&angle_pid, target_angle, chassis.angle);
   Limit(angle_output,MAX_CHASSIS_ANGLE_SPEED);
 
@@ -181,63 +181,8 @@ int chassis_move_trace(Point points_pos[],int point_num){
   return 0;
 }
 /**底盘顶层驱动(跑全场轨迹)*/
-void chassis_move_traces(int trace_rank){
-  //TODO 待修改
-  if(chassis_status.run_point == 0) return;
-  
-  switch(trace_rank)
-  {
-  case 0:
-    if( chassis_move_trace(points_pos0,123) == 1)
-    {
-    }
-    break;
-  case 1:
-    if( chassis_move_trace(points_pos1,123) == 1)
-    {
-    }
-    break;
-  case 2:
-    if( chassis_move_trace(points_pos2,123) == 1)
-    {
-    }
-    break;
-  case 3:
-    if( chassis_move_trace(points_pos3,123) == 1)
-    {
-    }
-    break;
-  case 4:
-    if( chassis_move_trace(points_pos4,123) == 1)
-    {
-    }
-    break;
-  case 5:
-    if( chassis_move_trace(points_pos5,123) == 1)
-    {
-    }
-    break;
-  case 6:
-    if( chassis_move_trace(points_pos6,123) == 1)
-    {
-    }
-    break;
-  case 7:
-    if( chassis_move_trace(points_pos7,123) == 1)
-    {
-    }
-    break;
-  case 8:
-    if( chassis_move_trace(points_pos8,123) == 1)
-    {
-    }
-    break;
-  case 9:
-    if( chassis_move_trace(points_pos9,123) == 1)
-    {
-    }
-    break;
-  }
+void chassis_move_traces(int trace_num){
+
 }
 /****************************测试**************************/
 
@@ -274,15 +219,14 @@ void chassis_finish_onetrace(){
   chassis_status.count = 0;
   chassis.fspeed = 0;
   chassis_status.is_begin = 1;//开始下一段时使用
-  laser_enable = 0;
+  flag.chassis_laser_flag = 0;
   chassis_status.trace_count = (chassis_status.trace_count + 1);
   //chassis_status.trace_count = chassis_status.trace_count + 1;//开始下一段
 }
 /**底盘更新坐标*/
 void chassis_pos_update(){ 
-  //TODO vega单位
-  chassis.pos_x = chassis.vega_pos_x/1000 + chassis.vega_init_pos_x;    //m
-  chassis.pos_y = chassis.vega_pos_y/1000 + chassis.vega_init_pos_y;    //m
+  chassis.pos_x = chassis.vega_pos_x + chassis.vega_init_pos_x;    //m
+  chassis.pos_y = chassis.vega_pos_y + chassis.vega_init_pos_y;    //m
   chassis.angle = (chassis.vega_angle / 180.f) * PI + chassis.vega_init_angle;    //弧度
 
   chassis.speed_x = (chassis.pos_x - chassis.last_pos_x) / 0.005;    //m/s
@@ -297,10 +241,10 @@ void chassis_pos_update(){
 /**执行函数*/
 void chassis_exe(){
   chassis_pos_update();
-  if(flag.chassis_automate_flag == 1 && flag.chassis_handle_flag == 0){
+  if(flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0){
     //chassis_move_traces(chassis_status.trace_count);
   }
-  if(flag.chassis_handle_flag == 1 & &flag.chassis_automate_flag == 0){
+  if(flag.chassis_handle_flag == 1 & &flag.chassis_auto_flag == 0){
     handle_exe();
   }
 }

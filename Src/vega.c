@@ -27,8 +27,7 @@ void vega_reset(){
   uprintf("send vega reset message\r\n");
 }
 
-//TODO: 全场定位解算到底盘中心
-//TODO: 需要修改vega(vega's data),vega_position(vega 位置)
+//TODO:全场定位的坐标系变换---数据：上电时刻东大全场定位到坐标原点pos;东大全场定位坐标系定位点 pos
 float vega_position[3]={-1,1,PI/4};
 /**vega相对坐标原点位置设置*/
 void vega_set_position(float Dx ,float Dy ,float Dangle ){

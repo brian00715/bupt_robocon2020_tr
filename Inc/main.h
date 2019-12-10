@@ -83,7 +83,8 @@ typedef struct{
   int main_run_flag;
   int chassis_control_flag;
   int chassis_handle_flag;
-  int chassis_automate_flag;
+  int chassis_auto_flag;
+  int chassis_laser_flag;
 }Flag;
 extern Flag flag;
 

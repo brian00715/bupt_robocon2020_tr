@@ -16,11 +16,12 @@ void can_id_init()
     send_id.motor0_id = 100;
     send_id.motor1_id = 101;
     send_id.motor2_id = 102;  
-    send_id.lcd_id = 99;
+    send_id.lcd_id = 1;
     
     recive_id.handle_button_id = 325;
-    recive_id.handle_rocker_id = 324; 
-    recive_id.pos_id = 88;    
+    recive_id.handle_rocker_id = 324;
+    recive_id.lcd_id = 2;
+    recive_id.pos_id = 88;    //自己的全场定位
 }
 
 

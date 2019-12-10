@@ -14,31 +14,34 @@ void handle_button(can_msg *data)
 {
   if(0 == flag.main_run_flag) return;
  
- //TODO手柄接收格式???按键功能
+ //TODO手柄按键功能
  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));
- switch(id)
- {
- case 0:
-   flag.chassis_handle_flag = 1;
-   flag.chassis_automate_flag = 0;
-   chassis_status.count = 0;
-   chassis_status.run_point = 0;
-   //!可设置手柄最大速度
-   chassis_handle.handle_max_speed = 600;
-   uprintf("run:%d,go_to:%d,count:%d,trace:%d,handle:%d,auto:%d,is_begin:%d,handlemode:%d\r\n",
-        chassis_status.run_point,chassis_status.go_to_point,chassis_status.count,chassis_status.trace_count,
-        flag.chassis_handle_flag,flag.chassis_automate_flag,chassis_status.is_begin,chassis_handle.mode);
-   break;
- case 8:
-   flag.chassis_handle_flag = 0;
-   flag.chassis_automate_flag = 1;
-   break;
- case 2:
-   chassis_handle.mode = (chassis_handle.mode + 1) % 4;
-   break;
- case 6:
-   chassis_status.run_point = 1;
-   break;
+ switch(id){
+case 0:
+  flag.chassis_handle_flag = 1;
+  flag.chassis_auto_flag = 0;
+  break;
+case 1:
+  flag.chassis_handle_flag = 0;
+  flag.chassis_auto_flag = 1;
+  break;
+case 2:
+  break;
+case 3:
+  break;
+case 4:
+  break;
+case 5:
+  break;
+case 6:
+  break;
+case 7:
+  break;
+case 8:
+  break;
+case 9:
+  break;
+default:break;
  }
 }
 
@@ -57,7 +60,7 @@ void handle_rocker(can_msg *data)
   chassis_handle.rx *= -1;
   chassis_handle.lx *= -1;
 }
-
+//TODO handle_button 在哪里使用参数can_msg来源 手柄发送问题
 void handle_exe()
 {
   if(0 == flag.main_run_flag || flag.chassis_handle_flag == 0) return;
