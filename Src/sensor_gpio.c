@@ -1,12 +1,13 @@
 #include"main.h"
-int key_state=0;
+#include"sensor_gpio.h"
+int microswitch_state=0;
 int infrared_state=0;
 int magnet_state=0;
 int cylinder_state=0;
 
-int gpio_microkey(){
+int gpio_microswitch(){
     int state = (int) HAL_GPIO_ReadPin(M_KEY1_GPIO_Port,M_KEY1_Pin);    
-    //uprintf("Key state is %d\r\n",state);
+    //uprintf("Key switch is %d\r\n",state);
     return state;
 }
 int gpio_infrared(){
@@ -32,12 +33,10 @@ void gpio_cylinder(int pinstate){
 }
 
 void gpio_sensor_exe(){
-
-    key_state=gpio_microkey();//微动开关
+    microswitch_state=gpio_microswitch();//微动开关
     infrared_state=gpio_infrared();//红外对管
 
     gpio_magnet(magnet_state);//电磁铁
     gpio_cylinder(cylinder_state);//气缸
-
 }
 

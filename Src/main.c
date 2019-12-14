@@ -34,6 +34,10 @@
 #include "laser.h"
 #include "configure.h"
 #include "lcd.h"
+#include "robomaster.h"
+#include"sensor_gpio.h"
+#include"kickball.h"
+#include"touchdown.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -72,6 +76,7 @@ Flag flag={
   0,  //chassis_auto_flag
   0,  //chassis_laser_flag
   0,   //lcd_flag
+  0,   //m2006_flag
   0    //clock_1s_flag
 };
 
@@ -124,6 +129,8 @@ int main(void)
   lcd_init();
   flag.main_flag=1;
 
+ 
+
 
 
   /* USER CODE END 2 */
@@ -133,9 +140,12 @@ int main(void)
   while (1)
   {
     simplelib_run();
-    clock_exe();
-    lcd_exe();
-    gpio_sensor_exe();    
+
+    clock_exe();        //时钟
+    lcd_exe();          //lcd消息发送
+    gpio_sensor_exe();  //IO口外部设备
+    m2006_exe();        //大疆电机
+    kickball_exe();     //踢球系统
     
     /* USER CODE END WHILE */
 
@@ -209,6 +219,7 @@ if(flag.main_flag == 1) {
   //5ms      
   if(time_1ms_cnt % 5 == 0)  {
     if(chassis_status.vega_is_ready == 1){flag.chassis_control_flag = 1;}
+    flag.m2006_flag = 1;
   }
 
 

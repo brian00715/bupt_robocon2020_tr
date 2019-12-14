@@ -93,6 +93,7 @@ typedef struct{
   int chassis_auto_flag;
   int chassis_laser_flag;
   int lcd_flag;
+  int m2006_flag;
   int clock_1s_flag;
 }Flag;
 extern Flag flag;

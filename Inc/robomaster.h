@@ -48,6 +48,13 @@ float robomaster_speed_pid_control(int id);
 void robomaster_set_current(int16_t iq1, int16_t iq2, int16_t iq3, int16_t iq4);
 void M3508_init(int id);
 void M2006_init(int id);
+
+
+void m2006_exe();
+extern float door_current;
+extern float kick_current;
+
+
 #ifdef __cplusplus
 }
 #endif

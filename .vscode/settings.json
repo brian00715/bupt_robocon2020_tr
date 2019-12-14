@@ -8,6 +8,7 @@
         "stm32f4xx_hal.h": "c",
         "utils.h": "c",
         "vega.h": "c"
-    }
+    },
+    "cmake.configureOnOpen": false
 
 }

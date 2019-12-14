@@ -1053,6 +1053,9 @@
             <group>
                 <name>Driver</name>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\kickball.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\laser.c</name>
                 </file>
                 <file>

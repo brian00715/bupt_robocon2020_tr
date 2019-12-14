@@ -8,7 +8,8 @@
 #include "laser.h"
 #include "point_parser.h"
 #include "sensor_gpio.h"
-
+#include "robomaster.h"
+#include "kickball.h"
 
 void cmd_hello(int argc, char *argv[]) {    
     uprintf("Hello!\r\n");
@@ -51,12 +52,48 @@ void cmd_gpio_cylinder(int argc, char *argv[]){
     cylinder_state=atoi(argv[1]);
     uprintf("Cylinder state is %d\r\n",atoi(argv[1]));
 }
-void cmd_gpio_key(int argc, char *argv[]){
-    uprintf("Key state is %d\r\n",key_state);
+void cmd_gpio_microswitch(int argc, char *argv[]){
+    uprintf("Key state is %d\r\n",microswitch_state);
 }
 void cmd_gpio_infrared(int argc, char *argv[]){
     uprintf("Infrared state is %d\r\n",infrared_state);
 }
+//kickball
+void cmd_kickball_m2006(int argc, char *argv[]){
+    kickball_m2006_current=atof(argv[1]);
+    uprintf("M2006 work current set to %f A\r\n",kickball_m2006_current);
+}
+void cmd_kickball_vesc_pull(int argc, char *argv[]){
+    if(atof(argv[1])<0){
+        uprintf("VESC pull current should > 0\r\n");
+        return;
+    }
+    kickball_vesc_pull_current=atof(argv[1]);
+    uprintf("VESC pull current set to %f A\r\n",kickball_vesc_pull_current);
+}
+void cmd_kickball_vesc_lossen(int argc, char *argv[]){
+    if(atof(argv[1])>0){
+        uprintf("VESC lossen current should < 0\r\n");
+        return;
+    }
+    kickball_vesc_lossen_current=atof(argv[1]);
+    uprintf("VESC lossen current set to %f A\r\n",kickball_vesc_lossen_current);
+}
+
+void cmd_kickball_start(int argc, char *argv[]){
+    kickball_set_status(KICKBALL_MAGNET_TO_BOARD);
+    uprintf("Kickball start!\r\nManget is going up\r\n");
+}
+void cmd_kickball_ready(int argc, char *argv[]){
+    kickball_set_status(KICKBALL_BOARD_TO_DOWN);
+    uprintf("Magnet is down!\r\nReady to kick\r\n");
+}
+void cmd_kickball_kick(int argc, char *argv[]){
+    kickball_set_status(KICKBALL_KICK);
+    uprintf("Magnet is down!\r\nReady to kick\r\n");
+}
+
+
 
 
 void cmd_func_init(void) {
@@ -73,8 +110,15 @@ void cmd_func_init(void) {
     //point
     cmd_add("point_print_path", "print laser x y angle",cmd_point_print_path);\
     //gpio
-    cmd_add("gpio_magnet", "correct vega x y angle",cmd_gpio_magnet);
-    cmd_add("gpio_cylinder", "set vega position compared to coordinate systemx y angle",cmd_gpio_cylinder);
-    cmd_add("gpio_key", "reset vega",cmd_gpio_key);
-    cmd_add("gpio_infrared", "calibrate vega",cmd_gpio_infrared);
+    cmd_add("gpio_magnet", "",cmd_gpio_magnet);
+    cmd_add("gpio_cylinder", "",cmd_gpio_cylinder);
+    cmd_add("gpio_microswitch", "",cmd_gpio_microswitch);
+    cmd_add("gpio_infrared", "",cmd_gpio_infrared);
+    //kickball
+    cmd_add("kickball_m2006", "",cmd_kickball_m2006);
+    cmd_add("kickball_vesc_pull", "",cmd_kickball_vesc_pull);
+    cmd_add("kickball_vesc_lossen", "",cmd_kickball_vesc_lossen);
+    cmd_add("kickball_start", "",cmd_kickball_start);
+    cmd_add("kickball_ready", "",cmd_kickball_ready);
+    cmd_add("kickball_kick", "",cmd_kickball_kick);
 }

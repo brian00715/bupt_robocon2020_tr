@@ -1,5 +1,6 @@
 #include "robomaster.h"
 #include "can_utils.h"
+#include "main.h"
 
 RoboMaster robomaster[4];
 int M2006_speed[4] = {0};
@@ -140,4 +141,16 @@ void M3508_init(int id)
   Robomaster_Position_PID[id].KD = 0.8;
   Robomaster_Position_PID[id].i_max = 5000;
   Robomaster_Position_PID[id].I_TIME = 0.005;
+}
+
+
+/***/
+float door_current=0;
+float kick_current=0;
+void m2006_exe(){
+  if(flag.m2006_flag == 0) return;
+  int16_t door_I = (int16_t)(door_current*1000) ;
+  int16_t tick_I = (int16_t)(door_current*1000) ;
+  robomaster_set_current(door_I,tick_I,0,0);
+  flag.m2006_flag = 0;
 }
