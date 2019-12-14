@@ -62,22 +62,24 @@ void Error_Handler(void);
 #define KEY1_GPIO_Port GPIOE
 #define KEY2_Pin GPIO_PIN_3
 #define KEY2_GPIO_Port GPIOE
-#define YBP2_Pin GPIO_PIN_6
-#define YBP2_GPIO_Port GPIOF
+#define DCT_Pin GPIO_PIN_6
+#define DCT_GPIO_Port GPIOF
 #define LED1_Pin GPIO_PIN_0
 #define LED1_GPIO_Port GPIOA
-#define YBP3_Pin GPIO_PIN_3
-#define YBP3_GPIO_Port GPIOA
+#define QG_Pin GPIO_PIN_3
+#define QG_GPIO_Port GPIOA
 #define LED2_Pin GPIO_PIN_4
 #define LED2_GPIO_Port GPIOA
 #define LED3_Pin GPIO_PIN_5
 #define LED3_GPIO_Port GPIOA
-#define YBP5_Pin GPIO_PIN_8
-#define YBP5_GPIO_Port GPIOB
-#define YBP4_Pin GPIO_PIN_9
-#define YBP4_GPIO_Port GPIOB
-#define YBP1_Pin GPIO_PIN_0
-#define YBP1_GPIO_Port GPIOE
+#define GDDG_Pin GPIO_PIN_13
+#define GDDG_GPIO_Port GPIOE
+#define M_KEY3_Pin GPIO_PIN_8
+#define M_KEY3_GPIO_Port GPIOB
+#define M_KEY2_Pin GPIO_PIN_9
+#define M_KEY2_GPIO_Port GPIOB
+#define M_KEY1_Pin GPIO_PIN_0
+#define M_KEY1_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
 typedef struct{
   uint8_t min;

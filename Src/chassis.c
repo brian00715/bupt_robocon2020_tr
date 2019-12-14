@@ -23,8 +23,7 @@ PID_Struct angle_pid = {-1000,0,0,0,0,5000,0,0.005};//偏高角控制
 
 float Arrive_distance = 0.005;
 
-//TODO  角度
-float ERR_angle_m2 = -PI/3 , ERR_angle_m1 = -PI/3 + 1*2*PI/3 , ERR_angle_m0 = -PI/3 + 2*2*PI/3; //三轮与全场定位模块安装偏角
+
 /*****************************初始化*************************/
 
 /**底盘状态初始化*/
@@ -90,6 +89,9 @@ void chassis_canset_motorspeed(int s1,int s2,int s3){
 }
 /**底盘底层驱动(跑速度):speed 速度;direction 速度方向;target_angle 偏航角*/
 void chassis_move(int speed , float direction, float target_angle){
+
+  //TODO  角度
+float ERR_angle_m2 = -PI/3 , ERR_angle_m1 = PI/3 , ERR_angle_m0 = PI; //三轮与全场定位模块安装偏角
   //FIXME  角度解算
   float speed_out_0 = -(speed*cos((ERR_angle_m0 + chassis.angle) - direction));
   float speed_out_1 = -(speed*cos((ERR_angle_m1 + chassis.angle) - direction));

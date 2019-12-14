@@ -47,24 +47,43 @@ void vega_coordinate(float pos[3]){
   Coordinate_System_Transform(center_in_vega,vega_in_coordinate,pos);
 }
 /**vega赋值修正*/
-void vega_correct_pos(char *pos,float correctvalue){
-  Vega_Correct veag_correct;
-  veag_correct.ch[0]='A';
-  veag_correct.ch[1]='C';
-  veag_correct.ch[2]='T';
+ void vega_correct_pos(float x,float y,float angle){
+    Vega_Correct veag_correct;
+    veag_correct.ch[0]='A';
+    veag_correct.ch[1]='C';
+    veag_correct.ch[2]='T';
+    veag_correct.ch[3]='A';
 
-  if(strcmp(pos,"x")==0||strcmp(pos,"X")==0){ 
-    veag_correct.ch[3]='X';}
-  if(strcmp(pos,"y")==0||strcmp(pos,"Y")==0){ 
-    veag_correct.ch[3]='Y';}
-  if(strcmp(pos,"angle")==0||strcmp(pos,"Angle")==0||strcmp(pos,"ANGLE")==0){ 
-    veag_correct.ch[3]='J';}
+    veag_correct.fl[1]= angle;
+    veag_correct.fl[2]= x;
+    veag_correct.fl[3]= y;
+
+    for(int i = 0;i<=20;i++){
+    for(int j=0;j<15;j++)
+    uprintf_to(&VEGA_USART,"%c",veag_correct.ch[j]);}
+ }
+// void vega_correct_pos(char *pos,float correctvalue){
+//   Vega_Correct veag_correct;
+//   veag_correct.ch[0]='A';
+//   veag_correct.ch[1]='C';
+//   veag_correct.ch[2]='T';
+
+//   if(strcmp(pos,"x")==0||strcmp(pos,"X")==0){ 
+//     veag_correct.ch[3]='X';}
+//   if(strcmp(pos,"y")==0||strcmp(pos,"Y")==0){ 
+//     veag_correct.ch[3]='Y';}
+//   if(strcmp(pos,"angle")==0||strcmp(pos,"Angle")==0||strcmp(pos,"ANGLE")==0){ 
+//     veag_correct.ch[3]='J';}
   
-  veag_correct.fl[1] = correctvalue;
+//   veag_correct.fl[1] = correctvalue;
 
-  for(int i = 0;i<=20;i++){
-    uprintf_to(&VEGA_USART,"%s",veag_correct.ch);}
-}
+//   // for(int i = 0;i<=20;i++){
+//   //   uprintf_to(&VEGA_USART,"%s",veag_correct.ch);}
+
+//   for(int i = 0;i<=20;i++){
+//     for(int j=0;j<8;j++)
+//     uprintf_to(&VEGA_USART,"%c",veag_correct.ch[j]);}
+// }
 /**vage坐标打印*/
 void vega_print_pos(){
   if(chassis_status.vega_is_ready ==1){

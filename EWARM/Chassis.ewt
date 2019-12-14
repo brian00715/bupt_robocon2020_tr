@@ -1207,6 +1207,9 @@
                     <name>$PROJ_DIR$\..\Src\robomaster.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\sensor_gpio.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\vega.c</name>
                 </file>
                 <file>

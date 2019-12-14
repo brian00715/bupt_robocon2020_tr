@@ -9,13 +9,8 @@
 #define VEGA_USART huart5
 
 typedef union{
-  char ch[8];
-  uint8_t ui8[8];
-  uint16_t ui16[4];
-  int16_t i16[4];
-  int in[2];
-  float fl[2];
-  double df;
+  char ch[16];
+  float fl[4];
 }Vega_Correct;
 
 
@@ -28,7 +23,7 @@ void vega_calibration();
 void vega_reset();
 void vega_coordinate(float pos[3]);
 void vega_set_position(float Dx ,float Dy ,float Dangle );
-void vega_correct_pos(char *pos,float correctvalue);
+void vega_correct_pos(float x,float y,float angle);
 void vega_print_pos();
 
 

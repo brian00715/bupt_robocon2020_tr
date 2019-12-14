@@ -41,6 +41,9 @@ void can_id_init();
 /*Variable Area*/
 extern Can_id_send send_id;
 extern Can_id_recive recive_id;
+
+
+
 #ifdef __cplusplus
 }
 #endif
