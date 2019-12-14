@@ -44,20 +44,21 @@ void cmd_point_print_path(int argc, char *argv[]){
 }
 //gpio
 void cmd_gpio_magnet(int argc, char *argv[]){
-    gpio_magnet(atoi(argv[1]));
+    magnet_state=atoi(argv[1]);
+    uprintf("Magnet state is %d\r\n",atoi(argv[1]));
 }
 void cmd_gpio_cylinder(int argc, char *argv[]){
-    gpio_cylinder(atoi(argv[1]));
+    cylinder_state=atoi(argv[1]);
     uprintf("Cylinder state is %d\r\n",atoi(argv[1]));
 }
 void cmd_gpio_key(int argc, char *argv[]){
-    int state=gpio_micro_key();
-    uprintf("Key state is %d\r\n",state);
+    uprintf("Key state is %d\r\n",key_state);
 }
 void cmd_gpio_infrared(int argc, char *argv[]){
-    int state=gpio_infrared();
-    uprintf("Infrared state is %d\r\n",state);
+    uprintf("Infrared state is %d\r\n",infrared_state);
 }
+
+
 void cmd_func_init(void) {
     cmd_add("hello", " ",cmd_hello);
     //vega

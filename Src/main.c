@@ -135,7 +135,7 @@ int main(void)
     simplelib_run();
     clock_exe();
     lcd_exe();
-
+    gpio_sensor_exe();    
     
     /* USER CODE END WHILE */
 
