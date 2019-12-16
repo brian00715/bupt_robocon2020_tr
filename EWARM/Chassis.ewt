@@ -1207,6 +1207,9 @@
                     <name>$PROJ_DIR$\..\Src\lcd.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\motor_driver.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\robomaster.c</name>
                 </file>
                 <file>

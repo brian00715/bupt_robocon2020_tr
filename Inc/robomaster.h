@@ -16,7 +16,7 @@ typedef enum{
 }ROBOMASTER_TYPE;
 
 typedef struct{
-  int16_t	 	speed_rpm;
+  int16_t	 	speed_rpm; 
   float  	  real_current;
   int16_t  	given_current;
   uint8_t  	hall;
@@ -50,9 +50,6 @@ void M3508_init(int id);
 void M2006_init(int id);
 
 
-void m2006_exe();
-extern float door_current;
-extern float tick_current;
 
 
 #ifdef __cplusplus

@@ -34,11 +34,10 @@
 #include "laser.h"
 #include "configure.h"
 #include "lcd.h"
-#include "robomaster.h"
 #include"sensor_gpio.h"
 #include"kickball.h"
-#include"vesc_can.h"
 #include"touchdown.h"
+#include"motor_driver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -134,6 +133,7 @@ int main(void)
   simplelib_init(&huart1, &hcan1);
   can_id_init();
   //chassis_init();
+  motor_init();
   laser_init();
   lcd_init();
   flag.main_flag=1;
@@ -225,12 +225,18 @@ if(flag.main_flag == 1) {
   }
   //20ms
   if(time_1ms_cnt % 20 == 0) {
+    
     flag.lcd_flag = 1;
   }
+  if(time_1ms_cnt % 10 == 0) {
+    
+    flag.m2006_flag = 1;
+  }
+  flag.m2006_flag = 1;
   //5ms      
   if(time_1ms_cnt % 5 == 0)  {
     if(chassis_status.vega_is_ready == 1){flag.chassis_control_flag = 1;}
-    flag.m2006_flag = 1;
+    
     flag.vesc_flag = 1;
   }
 

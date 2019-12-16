@@ -1,11 +1,6 @@
 #ifndef _KICKBALL_H
 #define _KICKBALL_H
 
-#include<vesc_can.h>
-#include<robomaster.h>
-
-#define KICK_MOTOR_CAN_ID 88
-
 typedef enum{
     KICKBALL_NONE=0,
     KICKBALL_MAGNET_TO_BOARD,
@@ -37,11 +32,13 @@ extern int kickball_stop_magnet_flag;   //cmd指令置1 停止拉电磁铁
 extern int kickball_five_score[5];
 //当前第几颗球
 extern int kickball_num;
+extern int kickball_auto; 
 
 
 void kickball_M2006_set_current(float current);
 void kickball_VESC_set_loosen_duty(float duty);
 void kickball_VESC_set_pull_current(float current);
+void kickball_VESC_set_rpm(float rpm);
 
 void kickball_set_magnet_status(int status);
 int kickball_get_microswitch_status();

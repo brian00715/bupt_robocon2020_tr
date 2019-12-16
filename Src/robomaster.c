@@ -144,13 +144,3 @@ void M3508_init(int id)
 }
 
 
-/***/
-float door_current=0;
-float tick_current=0;
-void m2006_exe(){
-  if(flag.m2006_flag == 0) return;
-  int16_t door_I = (int16_t)(door_current*1000) ;
-  int16_t tick_I = (int16_t)(tick_current*1000) ;
-  robomaster_set_current(door_I,tick_I,0,0);
-  flag.m2006_flag = 0;
-}

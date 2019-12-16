@@ -11,6 +11,7 @@
 #include "robomaster.h"
 #include "kickball.h"
 #include "touchdown.h"
+#include "motor_driver.h"
 
 void cmd_hello(int argc, char *argv[]) {    
     uprintf("Hello!\r\n");
@@ -66,31 +67,42 @@ void cmd_gpio_all(int argc, char *argv[]){
     uprintf("Cylinder    state is %d\r\n",cylinder_state);
 }
 //kickball
-void cmd_kickball_m2006(int argc, char *argv[]){
-    kickball_m2006_current=atof(argv[1]);
-    uprintf("M2006 work current set to %f A\r\n",kickball_m2006_current);
-}
-void cmd_kickball_vesc_pull(int argc, char *argv[]){
-    if(atof(argv[1])<0 || atof(argv[2])<0 || atof(argv[3])<0 ){
-        uprintf("VESC pull current should > 0\r\n");
-        return;
+void cmd_kickball_auto(int argc, char *argv[]){
+    if(atof(argv[1]) == 1){
+        kickball_ready_flag = 0;
+        kickball_prepare_flag = 0;
+        kickball_pull_magnet_flag = 0;
+        kickball_stop_magnet_flag = 0;
+        kickball_kick_flag = 0;
+        kickball_auto = 1;
+        uprintf("Kickball switch to auto mode\r\n");
     }
-    kickball_vesc_pull_current5 =atof(argv[1]);
-    kickball_vesc_pull_current10=atof(argv[2]);
-    kickball_vesc_pull_current20=atof(argv[3]);
-    uprintf("VESC pull 5 score current set to %5f A\r\n",kickball_vesc_pull_current5);
-    uprintf("VESC pull 10 score current set to %5f A\r\n",kickball_vesc_pull_current5);
-    uprintf("VESC pull 20 score current set to %5f A\r\n",kickball_vesc_pull_current5);
-}
-void cmd_kickball_vesc_lossen(int argc, char *argv[]){
-    if(atof(argv[1])>0){
-        uprintf("VESC lossen duty should < 0\r\n");
-        return;
+    else {
+        kickball_auto = 0;        
+        uprintf("Kickball switch to handle mode\r\n");
+        uprintf("kicknum = %d\r\n",kickball_num+1);
+        
     }
-    kickball_vesc_lossen_duty=atof(argv[1]);
-    uprintf("VESC lossen duty set to %f \r\n",kickball_vesc_lossen_duty);
 }
 
+//kickball handle
+void cmd_kickball_m2006(int argc, char *argv[]){
+    kickball_M2006_set_current(atof(argv[1]));
+    uprintf("M2006 current set to %f A\r\n",atof(argv[1]));
+}
+void cmd_kickball_vesc(int argc, char *argv[]){
+    if(atof(argv[1])>=0){
+        kickball_VESC_set_pull_current(atof(argv[1]));
+        uprintf("VESC pull current is %f \r\n",atof(argv[1]));
+    }
+    else{
+        kickball_VESC_set_loosen_duty(atof(argv[1]));
+        uprintf("VESC lossen duty is %f \r\n",atof(argv[1]));
+    }
+    
+}
+
+//kickball auto
 void cmd_kickball_prepare(int argc, char *argv[]){
     kickball_prepare_flag = 1;
     uprintf("Kickball prapare!\r\nManget is going up\r\n");
@@ -136,9 +148,11 @@ void cmd_func_init(void) {
     cmd_add("gpio_infrared", "",cmd_gpio_infrared);
     cmd_add("gpio_all", "",cmd_gpio_all);    
     //kickball
+    cmd_add("kickball_auto", "",cmd_kickball_auto);
+
     cmd_add("kickball_m2006", "",cmd_kickball_m2006);
-    cmd_add("kickball_vesc_pull", "",cmd_kickball_vesc_pull);
-    cmd_add("kickball_vesc_lossen", "",cmd_kickball_vesc_lossen);
+    cmd_add("kickball_vesc", "",cmd_kickball_vesc);
+
     cmd_add("kickball_prepare", "",cmd_kickball_prepare);
     cmd_add("kickball_pull_magnet", "",cmd_kickball_pull_magnet);
     cmd_add("kickball_stop_magnet", "",cmd_kickball_stop_magnet);
