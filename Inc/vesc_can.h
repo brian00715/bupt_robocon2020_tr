@@ -174,6 +174,18 @@ can_status_msg_4 *comm_can_get_status_msg_4_id(int id);
 can_status_msg_5 *comm_can_get_status_msg_5_index(int index);
 can_status_msg_5 *comm_can_get_status_msg_5_id(int id);
 
+
+
+
+
+
+
+
+
+extern float loosen_duty;
+extern float pull_current;
+void vsec_exe();
+
 #endif /* VESC_CAN_H_ */
 
 

@@ -4,6 +4,7 @@
 #include "main.h"
 #include "configure.h"
 #include "chassis.h"
+#include "sensor_gpio.h"
 
 #define MAX_LCD_MSG_NUM 50
 Lcd_Msg lcd_msg[MAX_LCD_MSG_NUM]={0};
@@ -26,12 +27,17 @@ int lcd_add(char tag[],void* value_pointer){
 
 
 void lcd_init(){
-    lcd_add("Fvx",&chassis.vega_pos_x);
-    lcd_add("Fvy",&chassis.vega_pos_x);
-    lcd_add("Fva",&chassis.vega_angle);
-    lcd_add("Flx",&chassis.laser_pos_x);
-    lcd_add("Fly",&chassis.laser_pos_y);
-    lcd_add("Fla",&chassis.laser_angle);
+    lcd_add("IMA",&magnet_state);
+    lcd_add("IMI",&microswitch_state);
+    lcd_add("IIN",&infrared_state);
+    lcd_add("ICY",&cylinder_state);
+
+    // lcd_add("Fvx",&chassis.vega_pos_x);
+    // lcd_add("Fvy",&chassis.vega_pos_x);
+    // lcd_add("Fva",&chassis.vega_angle);
+    // lcd_add("Flx",&chassis.laser_pos_x);
+    // lcd_add("Fly",&chassis.laser_pos_y);
+    // lcd_add("Fla",&chassis.laser_angle);
 }
 
 

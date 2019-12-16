@@ -1,7 +1,8 @@
 #include"main.h"
 #include"sensor_gpio.h"
+#include"cmd.h"
 int microswitch_state=0;
-int infrared_state=0;
+int infrared_state=1;    //没有东西挡住时 为1
 int magnet_state=0;
 int cylinder_state=0;
 
@@ -33,8 +34,18 @@ void gpio_cylinder(int pinstate){
 }
 
 void gpio_sensor_exe(){
-    microswitch_state=gpio_microswitch();//微动开关
-    infrared_state=gpio_infrared();//红外对管
+    int current_microswitch = gpio_microswitch();
+    int current_infrared = gpio_infrared();
+    if(current_microswitch !=microswitch_state){
+        if(current_microswitch==1) uprintf("Microswitch closed(0 to 1)\r\n");
+        else uprintf("Microswitch disclosed(1 to 0)\r\n");
+    }
+    if(current_infrared!=infrared_state){
+        if(current_infrared==0) uprintf("Infrared blocked(1 to 0)\r\n");
+        else uprintf("Infrared unblocked(0 to 1)\r\n");
+    }
+    microswitch_state=current_microswitch;//微动开关
+    infrared_state=current_infrared;//红外对管
 
     gpio_magnet(magnet_state);//电磁铁
     gpio_cylinder(cylinder_state);//气缸

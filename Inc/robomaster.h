@@ -52,7 +52,7 @@ void M2006_init(int id);
 
 void m2006_exe();
 extern float door_current;
-extern float kick_current;
+extern float tick_current;
 
 
 #ifdef __cplusplus

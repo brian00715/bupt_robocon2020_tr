@@ -37,13 +37,21 @@
 #include "robomaster.h"
 #include"sensor_gpio.h"
 #include"kickball.h"
+#include"vesc_can.h"
 #include"touchdown.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 Clock clock={0};
-void clock_exe();
+void clock_exe(){
+  if(flag.clock_1s_flag==1){
+    clock.sec++;
+    clock.min += clock.sec/60;
+    clock.sec %= 60;
+    flag.clock_1s_flag = 0;
+  }  
+}
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -77,6 +85,7 @@ Flag flag={
   0,  //chassis_laser_flag
   0,   //lcd_flag
   0,   //m2006_flag
+  0,   //vesc_flag
   0    //clock_1s_flag
 };
 
@@ -124,7 +133,7 @@ int main(void)
   
   simplelib_init(&huart1, &hcan1);
   can_id_init();
-  chassis_init();
+  //chassis_init();
   laser_init();
   lcd_init();
   flag.main_flag=1;
@@ -139,13 +148,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+     
     simplelib_run();
-
     clock_exe();        //时钟
-    lcd_exe();          //lcd消息发送
-    gpio_sensor_exe();  //IO口外部设备
+    lcd_exe();          //lcd消息发
+    gpio_sensor_exe();  //IO口外部设
     m2006_exe();        //大疆电机
+    vsec_exe();
     kickball_exe();     //踢球系统
+    touchdown_exe();     //达阵装置
     
     /* USER CODE END WHILE */
 
@@ -220,6 +231,7 @@ if(flag.main_flag == 1) {
   if(time_1ms_cnt % 5 == 0)  {
     if(chassis_status.vega_is_ready == 1){flag.chassis_control_flag = 1;}
     flag.m2006_flag = 1;
+    flag.vesc_flag = 1;
   }
 
 
@@ -237,14 +249,7 @@ if(flag.main_flag == 1) {
 }
 
 
-void clock_exe(){
-  if(flag.clock_1s_flag==1){
-    clock.sec++;
-    clock.min += clock.sec/60;
-    clock.sec %= 60;
-    flag.clock_1s_flag = 0;
-  }  
-}
+
 
 
 /* USER CODE END 4 */

@@ -24,6 +24,8 @@
 #include <stdbool.h>
 #include "vesc_can.h"
 #include "can_utils.h"
+#include "main.h"
+#include "kickball.h"
 
 /* Buffer Functions---------------------------------------------------*/
 void buffer_append_int16(uint8_t *buffer, int16_t number, int32_t *index)
@@ -367,6 +369,21 @@ void comm_can_conf_current_limits_in(uint8_t controller_id,
     comm_can_transmit_eid(controller_id |
                               ((uint32_t)(store ? CAN_PACKET_CONF_STORE_CURRENT_LIMITS_IN : CAN_PACKET_CONF_CURRENT_LIMITS_IN) << 8),
                           buffer, send_index);
+}
+
+float loosen_duty=0;
+float pull_current=0;
+void vsec_exe(){
+    if (flag.vesc_flag==0) return;
+    if(kickball_status == KICKBALL_MAGNET_TO_BOARD){
+        comm_can_set_duty((uint8_t)KICK_MOTOR_CAN_ID, loosen_duty);
+    }
+    if(kickball_status == KICKBALL_BOARD_TO_DOWN20 || kickball_status == KICKBALL_BOARD_TO_DOWN10 ||kickball_status == KICKBALL_BOARD_TO_DOWN5 ){
+        comm_can_set_current((uint8_t)KICK_MOTOR_CAN_ID, pull_current);
+    }
+
+    flag.vesc_flag = 0;
+    
 }
 
 
