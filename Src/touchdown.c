@@ -41,8 +41,6 @@ void touchdown_exe(){
     case TOUCHDOWN_GETBALL:{
         touchdown_m2006_close(touchdown_close_current);
         if(touchdown_try_flag == 1){
-            touchdown_m2006_open(touchdown_open_current);
-
             touchdown_status = TOUCHDOWN_TRY; 
             touchdown_try_flag = 0;
         }
@@ -50,6 +48,8 @@ void touchdown_exe(){
     break;}
 
     case TOUCHDOWN_TRY:{
+        touchdown_m2006_open(touchdown_open_current);
+
         touchdown_cylinder_push();
         //Hal_Delay(5);
         touchdown_cylinder_pull();

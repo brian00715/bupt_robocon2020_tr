@@ -104,7 +104,7 @@ int can_send_msg(uint16_t std_id, can_msg *msg) {
   uprintf("%d %d %d\r\n", std_id, msg->in[0], msg->in[1]);
   #endif //DEBUG
   if (HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox) != HAL_OK) {
-   // uprintf("Error: CAN can't send msg.\r\n");
+    //uprintf("Error: CAN can't send msg.\r\n");
     return 1;
   }
   return 0;

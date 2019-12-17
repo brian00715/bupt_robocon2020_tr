@@ -151,12 +151,13 @@ int main(void)
      
     simplelib_run();
     clock_exe();        //时钟
-    lcd_exe();          //lcd消息发
+    lcd_exe();          //lcd消息�?
     gpio_sensor_exe();  //IO口外部设
     m2006_exe();        //大疆电机
     vsec_exe();
     kickball_exe();     //踢球系统
     touchdown_exe();     //达阵装置
+    laser_exe();
     
     /* USER CODE END WHILE */
 
@@ -232,12 +233,12 @@ if(flag.main_flag == 1) {
     
     flag.m2006_flag = 1;
   }
-  flag.m2006_flag = 1;
+  
   //5ms      
   if(time_1ms_cnt % 5 == 0)  {
-    if(chassis_status.vega_is_ready == 1){flag.chassis_control_flag = 1;}
-    
+    if(chassis_status.vega_is_ready == 1){flag.chassis_control_flag = 1;}    
     flag.vesc_flag = 1;
+    flag.chassis_laser_flag = 1;
   }
 
 
