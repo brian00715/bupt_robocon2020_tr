@@ -45,6 +45,38 @@ void cmd_laser_print_pos(int argc, char *argv[]){
 void cmd_point_print_path(int argc, char *argv[]){
     point_print_path();
 }
+//motor_vesc_m2006
+void cmd_m2006(int argc, char *argv[]){
+    touchdown_current=atof(argv[1]);
+    kick_current=atof(argv[2]);
+    uprintf("M2006 touchdown current is %f\r\n",atof(argv[1]));
+    uprintf("M2006 kick current is %f\r\n",atof(argv[2]));
+}
+void cmd_vesc(int argc, char *argv[]){
+    vesc.mode=atoi(argv[1]);
+    switch(vesc.mode){
+        case 0: {vesc.duty = atof(argv[2]);
+        uprintf("Vesc work in Duty at %f\r\n",atof(argv[2]));
+        break;}
+        case 1: {vesc.current = atof(argv[2]);
+        uprintf("Vesc work in Current at %f\r\n",atof(argv[2]));
+        break;}
+        case 2: {vesc.rpm = atof(argv[2]);
+        uprintf("Vesc work in Rpm at %f\r\n",atof(argv[2]));
+        break;}
+        case 3: {vesc.position = atof(argv[2]);
+        uprintf("Vesc work in Position at %f\r\n",atof(argv[2]));
+        break;}
+        default:{
+            uprintf("Vesc work in\r\n ");
+            uprintf("0:duty\r\n1:current\r\n2:speed\r\n3:position\r\n");
+            break;
+        }
+    }
+    
+    uprintf("Magnet state is %d\r\n",atoi(argv[1]));
+}
+
 //gpio
 void cmd_gpio_magnet(int argc, char *argv[]){
     magnet_state=atoi(argv[1]);
@@ -120,16 +152,55 @@ void cmd_kickball_kick(int argc, char *argv[]){
     uprintf("Kick the ball!!!\r\n");
 }
 //touchdown
+void cmd_touchdown_auto(int argc, char *argv[]){
+    if(atof(argv[1]) == 1){
+        touchdown_ready_flag =0;         
+        touchdown_try_flag =0; 
+        touchdown_auto_flag = 1;
+        uprintf("Touchdwon switch to auto mode\r\n");
+    }
+    else {
+        touchdown_auto_flag = 0;        
+        uprintf("Touchdwon switch to handle mode\r\n");
+    }
+}
+void cmd_touchdown_open(int argc, char *argv[]){
+    if(atof(argv[1]) > 0){
+        uprintf("Touchdwon open current should < 0\r\n");
+    }
+    else {
+        touchdown_m2006_open(atof(argv[1]));       
+        uprintf("Touchdwon open current is %f\r\n",atof(argv[1]));
+    }
+}
+void cmd_touchdown_close(int argc, char *argv[]){
+    if(atof(argv[1]) < 0){
+        uprintf("Touchdwon open current should > 0\r\n");
+    }
+    else {
+        touchdown_m2006_close(atof(argv[1]));       
+        uprintf("Touchdwon close current is %f\r\n",atof(argv[1]));
+    }
+}
 void cmd_touchdown_try(int argc, char *argv[]){
+    if(touchdown_ready_flag == 1){
     touchdown_try_flag = 1;
     uprintf("Try touchdown!!!\r\n");
+    }
+    else{
+        uprintf("No ball in the basket\r\n");
+    }    
 }
+
+
 
 
 
 
 void cmd_func_init(void) {
     cmd_add("hello", " ",cmd_hello);
+    //point
+    cmd_add("point_print_path", "",cmd_point_print_path);
     //vega
     cmd_add("vega_print_pos", "",cmd_vega_print_pos);
     cmd_add("vega_correct_pos", "",cmd_vega_correct_pos);
@@ -139,24 +210,26 @@ void cmd_func_init(void) {
     //laser
     cmd_add("laser_print_diatance", "",cmd_laser_print_diatance);
     cmd_add("laser_print_pos", "",cmd_laser_print_pos);
-    //point
-    cmd_add("point_print_path", "",cmd_point_print_path);\
     //gpio
     cmd_add("gpio_magnet", "",cmd_gpio_magnet);
     cmd_add("gpio_cylinder", "",cmd_gpio_cylinder);
     cmd_add("gpio_microswitch", "",cmd_gpio_microswitch);
     cmd_add("gpio_infrared", "",cmd_gpio_infrared);
     cmd_add("gpio_all", "",cmd_gpio_all);    
+    //motor
+    cmd_add("vesc", "",cmd_vesc);
+    cmd_add("m2006", "",cmd_m2006);    
     //kickball
-    cmd_add("kickball_auto", "",cmd_kickball_auto);
-
+    cmd_add("kickball_auto", "",cmd_kickball_auto);    
     cmd_add("kickball_m2006", "",cmd_kickball_m2006);
     cmd_add("kickball_vesc", "",cmd_kickball_vesc);
-
     cmd_add("kickball_prepare", "",cmd_kickball_prepare);
     cmd_add("kickball_pull_magnet", "",cmd_kickball_pull_magnet);
     cmd_add("kickball_stop_magnet", "",cmd_kickball_stop_magnet);
     cmd_add("kickball_kick", "",cmd_kickball_kick);
     //touchdown
+    cmd_add("touchdown_auto", "",cmd_touchdown_auto);
+    cmd_add("touchdown_open", "",cmd_touchdown_open);
+    cmd_add("touchdown_close", "",cmd_touchdown_close);
     cmd_add("touchdown_try", "",cmd_touchdown_try);
 }

@@ -15,6 +15,12 @@ void touchdown_m2006_close(float current);
 extern int touchdown_ready_flag;            //接到球置1 推出球置0 外部读取有无球
 extern int touchdown_try_flag;              //外部置1 推球
 
+
+
+extern float touchdown_open_current;
+extern float touchdown_close_current;
+extern int touchdown_auto_flag;
+
 void touchdown_exe();
 
 

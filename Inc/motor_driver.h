@@ -15,7 +15,7 @@ typedef struct{
 extern VESC_STATE vesc;
 void vsec_exe();
 //m2006
-extern float touchdown_current;
+extern volatile float touchdown_current;
 extern float kick_current;
 void m2006_exe();
 void motor_init();

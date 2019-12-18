@@ -20,7 +20,7 @@ void vsec_exe(){
 }
 
 //m2006
-float touchdown_current=0;
+volatile  float touchdown_current=0;
 float kick_current=0;
 void m2006_exe(){
   if(flag.m2006_flag == 0) return;

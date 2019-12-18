@@ -42,14 +42,13 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+static int time_1ms_cnt = 0;
 Clock clock={0};
 void clock_exe(){
-  if(flag.clock_1s_flag==1){
-    clock.sec++;
+    clock.sec +=clock.m_sec/100;
     clock.min += clock.sec/60;
     clock.sec %= 60;
-    flag.clock_1s_flag = 0;
-  }  
+    clock.m_sec %= 100;  
 }
 /* USER CODE END PTD */
 
@@ -213,7 +212,7 @@ void SystemClock_Config(void)
 
 void inc(void)
 {
-static int time_1ms_cnt = 0;
+
 if(flag.main_flag == 1) {
   time_1ms_cnt++;  
   //1000ms  
@@ -231,7 +230,7 @@ if(flag.main_flag == 1) {
   }
   if(time_1ms_cnt % 10 == 0) {
     
-    flag.m2006_flag = 1;
+    clock.m_sec ++;
   }
   
   //5ms      
@@ -239,6 +238,7 @@ if(flag.main_flag == 1) {
     if(chassis_status.vega_is_ready == 1){flag.chassis_control_flag = 1;}    
     flag.vesc_flag = 1;
     flag.chassis_laser_flag = 1;
+    flag.m2006_flag = 1;
   }
 
 

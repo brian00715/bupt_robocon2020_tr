@@ -84,6 +84,7 @@ void Error_Handler(void);
 typedef struct{
   uint8_t min;
   uint8_t sec;
+  uint32_t m_sec;
 }Clock;
 extern Clock clock;
 typedef struct{

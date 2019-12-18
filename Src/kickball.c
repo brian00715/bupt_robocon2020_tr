@@ -152,5 +152,13 @@ int kickball_auto = 1;
 
 
 void kickball_exe(){
- if(kickball_auto) kickball_state_machine();
+ if(kickball_auto == 1) kickball_state_machine();
+ else{
+   if( kickball_get_microswitch_status() == 1){               //闭环检测微动开关flag
+      kickball_set_magnet_status(1);
+      kickball_VESC_set_loosen_duty(0);
+      kickball_M2006_set_current(0);
+   }
+ }
 }
+ 
