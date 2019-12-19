@@ -6,6 +6,7 @@
 #include "chassis.h"
 #include "vega.h"
 #include "laser.h"
+#include "main.h"
 #include "point_parser.h"
 #include "sensor_gpio.h"
 #include "robomaster.h"
@@ -191,6 +192,13 @@ void cmd_touchdown_try(int argc, char *argv[]){
         uprintf("No ball in the basket\r\n");
     }    
 }
+void cmd_chassis_move(int argc, char *argv[]){
+    test_value[0]=atoi(argv[1]);
+    test_value[1]=atoi(argv[2]);
+    test_value[2]=atoi(argv[3]);
+    uprintf("move in %d  %f  %f\r\n",atoi(argv[1]),atof(argv[2]),atof(argv[3]));
+}
+
 
 
 
@@ -232,4 +240,6 @@ void cmd_func_init(void) {
     cmd_add("touchdown_open", "",cmd_touchdown_open);
     cmd_add("touchdown_close", "",cmd_touchdown_close);
     cmd_add("touchdown_try", "",cmd_touchdown_try);
+
+    cmd_add("chassis_move", "",cmd_chassis_move);
 }

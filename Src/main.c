@@ -34,21 +34,22 @@
 #include "laser.h"
 #include "configure.h"
 #include "lcd.h"
-#include"sensor_gpio.h"
-#include"kickball.h"
-#include"touchdown.h"
-#include"motor_driver.h"
+#include "sensor_gpio.h"
+#include "kickball.h"
+#include "touchdown.h"
+#include "motor_driver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 static int time_1ms_cnt = 0;
-Clock clock={0};
-void clock_exe(){
-    clock.sec +=clock.m_sec/100;
-    clock.min += clock.sec/60;
-    clock.sec %= 60;
-    clock.m_sec %= 100;  
+Clock clock = {0};
+void clock_exe()
+{
+  clock.sec += clock.m_sec / 100;
+  clock.min += clock.sec / 60;
+  clock.sec %= 60;
+  clock.m_sec %= 100;
 }
 /* USER CODE END PTD */
 
@@ -75,17 +76,18 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-Flag flag={
-  0,  //main_flag
-  0,  //chassis_control_flag
-  0,  //chassis_handle_flag
-  0,  //chassis_auto_flag
-  0,  //chassis_laser_flag
-  0,   //lcd_flag
-  0,   //m2006_flag
-  0,   //vesc_flag
-  0    //clock_1s_flag
+Flag flag = {
+    0, //main_flag
+    0, //chassis_control_flag
+    0, //chassis_handle_flag
+    0, //chassis_auto_flag
+    0, //chassis_laser_flag
+    0, //lcd_flag
+    0, //m2006_flag
+    0, //vesc_flag
+    0  //clock_1s_flag
 };
+int test_value[10]={0};
 
 /* USER CODE END 0 */
 
@@ -98,7 +100,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -128,18 +129,14 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
-  
+
   simplelib_init(&huart1, &hcan1);
   can_id_init();
   //chassis_init();
   motor_init();
   laser_init();
   lcd_init();
-  flag.main_flag=1;
-
- 
-
-
+  flag.main_flag = 1;
 
   /* USER CODE END 2 */
 
@@ -147,17 +144,20 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-     
+
     simplelib_run();
-    clock_exe();        //时钟
-    lcd_exe();          //lcd消息�?
-    gpio_sensor_exe();  //IO口外部设
-    m2006_exe();        //大疆电机
+    clock_exe();       //时钟
+    lcd_exe();         //lcd消息�?
+    gpio_sensor_exe(); //IO口外部设
+    m2006_exe();       //大疆电机
     vsec_exe();
-    kickball_exe();     //踢球系统
-    touchdown_exe();     //达阵装置
+    kickball_exe();  //踢球系统
+    touchdown_exe(); //达阵装置
     laser_exe();
-    
+
+
+    chassis_canset_motorspeed(test_value[0],test_value[1],test_value[2]);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -195,8 +195,7 @@ void SystemClock_Config(void)
   }
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -213,51 +212,56 @@ void SystemClock_Config(void)
 void inc(void)
 {
 
-if(flag.main_flag == 1) {
-  time_1ms_cnt++;  
-  //1000ms  
-  if(time_1ms_cnt % 1000 == 0) {
-    flag.clock_1s_flag = 1;
-  }
-  //500ms  
-  if(time_1ms_cnt % 500 == 0) {
-    HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin); //led闪烁
-  }
-  //20ms
-  if(time_1ms_cnt % 20 == 0) {
-    
-    flag.lcd_flag = 1;
-  }
-  if(time_1ms_cnt % 10 == 0) {
-    
-    clock.m_sec ++;
-  }
-  
-  //5ms      
-  if(time_1ms_cnt % 5 == 0)  {
-    if(chassis_status.vega_is_ready == 1){flag.chassis_control_flag = 1;}    
-    flag.vesc_flag = 1;
-    flag.chassis_laser_flag = 1;
-    flag.m2006_flag = 1;
-  }
+  if (flag.main_flag == 1)
+  {
+    time_1ms_cnt++;
+    //1000ms
+    if (time_1ms_cnt % 1000 == 0)
+    {
+      flag.clock_1s_flag = 1;
+    }
+    //500ms
+    if (time_1ms_cnt % 500 == 0)
+    {
+      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin); //led闪烁
+    }
+    //20ms
+    if (time_1ms_cnt % 20 == 0)
+    {
 
+      flag.lcd_flag = 1;
+    }
+    if (time_1ms_cnt % 10 == 0)
+    {
 
+      clock.m_sec++;
+    }
 
-  //vega
-  if(time_1ms_cnt % 15000 == 0 && chassis_status.vega_is_ready == 0) {
-    chassis_status.vega_is_ready = 1;
-    HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-    uprintf("Vega init done!!!\r\n");
-  }
-  if(time_1ms_cnt >= 60000){
+    //5ms
+    if (time_1ms_cnt % 5 == 0)
+    {
+      if (chassis_status.vega_is_ready == 1)
+      {
+        flag.chassis_control_flag = 1;
+      }
+      flag.vesc_flag = 1;
+      flag.chassis_laser_flag = 1;
+      flag.m2006_flag = 1;
+    }
+
+    //vega
+    if (time_1ms_cnt % 15000 == 0 && chassis_status.vega_is_ready == 0)
+    {
+      chassis_status.vega_is_ready = 1;
+      HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+      uprintf("Vega init done!!!\r\n");
+    }
+    if (time_1ms_cnt >= 60000)
+    {
       time_1ms_cnt = 0;
+    }
   }
 }
-}
-
-
-
-
 
 /* USER CODE END 4 */
 
@@ -273,7 +277,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -282,7 +286,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

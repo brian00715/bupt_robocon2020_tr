@@ -70,6 +70,20 @@ int chassis_calculate_linespeed(float point_x , float point_y , int start_speed 
 /****************************驱动**************************/
 
 /**底盘电机驱动*/ 
+void chassis_canset_motorduty(int s1,int s2,int s3){
+    can_msg can_TX_data[3];
+    can_TX_data[0].in[0] = 0;
+    can_TX_data[1].in[0] = 0;
+    can_TX_data[2].in[0] = 0;
+    can_TX_data[0].in[1] = s1;
+    can_TX_data[1].in[1] = s2;
+    can_TX_data[2].in[1] = s3;
+    
+    can_send_msg(send_id.motor0_id, &can_TX_data[0]);
+    can_send_msg(send_id.motor1_id, &can_TX_data[1]);
+    can_send_msg(send_id.motor2_id, &can_TX_data[2]);
+}
+
 void chassis_canset_motorspeed(int s1,int s2,int s3){
     can_msg can_TX_data[3];
     Limit(s1,MAX_CHASSIS_MOTOR_SPEED);
@@ -79,9 +93,9 @@ void chassis_canset_motorspeed(int s1,int s2,int s3){
     can_TX_data[0].in[0] = 1;
     can_TX_data[1].in[0] = 1;
     can_TX_data[2].in[0] = 1;
-    can_TX_data[0].in[0] = s1;
-    can_TX_data[1].in[0] = s2;
-    can_TX_data[2].in[0] = s3;
+    can_TX_data[0].in[1] = s1;
+    can_TX_data[1].in[1] = s2;
+    can_TX_data[2].in[1] = s3;
     
     can_send_msg(send_id.motor0_id, &can_TX_data[0]);
     can_send_msg(send_id.motor1_id, &can_TX_data[1]);
@@ -104,7 +118,6 @@ float ERR_angle_m2 = -PI/3 , ERR_angle_m1 = PI/3 , ERR_angle_m0 = PI; //三轮�
   float motor0 = speed_out_0 + angle_output;
   float motor1 = speed_out_1 + angle_output;
   float motor2 = speed_out_2 + angle_output;
-
   chassis_canset_motorspeed((int)motor0,(int)motor1,(int)motor2);
 }
 /**底盘中层驱动(跑向量):now_speed_vec 当前速度;target_speed_vec 目标速度;distance_vec 位移向量; target_angle偏航角*/
