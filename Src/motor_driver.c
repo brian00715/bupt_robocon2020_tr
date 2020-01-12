@@ -5,18 +5,19 @@
 #include "motor_driver.h"
 void motor_init()
 {
-    vesc.id=88;
+  vesc.id=88;
+    // vesc.id=88;
 }
 //vesc
 VESC_STATE vesc = {0};
 
 void vsec_exe(){
+  flag.vesc_flag = 0;
     if (flag.vesc_flag==0) return;
-    if(vesc.mode == 0) comm_can_set_duty(vesc.id, vesc.duty); 
-    if(vesc.mode == 1) comm_can_set_current(vesc.id, vesc.current);
-    if(vesc.mode == 2) comm_can_set_rpm(vesc.id,vesc.rpm);
-    if(vesc.mode == 3) //位置环
-    flag.vesc_flag = 0;    
+    if(vesc.mode == 0) {comm_can_set_duty(vesc.id, vesc.duty);} 
+    if(vesc.mode == 1) {comm_can_set_current(vesc.id, vesc.current);}
+    if(vesc.mode == 2) {comm_can_set_rpm(vesc.id,vesc.rpm);}
+    if(vesc.mode == 3) ;//位置环        
 }
 
 //m2006

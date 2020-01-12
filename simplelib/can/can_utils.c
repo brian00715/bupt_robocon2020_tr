@@ -103,18 +103,33 @@ int can_send_msg(uint16_t std_id, can_msg *msg) {
   #ifdef DEBUG
   uprintf("%d %d %d\r\n", std_id, msg->in[0], msg->in[1]);
   #endif //DEBUG
-  if (HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox) != HAL_OK) {
-    //uprintf("Error: CAN can't send msg.\r\n");
-    return 1;
-  }
-  return 0;
+  HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox);
+//   if (HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox) != HAL_OK) {
+//     uprintf("Error: CAN can't send msg.\r\n");
+//     return 1;
+//   }
+    uint32_t timecnt = 0;
+    uint32_t can_tsr = 0;
+    for(;;) {
+        timecnt++;
+        if (timecnt > 60000) {
+            can_tsr = READ_REG(HCAN.Instance->TSR);
+            if (can_tsr & 0x00020202) {
+                return 0;
+            } else {
+                uprintf("Error: CAN can't send msg.\r\n");
+                return 1;
+            }
+        }
+    };
+  //return 0;
 }
 
 /**
  * @brief	can ext id send
  * @return	0: send ok; 1: send error;
  */
-int can_ext_send_msg(uint16_t id, can_msg *msg) {
+int can_ext_send_msg(uint32_t id, can_msg *msg) {
     TxHeader.ExtId = id;
     TxHeader.IDE = CAN_ID_EXT;
     if (HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox) != HAL_OK) {

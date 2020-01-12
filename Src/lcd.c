@@ -74,3 +74,4 @@ int lcd_exe(){
     now_num %= lcd_msg_length;
     return (now_num+1);  
 }
+
