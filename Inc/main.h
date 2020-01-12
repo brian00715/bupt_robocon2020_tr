@@ -104,7 +104,7 @@ extern Flag flag;
 
 void inc(void);
 
-extern int test_value[10];
+extern float test_value[10];
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -193,9 +193,9 @@ void cmd_touchdown_try(int argc, char *argv[]){
     }    
 }
 void cmd_chassis_move(int argc, char *argv[]){
-    test_value[0]=atoi(argv[1]);
-    test_value[1]=atoi(argv[2]);
-    test_value[2]=atoi(argv[3]);
+    test_value[0]=atof(argv[1]);
+    test_value[1]=atof(argv[2]);
+    test_value[2]=atof(argv[3]);
     uprintf("move in %d  %f  %f\r\n",atoi(argv[1]),atof(argv[2]),atof(argv[3]));
 }
 

@@ -24,6 +24,11 @@ extern "C" {
 
 /*Define Area*/
 
+//角度制转化为弧度制
+#define ANGLE2RAD(x) (x/180.0f*PI)
+//弧度制转换为角度制
+#define RAD2ANGLE(x) (x/PI*180.0f)
+
 /*Struct Area*/
 typedef struct
 {

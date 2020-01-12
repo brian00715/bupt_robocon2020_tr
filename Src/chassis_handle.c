@@ -1,20 +1,20 @@
 /*******************************************************************************
 Copyright:      BUPT
 File name:      chassis_handle.c
-Description:    Ö÷Òª·ÅÊÖ±úµÄ¿ØÖÆ³ÌĞò·½±ã·â×°
+Description:    ä¸»è¦æ”¾æ‰‹æŸ„çš„æ§åˆ¶ç¨‹åºæ–¹ä¾¿å°è£…
 Author:         ZH
-Version£º       1.0
+Versionï¼š       1.0
 Data:           2019/10/21
 *******************************************************************************/
 #include "chassis_handle.h"
 Chassis_Handle chassis_handle;
-PID_Struct handle_angle_pid = {1,0,0,0,0,5000,0,0.005};//ÊÖ±úÆ«¸ß½Ç¿ØÖÆ
+PID_Struct handle_angle_pid = {1,0,0,0,0,5000,0,0.005};//æ‰‹æŸ„åé«˜è§’æ§åˆ¶
 
 void handle_button(can_msg *data)
 {
   if(0 == flag.main_flag) return;
  
- //TODOÊÖ±ú°´¼ü¹¦ÄÜ
+ //TODOæ‰‹æŸ„æŒ‰é”®åŠŸèƒ½
  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));
  switch(id){
 case 0:
@@ -49,33 +49,37 @@ void handle_rocker(can_msg *data)
 {
   if(0 == flag.main_flag || flag.chassis_handle_flag == 0) return;
   
-  //TODO :ÊÖ±úÒ¡¸ËÁãÆ«
-  //³£ÊıĞŞ¸ÄÁãÆ«
+  //TODO :æ‰‹æŸ„æ‘‡æ†é›¶å
+  //å¸¸æ•°ä¿®æ”¹é›¶å
   chassis_handle.ry = (int)data->i16[0] - 14;
   chassis_handle.rx = (int)data->i16[1] - 4;
   chassis_handle.ly = (int)data->i16[2] - 2;
   chassis_handle.lx = (int)data->i16[3] - 3;
   
-  //±ä»»×ø±êÏµ
+  //å˜æ¢åæ ‡ç³»
   chassis_handle.rx *= -1;
   chassis_handle.lx *= -1;
 }
-//TODO handle_button ÔÚÄÄÀïÊ¹ÓÃ²ÎÊıcan_msgÀ´Ô´ ÊÖ±ú·¢ËÍÎÊÌâ
+//TODO handle_button åœ¨å“ªé‡Œä½¿ç”¨å‚æ•°can_msgæ¥æº æ‰‹æŸ„å‘é€é—®é¢˜
 void handle_exe()
 {
   if(0 == flag.main_flag || flag.chassis_handle_flag == 0) return;
   
   chassis.fangle = atan2(chassis_handle.ly, chassis_handle.lx);
-  //TODO ÎªÊÖ±ú¿ØÖÆ¼ÓÈëpid
+  //TODO ä¸ºæ‰‹æŸ„æ§åˆ¶åŠ å…¥pid
   chassis.fspeed = (int)( sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx) );
-  if(chassis.fspeed < 60) chassis.fspeed = 0;
-  if(chassis.fspeed > chassis_handle.handle_max_speed) chassis.fspeed = chassis_handle.handle_max_speed;
-  
+  if(chassis.fspeed < 60) {
+    chassis.fspeed = 0;
+    }
+  if(chassis.fspeed > chassis_handle.handle_max_speed) {
+    chassis.fspeed = chassis_handle.handle_max_speed;
+  }
   chassis.fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);  
-  if(chassis.fturn > 100)
-  chassis.fturn = 100 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI/2) * (-1);
+  if(chassis.fturn > 100){
+    chassis.fturn = 100 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI/2) * (-1);
+  }
   else 
-  chassis.fturn = 0;
+    chassis.fturn = 0;
   
   chassis_move(chassis.fspeed,chassis.fangle,chassis.fturn);  
 }

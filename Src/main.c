@@ -87,7 +87,7 @@ Flag flag = {
     0, //vesc_flag
     0  //clock_1s_flag
 };
-int test_value[10]={0};
+float test_value[10]={0};
 int test_flag0 = 0;
 /* USER CODE END 0 */
 
@@ -156,7 +156,8 @@ int main(void)
     laser_exe();
     if(test_flag0 == 1) {
       test_flag0 = 0;
-      chassis_canset_motorspeed(test_value[0],test_value[1],test_value[2]);
+      chassis_move((int)test_value[0],ANGLE2RAD(test_value[1]),test_value[2]);
+      // chassis_canset_motorspeed(test_value[0],test_value[1],test_value[2]);
     }
 
      
