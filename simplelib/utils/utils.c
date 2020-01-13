@@ -79,10 +79,10 @@ float Angle_Between_Points(float start_x, float start_y , float end_x , float en
 }
 
 
-/**?????
- * now ?????
- * now_in_target ???????????????????????
- * target ?????
+/**坐标系矩阵变换，
+ * now 全场定位返回坐标
+ * now_in_target 全场定位坐标相对于世界坐标的位置，角度为X轴偏角，逆时针为正
+ * target 最终坐标
 */
 void Coordinate_System_Transform(float now[3],float now_in_target[3] , float target[3]){
   float c = cos(-now_in_target[2]);

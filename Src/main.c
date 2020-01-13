@@ -132,12 +132,14 @@ int main(void)
 
   simplelib_init(&huart1, &hcan1);
   can_id_init();
-  //chassis_init();
+  chassis_init();
   motor_init();
   laser_init();
   lcd_init();
   test_flag0 = 1;
   flag.main_flag = 1;
+  flag.chassis_auto_flag = 1;
+  flag.chassis_handle_flag = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -153,10 +155,14 @@ int main(void)
     vsec_exe();
     kickball_exe();  //踢球系统
     touchdown_exe(); //达阵装置
-    laser_exe();
+    laser_exe();//激光  
+    chassis_exe();//底盘，及坐标更新
+
+    //加入底盘，下方的测试函数弃用，故改为2,--czh
     if(test_flag0 == 1) {
       test_flag0 = 0;
-      chassis_move((int)test_value[0],ANGLE2RAD(test_value[1]),test_value[2]);
+      vega_print_pos_can();
+      //chassis_move((int)test_value[0],ANGLE2RAD(test_value[1]),test_value[2]);
       // chassis_canset_motorspeed(test_value[0],test_value[1],test_value[2]);
     }
 

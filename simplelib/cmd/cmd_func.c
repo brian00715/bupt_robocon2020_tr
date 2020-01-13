@@ -27,6 +27,7 @@ void cmd_vega_set_position(int argc, char *argv[]){
 void cmd_vega_reset(int argc, char *argv[]){
     vega_reset();     
 }
+//东大全场定位赋值修正
 void cmd_vega_correct_pos(int argc, char *argv[]){
     vega_correct_pos(atof(argv[1]),atof(argv[2]),atof(argv[3]));
     uprintf("Vega correct to:\r\n");
@@ -199,7 +200,10 @@ void cmd_chassis_move(int argc, char *argv[]){
     uprintf("move in %d  %f  %f\r\n",atoi(argv[1]),atof(argv[2]),atof(argv[3]));
 }
 
-
+//打印实际的底盘坐标
+void cmd_chassis_print_pos(int argc, char *argv[]){
+      uprintf("Chassis:\r\nx:%5f y:%5f angle:%5f\r\n",chassis.pos_x,chassis.pos_y,chassis.angle);
+}
 
 
 
@@ -242,4 +246,5 @@ void cmd_func_init(void) {
     cmd_add("touchdown_try", "",cmd_touchdown_try);
 
     cmd_add("chassis_move", "",cmd_chassis_move);
+    cmd_add("chassis_print_pos","",cmd_chassis_print_pos);
 }
