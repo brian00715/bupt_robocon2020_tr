@@ -68,6 +68,7 @@ void handle_exe()
   if(0 == flag.main_flag || flag.chassis_handle_flag == 0) return;
   
   chassis.fangle = atan2(chassis_handle.ly, chassis_handle.lx);
+  //chassis.fangle = chassis.fangle - chassis.angle;
   //TODO 为手柄控制加入pid
   chassis.fspeed = (int)( sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx) );
   if(chassis.fspeed < CHASSIS_HANDLE_MIN_SPEED) {

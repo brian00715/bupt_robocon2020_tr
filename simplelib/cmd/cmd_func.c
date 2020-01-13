@@ -75,7 +75,6 @@ void cmd_vesc(int argc, char *argv[]){
             break;
         }
     }
-    
     uprintf("Magnet state is %d\r\n",atoi(argv[1]));
 }
 
@@ -115,7 +114,6 @@ void cmd_kickball_auto(int argc, char *argv[]){
         kickball_auto = 0;        
         uprintf("Kickball switch to handle mode\r\n");
         uprintf("kicknum = %d\r\n",kickball_num+1);
-        
     }
 }
 
