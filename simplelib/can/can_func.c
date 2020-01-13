@@ -9,9 +9,9 @@ void can_get_mag_mtr(can_msg *data);
 
 void can_func_init() {
     can_callback_add(230, can_suc_rx);
-    //can_callback_add(324, handle_rocker);
-    //can_callback_add(325, handle_button);
-    can_callback_add(325, can_show_button);
+    can_callback_add(324, handle_rocker);
+    can_callback_add(325, handle_button);
+    //can_callback_add(324, can_show_rocker);
 
     #ifdef SL_DEBUG
     can_callback_add(1, can_suc_rx);

@@ -109,15 +109,22 @@ void chassis_canset_motorspeed(int s1,int s2,int s3){
 void chassis_move(int speed , float direction, float target_angle){
 
   //TODO  角度
-float ERR_angle_m2 = -PI/3+PI/2, ERR_angle_m1 = PI/3+PI/2 , ERR_angle_m0 = PI+PI/2; //三轮与全场定位模块安装偏角
+float ERR_angle_m2 = -PI/3-PI/2, ERR_angle_m1 = PI/3-PI/2 , ERR_angle_m0 = PI-PI/2; //三轮与全场定位模块安装偏角
   //FIXME  角度解算
   float speed_out_0 = -(speed*cos((ERR_angle_m0 + chassis.angle) - direction));
   float speed_out_1 = -(speed*cos((ERR_angle_m1 + chassis.angle) - direction));
   float speed_out_2 = -(speed*cos((ERR_angle_m2 + chassis.angle) - direction));  
   float angle_output = 0;
+  //TODO 此处将angle_output改为了两种，即自动时为偏航角，手动时为自旋角速度，后续需根据MODE再判断，
+  if(flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0){
+    angle_output = PID_Release(&angle_pid, target_angle, chassis.angle);
+    Limit(angle_output,MAX_CHASSIS_ANGLE_SPEED);  
+  }
+  else if(flag.chassis_auto_flag == 0 && flag.chassis_handle_flag == 1){
+    angle_output = target_angle;
+    Limit(angle_output,MAX_CHASSIS_ANGLE_SPEED);  
+  }
 
-  angle_output = PID_Release(&angle_pid, target_angle, chassis.angle);
-  Limit(angle_output,MAX_CHASSIS_ANGLE_SPEED);
 
   float motor0 = speed_out_0 + angle_output;
   float motor1 = speed_out_1 + angle_output;

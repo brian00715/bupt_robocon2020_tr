@@ -20,10 +20,12 @@ void handle_button(can_msg *data)
 case 0:
   flag.chassis_handle_flag = 1;
   flag.chassis_auto_flag = 0;
+  uprintf("Change to handle_mode\r\n");
   break;
 case 1:
   flag.chassis_handle_flag = 0;
   flag.chassis_auto_flag = 1;
+  uprintf("Change to Auto_mode\r\n");
   break;
 case 2:
   break;
@@ -51,10 +53,10 @@ void handle_rocker(can_msg *data)
   
   //TODO :手柄摇杆零偏
   //常数修改零偏
-  chassis_handle.ry = (int)data->i16[0] - 14;
-  chassis_handle.rx = (int)data->i16[1] - 4;
-  chassis_handle.ly = (int)data->i16[2] - 2;
-  chassis_handle.lx = (int)data->i16[3] - 3;
+  chassis_handle.ry = (int)data->i16[0] - 15;
+  chassis_handle.rx = (int)data->i16[1] - 7;
+  chassis_handle.ly = (int)data->i16[2] - 3;
+  chassis_handle.lx = (int)data->i16[3] - 2;
   
   //变换坐标系
   chassis_handle.rx *= -1;
@@ -68,15 +70,15 @@ void handle_exe()
   chassis.fangle = atan2(chassis_handle.ly, chassis_handle.lx);
   //TODO 为手柄控制加入pid
   chassis.fspeed = (int)( sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx) );
-  if(chassis.fspeed < 60) {
+  if(chassis.fspeed < CHASSIS_HANDLE_MIN_SPEED) {
     chassis.fspeed = 0;
     }
-  if(chassis.fspeed > chassis_handle.handle_max_speed) {
-    chassis.fspeed = chassis_handle.handle_max_speed;
+  if(chassis.fspeed > CHASSIS_HANDLE_MAX_SPEED) {
+    chassis.fspeed = CHASSIS_HANDLE_MAX_SPEED;
   }
   chassis.fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);  
   if(chassis.fturn > 100){
-    chassis.fturn = 100 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI/2) * (-1);
+    chassis.fturn = 75 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI/2) * (-1);
   }
   else 
     chassis.fturn = 0;
