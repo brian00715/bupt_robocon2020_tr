@@ -7,6 +7,7 @@ Version：       1.0
 Data:           2019/10/21
 *******************************************************************************/
 #include "chassis_handle.h"
+#include "touchdown.h"
 Chassis_Handle chassis_handle;
 PID_Struct handle_angle_pid = {1,0,0,0,0,5000,0,0.005};//手柄偏高角控制
 
@@ -28,8 +29,18 @@ case 1:
   uprintf("Change to Auto_mode\r\n");
   break;
 case 2:
+  if(data->ui8[2] == 'u'){
+    touchdown_status = TOUCHDOWN_GETBALL;    
+    touchdown_ready_flag = 1;
+    touchdown_try_flag = 1;
+    uprintf("Touchdown try\r\n");
+  }
   break;
 case 3:
+  if(data->ui8[2] == 'u'){
+  touchdown_try_finish_flag = 1;
+  uprintf("Touchdown try finish\r\n");
+  }
   break;
 case 4:
   break;

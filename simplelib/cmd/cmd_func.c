@@ -202,6 +202,15 @@ void cmd_chassis_move(int argc, char *argv[]){
 void cmd_chassis_print_pos(int argc, char *argv[]){
       uprintf("Chassis:\r\nx:%5f y:%5f angle:%5f\r\n",chassis.pos_x,chassis.pos_y,chassis.angle);
 }
+void cmd_touchdown_try_finish(int argc, char *argv[]){
+    if(touchdown_try_flag == 1){
+    touchdown_try_finish_flag = 1;
+    uprintf("Try touchdown finish!!!\r\n");
+    }
+    else{
+        uprintf("HAven't try\r\n");
+    }    
+}
 
 
 
@@ -242,6 +251,7 @@ void cmd_func_init(void) {
     cmd_add("touchdown_open", "",cmd_touchdown_open);
     cmd_add("touchdown_close", "",cmd_touchdown_close);
     cmd_add("touchdown_try", "",cmd_touchdown_try);
+    cmd_add("touchdown_try_finish", "",cmd_touchdown_try_finish);
 
     cmd_add("chassis_move", "",cmd_chassis_move);
     cmd_add("chassis_print_pos","",cmd_chassis_print_pos);

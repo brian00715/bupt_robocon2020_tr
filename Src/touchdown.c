@@ -2,7 +2,7 @@
 #include "sensor_gpio.h"
 #include "cmd.h"
 #include "motor_driver.h"
-static TOUCHDOWN_STATUS touchdown_status=TOUCHDOWN_NONE;
+ TOUCHDOWN_STATUS touchdown_status=TOUCHDOWN_NONE;
 
 /****************************电机气缸**************************/
 /**气缸推球*/
@@ -27,6 +27,7 @@ void touchdown_m2006_close(float current){
 int touchdown_ready_flag =0;            //接到球置1 推出球置0 外部读取有无球
 int touchdown_try_flag =0;              //外部置1 推球
 float touchdown_open_current = -1.5;
+int touchdown_try_finish_flag =0;              //外部置1 拉
 float touchdown_close_current = 1.1;
 int touchdown_auto_flag = 1;
 
@@ -45,8 +46,7 @@ void touchdown_state_machine(){
     case TOUCHDOWN_GETBALL:{
         touchdown_m2006_close(touchdown_close_current);
         if(touchdown_try_flag == 1){
-            touchdown_status = TOUCHDOWN_TRY; 
-            touchdown_try_flag = 0;
+
             touchdown_status = TOUCHDOWN_TRY;
 
             
@@ -59,13 +59,21 @@ void touchdown_state_machine(){
     case TOUCHDOWN_TRY:{
         touchdown_m2006_open(touchdown_open_current);
         touchdown_cylinder_push();
+         touchdown_status = TOUCHDOWN_FINISH;
+    break;}
+
+    case TOUCHDOWN_FINISH:{
+        touchdown_m2006_open(touchdown_open_current);
         waitingtime = (int) (60*(clock.min-time.min) + (clock.sec-time.sec) +(clock.m_sec-time.m_sec)/100);
-        if(waitingtime == 4){
+        // if(waitingtime == 4){ touchdown_try_finish_flag = 1;} //现由cmd置1.全自动模式使用延时置1.
+        if(touchdown_try_finish_flag == 1){
+            touchdown_try_finish_flag = 0;
+            touchdown_try_flag = 0;
             touchdown_cylinder_pull();
             touchdown_m2006_close(touchdown_close_current);
             touchdown_status = TOUCHDOWN_NONE;
+            touchdown_ready_flag = 0;
         }        
-        touchdown_ready_flag = 0;
     break;}
  }
 }
