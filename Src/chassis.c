@@ -50,15 +50,15 @@ void chassis_init_pos(float x,float y){
 }
 /**底盘初始化*/
 void chassis_init(void){
-  //chassis_init_pos(0.439f,0.320f); //全场定位坐标偏移
+  //chassis_init_pos(0.439f,0.320f); //全场定位坐标偏移，测试用
   //启用轨迹时的函数初始化
   chassis_swap_xy(points_pos0,150);//将xy坐标进行一次交换以适应场地
   chassis_init_pos(points_pos0[0].x , points_pos0[0].y);
   chassis_init_status();
-  point_print_path(); //轨迹排序打印
+  //point_print_path(); //轨迹排序打印,有问题，
 }
 /****************************计算**************************/
-//交换x、y坐标的函数，由于轨迹规划上位机坐标轴与实际坐标轴不符合而使用
+//交换x、y坐标的函数，同时修正0度方向，由于轨迹规划上位机坐标轴与实际坐标轴不符合而使用
 //参数：待交换轨迹集，轨迹集内点个数
 //author：zohycao
 void chassis_swap_xy(Point points_pos[],int point_num){
@@ -68,6 +68,7 @@ void chassis_swap_xy(Point points_pos[],int point_num){
     temp_pos=points_pos[i].x;
     points_pos[i].x = points_pos[i].y;
     points_pos[i].y = temp_pos;
+    points_pos[i].direct -= PI/2;
   }
   return;
 }

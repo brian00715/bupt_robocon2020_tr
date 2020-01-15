@@ -107,7 +107,7 @@ void handle_exe()
     temp_fturn = 100 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI/2) * (-1);
   }
   else 
-    chassis.fturn = 0;
+    temp_fturn = 0;
   float fturn_diff = temp_fturn - chassis.fturn;
     if(fturn_diff > 3){
       chassis.fturn += 3;
