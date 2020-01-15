@@ -79,8 +79,40 @@ void handle_exe()
   if(0 == flag.main_flag || flag.chassis_handle_flag == 0) return;
   
   chassis.fangle = atan2(chassis_handle.ly, chassis_handle.lx);
-  //chassis.fangle = chassis.fangle - chassis.angle;
   //TODO 为手柄控制加入pid
+  //加减速用线性变化，此处将速度值设为temp--czh add
+  int temp_fspeed = 2*(int)( sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx) );
+  
+  if(temp_fspeed < CHASSIS_HANDLE_MIN_SPEED) {
+    temp_fspeed = 0;
+    }
+  if(temp_fspeed > CHASSIS_HANDLE_MAX_SPEED) {
+    temp_fspeed = CHASSIS_HANDLE_MAX_SPEED;
+  }
+  int fspeed_diff = temp_fspeed - chassis.fspeed;
+  if(fspeed_diff > 2){
+    chassis.fspeed +=2;
+  }
+  else if(temp_fspeed <-2){
+    chassis.fspeed -=2;
+  }
+  else chassis.fspeed = temp_fspeed;
+
+  int temp_fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);  
+  if(temp_fturn > 100){
+    temp_fturn = 100 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI/2) * (-1);
+    int fturn_diff = temp_fturn - chassis.fturn;
+    if(fturn_diff > 3){
+      chassis.fturn += 3;
+    }
+    else if(fturn_diff <-3){
+      chassis.fturn -= 3;
+    }
+    else chassis.fturn = temp_fturn;
+  }
+  else 
+    chassis.fturn = 0;
+  /*
   chassis.fspeed = (int)( sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx) );
   if(chassis.fspeed < CHASSIS_HANDLE_MIN_SPEED) {
     chassis.fspeed = 0;
@@ -94,6 +126,6 @@ void handle_exe()
   }
   else 
     chassis.fturn = 0;
-  
+  */
   chassis_move(chassis.fspeed,chassis.fangle,chassis.fturn);  
 }

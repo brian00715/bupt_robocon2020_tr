@@ -158,7 +158,7 @@ int main(void)
     laser_exe();//激光  
     chassis_exe();//底盘，及坐标更新
 
-    //加入底盘，下方的测试函数弃用，故改为2,--czh
+    //加入底盘，下方的测试函数改为将全场定位数据输出
     if(test_flag0 == 1) {
       test_flag0 = 0;
       vega_print_pos_can();

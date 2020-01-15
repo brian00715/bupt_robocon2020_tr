@@ -208,6 +208,17 @@ int chassis_move_trace(Point points_pos[],int point_num){
 }
 /**底盘顶层驱动(跑全场轨迹)*/
 void chassis_move_traces(int trace_num){
+  switch (trace_num)
+  {
+  case 0:
+    //do nothing
+    break;
+  case 1:
+
+    break;
+  default:
+    break;
+  }
 
 }
 /****************************测试**************************/
