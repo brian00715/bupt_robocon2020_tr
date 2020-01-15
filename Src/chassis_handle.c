@@ -47,8 +47,12 @@ case 4:
 case 5:
   break;
 case 6:
+  //跑轨迹测试用
+  chassis_status.trace_count = 1;
   break;
 case 7:
+  //跑轨迹测试用
+  chassis_status.trace_count = 0;
   break;
 case 8:
   break;
@@ -98,10 +102,13 @@ void handle_exe()
   }
   else chassis.fspeed = temp_fspeed;
 
-  int temp_fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);  
+  float temp_fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);  
   if(temp_fturn > 100){
     temp_fturn = 100 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI/2) * (-1);
-    int fturn_diff = temp_fturn - chassis.fturn;
+  }
+  else 
+    chassis.fturn = 0;
+  float fturn_diff = temp_fturn - chassis.fturn;
     if(fturn_diff > 3){
       chassis.fturn += 3;
     }
@@ -109,9 +116,6 @@ void handle_exe()
       chassis.fturn -= 3;
     }
     else chassis.fturn = temp_fturn;
-  }
-  else 
-    chassis.fturn = 0;
   /*
   chassis.fspeed = (int)( sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx) );
   if(chassis.fspeed < CHASSIS_HANDLE_MIN_SPEED) {

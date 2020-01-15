@@ -89,6 +89,7 @@ void chassis_init_status();
 void chassis_init_pos(float x,float y);
 void chassis_init(void);
 
+void chassis_swap_xy(Point points_pos[],int point_num);
 float chassis_calculate_traceangle(float point_x , float point_y);
 int chassis_calculate_linespeed(float point_x , float point_y , int start_speed , int final_speed , int max_speed);
 
