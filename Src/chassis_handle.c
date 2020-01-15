@@ -81,26 +81,29 @@ void handle_rocker(can_msg *data)
 void handle_exe()
 {
   if(0 == flag.main_flag || flag.chassis_handle_flag == 0) return;
-  
-  chassis.fangle = atan2(chassis_handle.ly, chassis_handle.lx);
+  //速度为零时，应不读取角度，故将此处的角度先读为temp,
+  float temp_fangle = atan2(chassis_handle.ly, chassis_handle.lx);
   //TODO 为手柄控制加入pid
   //加减速用线性变化，此处将速度值设为temp--czh add
   int temp_fspeed = 2*(int)( sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx) );
-  
+ 
   if(temp_fspeed < CHASSIS_HANDLE_MIN_SPEED) {
     temp_fspeed = 0;
     }
+  else chassis.fangle = temp_fangle;//速度有效时才对终角赋值
+
   if(temp_fspeed > CHASSIS_HANDLE_MAX_SPEED) {
     temp_fspeed = CHASSIS_HANDLE_MAX_SPEED;
   }
+
   int fspeed_diff = temp_fspeed - chassis.fspeed;
-  if(fspeed_diff > 2){
-    chassis.fspeed +=2;
+  if(fspeed_diff > 5){
+    chassis.fspeed =chassis.fspeed + 5;
   }
-  else if(temp_fspeed <-2){
-    chassis.fspeed -=2;
+  else if(fspeed_diff <-5){
+    chassis.fspeed =chassis.fspeed - 5;
   }
-  else chassis.fspeed = temp_fspeed;
+  else chassis.fspeed =temp_fspeed;
 
   float temp_fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);  
   if(temp_fturn > 100){
@@ -109,7 +112,7 @@ void handle_exe()
   else 
     temp_fturn = 0;
   float fturn_diff = temp_fturn - chassis.fturn;
-    if(fturn_diff > 3){
+  if(fturn_diff > 3){
       chassis.fturn += 3;
     }
     else if(fturn_diff <-3){
