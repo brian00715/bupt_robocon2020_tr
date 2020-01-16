@@ -39,7 +39,7 @@ PointContainer* GetTargetTarck(char tName[]){
     uprintf("No track found!\r\n");
     return NULL;
 }
-//TODO :待测试
+//TODO :待测试.目前有问题,会越界
 /**对路径按rank进行排序打印*/
 int point_print_path(){
     int length = sizeof(pContainer)/sizeof(pContainer[0]);    

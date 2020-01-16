@@ -12,7 +12,7 @@ Data:           2019/12/09
 #include "point_parser.h"
 
 
-#define MAX_CHASSIS_MOTOR_SPEED 630           //! chassis_canset_motorspeed中对电机速度限幅
+#define MAX_CHASSIS_MOTOR_SPEED 301           //! chassis_canset_motorspeed中对电机速度限幅
 #define MAX_CHASSIS_ANGLE_SPEED 350                 //! chassis_move中对自转速度做限幅
 
 Chassis chassis;
@@ -50,15 +50,29 @@ void chassis_init_pos(float x,float y){
 }
 /**底盘初始化*/
 void chassis_init(void){
-  chassis_init_pos(0.439f,0.320f);
-  /*原函数在下方，注释掉了，暂时不用轨迹*/
-  /*
-  chassis_init_pos(points_pos0[0].x , points_pos0[0].y);
+  //chassis_init_pos(0.439f,0.320f); //全场定位坐标偏移，测试用
+  //启用轨迹时的函数初始化
+  chassis_swap_xy(points_pos0,150);//将xy坐标进行一次交换以适应场地
+  chassis_swap_xy(points_pos1,83);//将xy坐标进行一次交换以适应场地
+  chassis_init_pos(points_pos0[1].x , points_pos0[1].y);
   chassis_init_status();
-  point_print_path(); //轨迹排序打印
-  */
+  //point_print_path(); //轨迹排序打印,有问题，
 }
 /****************************计算**************************/
+//交换x、y坐标的函数，同时修正0度方向，由于轨迹规划上位机坐标轴与实际坐标轴不符合而使用
+//参数：待交换轨迹集，轨迹集内点个数
+//author：zohycao
+void chassis_swap_xy(Point points_pos[],int point_num){
+  int i;
+  float temp_pos;
+  for(i=0;i<point_num;i++){
+    temp_pos=points_pos[i].x;
+    points_pos[i].x = points_pos[i].y;
+    points_pos[i].y = temp_pos;
+    points_pos[i].direct -= PI/2;
+  }
+  return;
+}
 
 /**计算到目标点的角度*/
 float chassis_calculate_traceangle(float point_x , float point_y){
@@ -124,7 +138,6 @@ float ERR_angle_m2 = PI/3, ERR_angle_m1 = -PI/3, ERR_angle_m0 = PI; //三轮与�
     angle_output = target_angle;
     Limit(angle_output,MAX_CHASSIS_ANGLE_SPEED);  
   }
-
 
   float motor0 = speed_out_0 + angle_output;
   float motor1 = speed_out_1 + angle_output;
@@ -208,6 +221,21 @@ int chassis_move_trace(Point points_pos[],int point_num){
 }
 /**底盘顶层驱动(跑全场轨迹)*/
 void chassis_move_traces(int trace_num){
+  switch (trace_num)
+  {
+  case 0:
+    //do nothing
+    break;
+  case 1:
+    chassis_move_trace(points_pos0,150);
+    uprintf("TraceOne Done");
+    break;
+  case 2:
+    chassis_move_trace(points_pos1,83);
+    uprintf("TraceOne Done");
+  default:
+    break;
+  }
 
 }
 /****************************测试**************************/
@@ -268,7 +296,7 @@ void chassis_pos_update(){
 void chassis_exe(){
   chassis_pos_update();
   if(flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0){
-    //chassis_move_traces(chassis_status.trace_count);
+    chassis_move_traces(chassis_status.trace_count);
     return;
   }
   if(flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0){
