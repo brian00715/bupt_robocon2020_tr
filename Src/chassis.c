@@ -53,7 +53,8 @@ void chassis_init(void){
   //chassis_init_pos(0.439f,0.320f); //全场定位坐标偏移，测试用
   //启用轨迹时的函数初始化
   chassis_swap_xy(points_pos0,150);//将xy坐标进行一次交换以适应场地
-  chassis_init_pos(points_pos0[0].x , points_pos0[0].y);
+  chassis_swap_xy(points_pos1,83);//将xy坐标进行一次交换以适应场地
+  chassis_init_pos(points_pos0[1].x , points_pos0[1].y);
   chassis_init_status();
   //point_print_path(); //轨迹排序打印,有问题，
 }
@@ -229,6 +230,9 @@ void chassis_move_traces(int trace_num){
     chassis_move_trace(points_pos0,150);
     uprintf("TraceOne Done");
     break;
+  case 2:
+    chassis_move_trace(points_pos1,83);
+    uprintf("TraceOne Done");
   default:
     break;
   }

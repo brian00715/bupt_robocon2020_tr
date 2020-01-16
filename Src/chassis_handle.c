@@ -48,7 +48,7 @@ case 5:
   break;
 case 6:
   //跑轨迹测试用
-  chassis_status.trace_count = 1;
+  chassis_status.trace_count = 2;
   break;
 case 7:
   //跑轨迹测试用
