@@ -8,7 +8,7 @@ void can_id_init()
     send_id.motor0_id = 101;
     send_id.motor1_id = 102;
     send_id.motor2_id = 103;  
-    send_id.lcd_id = 201;
+    send_id.lcd_id = 121;
     
     recive_id.handle_button_id = 98;
     recive_id.handle_rocker_id = 99;

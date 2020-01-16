@@ -142,7 +142,7 @@ int main(void)
   flag.chassis_handle_flag = 0;
 
 
-  int i;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -241,7 +241,7 @@ void inc(void)
     //20ms
     if (time_1ms_cnt % 20 == 0)
     {
-flag.lcd_flag = 1;
+
       
     }
     if (time_1ms_cnt % 10 == 0)
@@ -252,7 +252,8 @@ flag.lcd_flag = 1;
 
     //5ms
     if (time_1ms_cnt % 5 == 0)
-    {
+    { 
+      flag.lcd_flag = 1;
       
       test_flag0 = 1;
       if (chassis_status.vega_is_ready == 1)
