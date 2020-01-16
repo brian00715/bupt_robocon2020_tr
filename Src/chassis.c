@@ -12,18 +12,16 @@ Data:           2019/12/09
 #include "point_parser.h"
 
 
-#define MAX_CHASSIS_MOTOR_SPEED 301           //! chassis_canset_motorspeed中对电机速度限幅
+#define MAX_CHASSIS_MOVE_SPEED 500                  //! chassis_move中对移动速度做限幅
 #define MAX_CHASSIS_ANGLE_SPEED 350                 //! chassis_move中对自转速度做限幅
 
 Chassis chassis;
 Chassis_Status chassis_status;
 
-PID_Struct y_pid = {3000,175000,0,0,0,5000,0,0.005};//速度方向控制
-PID_Struct angle_pid = {-1000,0,0,0,0,5000,0,0.005};//偏高角控制
+PID_Struct y_pid = {1500,175000,0,0,0,5000,0,0.005}; //速度方向控制
+PID_Struct angle_pid = {1000,0,0,0,0,5000,0,0.005};  //偏高角控制
 
 float Arrive_distance = 0.005;
-
-
 /*****************************初始化*************************/
 
 /**底盘状态初始化*/
@@ -54,7 +52,8 @@ void chassis_init(void){
   //启用轨迹时的函数初始化
   chassis_swap_xy(points_pos0,150);//将xy坐标进行一次交换以适应场地
   chassis_swap_xy(points_pos1,83);//将xy坐标进行一次交换以适应场地
-  chassis_init_pos(points_pos0[1].x , points_pos0[1].y);
+  // chassis_init_pos(points_pos0[1].x , points_pos0[1].y);
+  chassis_init_pos(0 ,0);
   chassis_init_status();
   //point_print_path(); //轨迹排序打印,有问题，
 }
@@ -80,8 +79,13 @@ float chassis_calculate_traceangle(float point_x , float point_y){
 }
 /**计算直线跑点速度*/
 int chassis_calculate_linespeed(float point_x , float point_y , int start_speed , int final_speed , int max_speed){
-  float distance_to_target = sqrtf( (point_x - chassis.pos_x)*(point_x - chassis.pos_x) + (point_y - chassis.pos_y)*(point_y - chassis.pos_y) );
-  int int_speed = (int)((final_speed - start_speed)*distance_to_target + start_speed);
+  float distance_to_target =1000* sqrtf( (point_x - chassis.pos_x)*(point_x - chassis.pos_x) + (point_y - chassis.pos_y)*(point_y - chassis.pos_y) );
+  
+  //int int_speed = (int)((start_speed - final_speed)*distance_to_target + final_speed);  
+  
+  int int_speed = (int) distance_to_target;
+
+  // if(int_speed < 0) int_speed = -int_speed;
   Limit_From_To(int_speed,0,max_speed);
   return int_speed;
 }
@@ -101,12 +105,8 @@ void chassis_canset_motorduty(int s1,int s2,int s3){
     can_send_msg(send_id.motor1_id, &can_TX_data[1]);
     can_send_msg(send_id.motor2_id, &can_TX_data[2]);
 }
-
 void chassis_canset_motorspeed(int s1,int s2,int s3){
     can_msg can_TX_data[3];
-    Limit(s1,MAX_CHASSIS_MOTOR_SPEED);
-    Limit(s2,MAX_CHASSIS_MOTOR_SPEED);
-    Limit(s3,MAX_CHASSIS_MOTOR_SPEED);
 
     can_TX_data[0].in[0] = 1;
     can_TX_data[1].in[0] = 1;
@@ -121,17 +121,17 @@ void chassis_canset_motorspeed(int s1,int s2,int s3){
 }
 /**底盘底层驱动(跑速度):speed 速度;direction 速度方向;target_angle 偏航角*/
 void chassis_move(int speed , float direction, float target_angle){
+  float ERR_angle_m2 = PI/3, ERR_angle_m1 = -PI/3, ERR_angle_m0 = PI; //三轮与全场定位模块安装偏角
 
-  //TODO  角度
-float ERR_angle_m2 = PI/3, ERR_angle_m1 = -PI/3, ERR_angle_m0 = PI; //三轮与全场定位模块安装偏角
-  //FIXME  角度解算
+  Limit(speed,MAX_CHASSIS_MOVE_SPEED);
+
   float speed_out_0 = -(speed*cos((ERR_angle_m0 + chassis.angle) - direction));
   float speed_out_1 = -(speed*cos((ERR_angle_m1 + chassis.angle) - direction));
   float speed_out_2 = -(speed*cos((ERR_angle_m2 + chassis.angle) - direction));  
   float angle_output = 0;
-  //TODO 此处将angle_output改为了两种，即自动时为偏航角，手动时为自旋角速度，后续需改成根据MODE再判断，
+  //此处将angle_output改为了两种，即自动时为偏航角，手动时为自旋角速度，后续需改成根据MODE再判断，
   if(flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0){
-    angle_output = PID_Release(&angle_pid, target_angle, chassis.angle);
+    angle_output = - PID_Release(&angle_pid, target_angle, chassis.angle);
     Limit(angle_output,MAX_CHASSIS_ANGLE_SPEED);  
   }
   else if(flag.chassis_auto_flag == 0 && flag.chassis_handle_flag == 1){
@@ -156,12 +156,11 @@ void chassis_move_vector(vec now_speed_vec, vec target_speed_vec, vec distance_v
 
   float vx_output = vec_model(target_speed_vec);
   //TODO :pid控制量改为distance
-  float vy_output = -PID_Release(&y_pid,0,vector_d);
+  float vy_output = - PID_Release(&y_pid,0,vector_d);
   //TODO 向量法向为顺时针90度是否正确
   vec output = vec_add(target_speed_vec , vec_mul_i(vec_normal(target_speed_vec),vy_output));
   
   chassis.fspeed = (int)vec_model(output);
-  Limit(chassis.fspeed,2100);
   chassis.fangle = atan2(output.y,output.x);
   chassis_move(chassis.fspeed ,chassis.fangle, target_angle);
   }
@@ -173,9 +172,6 @@ int chassis_move_trace(Point points_pos[],int point_num){
     chassis_status.point_num = point_num;
     chassis_status.is_begin = 0;
   }
-
-  
-
   static vec now_speed_vec, target_speed_vec, distance_vec;
   now_speed_vec = vec_create(chassis.speed_x,chassis.speed_y);
   target_speed_vec = vec_create((float)points_pos[chassis_status.count].speed * cos(points_pos[chassis_status.count].direct),
@@ -200,7 +196,6 @@ int chassis_move_trace(Point points_pos[],int point_num){
       return 1;
     }
   }
-
   if(chassis_status.count < chassis_status.point_num - 3){
     chassis_move_vector(now_speed_vec, target_speed_vec, distance_vec, points_pos[chassis_status.count].target_angle);
   }
@@ -221,6 +216,8 @@ int chassis_move_trace(Point points_pos[],int point_num){
 }
 /**底盘顶层驱动(跑全场轨迹)*/
 void chassis_move_traces(int trace_num){
+  vec test0 ={0};
+  vec test;
   switch (trace_num)
   {
   case 0:
@@ -228,25 +225,40 @@ void chassis_move_traces(int trace_num){
     break;
   case 1:
     chassis_move_trace(points_pos0,150);
-    uprintf("TraceOne Done");
     break;
   case 2:
     chassis_move_trace(points_pos1,83);
-    uprintf("TraceOne Done");
+    break;
+  case 3:
+    chassis_move_trace(points_pos2,83);
+    break;
+  case 4:
+    chassis_goto_point(0,0);
+    break;
+  case 5:
+    chassis_goto_point(1,0);
+    break;
+  case 6:
+    test.x= 1;
+    test.x= 1;
+    chassis_goto_vector(test);
+  break;
+  case 7:    
+    chassis_goto_vector(test0);
+    break;
   default:
     break;
   }
 
 }
 /****************************测试**************************/
-
 /**测试用：随距离减速到某一目标点*/
 void chassis_goto_point(float point_x , float point_y){
   //TODO goto待修改
   float distance = sqrtf( (chassis.pos_x - point_x)*(chassis.pos_x - point_x) + (chassis.pos_y - point_y)*(chassis.pos_y - point_y) );
   if( distance >= Arrive_distance ){     
     chassis.fangle = chassis_calculate_traceangle(point_x , point_y);
-    chassis.fspeed = chassis_calculate_linespeed(point_x ,point_y,150,0,450);
+    chassis.fspeed = chassis_calculate_linespeed(point_x ,point_y,150,0,300);
     chassis_move( chassis.fspeed , chassis.fangle , 0);
   }  
   else{
@@ -260,12 +272,11 @@ void chassis_goto_point(float point_x , float point_y){
 void chassis_goto_vector(vec target_position){
   chassis.fturn = 0;  
   vec distance_vec = vec_create(target_position.x - chassis.pos_x,target_position.y - chassis.pos_y);
-  vec target_speed_vec = vec_create(0,0);
+  vec target_speed_vec = vec_create(300,300);
   vec now_speed_vec = vec_create(chassis.speed_x,chassis.speed_y);
   chassis_move_vector(now_speed_vec, target_speed_vec, distance_vec, chassis.angle);
 }
 /****************************状态&执行**************************/
-
 /**跑完每一段路径后,标志位的改变*/
 void chassis_finish_onetrace(){
   //TODO: 内容待更改

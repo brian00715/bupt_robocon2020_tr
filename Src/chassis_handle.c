@@ -18,12 +18,14 @@ void handle_button(can_msg *data)
  //TODO手柄按键功能
  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));
  switch(id){
-case 0:
+ case 0:
+ case 30:
   flag.chassis_handle_flag = 1;
   flag.chassis_auto_flag = 0;
   uprintf("Change to handle_mode\r\n");
   break;
 case 1:
+case 31:
   flag.chassis_handle_flag = 0;
   flag.chassis_auto_flag = 1;
   uprintf("Change to Auto_mode\r\n");
@@ -46,17 +48,30 @@ case 4:
   break;
 case 5:
   break;
-case 6:
-  //跑轨迹测试用
-  chassis_status.trace_count = 2;
-  break;
-case 7:
-  //跑轨迹测试用
+case 6://停下
   chassis_status.trace_count = 0;
   break;
+case 7:
+  chassis_status.trace_count = 1;
+  break;
 case 8:
+  chassis_status.trace_count = 2;
   break;
 case 9:
+  chassis_status.trace_count = 3;
+  break;
+  
+case 36:
+  chassis_status.trace_count = 4;
+  break;
+case 37:
+  chassis_status.trace_count = 5;
+  break;
+case 38:
+  chassis_status.trace_count = 6;
+  break;
+case 39:
+  chassis_status.trace_count = 7;
   break;
 default:break;
  }
