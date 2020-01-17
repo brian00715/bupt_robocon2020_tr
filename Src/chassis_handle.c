@@ -18,17 +18,15 @@ void handle_button(can_msg *data)
  //TODO手柄按键功能
  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));
  switch(id){
- case 0:
- case 30:
-  flag.chassis_handle_flag = 1;
-  flag.chassis_auto_flag = 0;
-  uprintf("Change to handle_mode\r\n");
-  break;
-case 1:
-case 31:
+ case 0:case 10:case 20:case 30:
   flag.chassis_handle_flag = 0;
   flag.chassis_auto_flag = 1;
   uprintf("Change to Auto_mode\r\n");
+  break;
+case 1:case 11:case 21:case 31:
+  flag.chassis_handle_flag = 1;
+  flag.chassis_auto_flag = 0;
+  uprintf("Change to handle_mode\r\n");
   break;
 case 2:
   if(data->ui8[2] == 'u'){
@@ -44,9 +42,11 @@ case 3:
   uprintf("Touchdown try finish\r\n");
   }
   break;
-case 4:
+case 4:case 14:case 24:case 34:
+chassis_status.trace_count = -1;
   break;
-case 5:
+case 5:case 15:case 25:case 35:
+chassis_status.trace_count = -1;
   break;
 case 6://停下
   chassis_status.trace_count = 0;
@@ -93,14 +93,13 @@ void handle_rocker(can_msg *data)
   chassis_handle.lx *= -1;
 }
 //TODO handle_button 在哪里使用参数can_msg来源 手柄发送问题
-void handle_exe()
-{
+void handle_exe(){
   if(0 == flag.main_flag || flag.chassis_handle_flag == 0) return;
   //速度为零时，应不读取角度，故将此处的角度先读为temp,
   float temp_fangle = atan2(chassis_handle.ly, chassis_handle.lx);
   //TODO 为手柄控制加入pid
   //加减速用线性变化，此处将速度值设为temp--czh add
-  int temp_fspeed = 2*(int)( sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx) );
+  int temp_fspeed = 4*(int)( sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx) );
  
   if(temp_fspeed < CHASSIS_HANDLE_MIN_SPEED) {
     temp_fspeed = 0;
@@ -115,8 +114,8 @@ void handle_exe()
   if(fspeed_diff > 5){
     chassis.fspeed =chassis.fspeed + 5;
   }
-  else if(fspeed_diff <-5){
-    chassis.fspeed =chassis.fspeed - 5;
+  else if(fspeed_diff <-10){
+    chassis.fspeed =chassis.fspeed - 10;
   }
   else chassis.fspeed =temp_fspeed;
 
@@ -127,11 +126,11 @@ void handle_exe()
   else 
     temp_fturn = 0;
   float fturn_diff = temp_fturn - chassis.fturn;
-  if(fturn_diff > 3){
-      chassis.fturn += 3;
+  if(fturn_diff > 5){
+      chassis.fturn += 5;
     }
-    else if(fturn_diff <-3){
-      chassis.fturn -= 3;
+    else if(fturn_diff <-5){
+      chassis.fturn -= 5;
     }
     else chassis.fturn = temp_fturn;
   /*

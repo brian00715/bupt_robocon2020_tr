@@ -24,10 +24,11 @@ int lcd_add(char tag[],void* value_pointer){
     return lcd_msg_length;
 }
 void lcd_init(){
-    lcd_add("IMAF",&magnet_state);
-    lcd_add("IMI",&microswitch_state);
-    lcd_add("IIN",&infrared_state);
-    lcd_add("ICY",&cylinder_state);
+    lcd_add("FX",&chassis.vega_pos_x);
+    lcd_add("FY",&chassis.vega_pos_y);
+    lcd_add("FA",&chassis.vega_angle);
+    // lcd_add("ICY",&cylinder_state);
+    lcd_add("ICN",&chassis_status.count);
     // lcd_add("Fvx",&chassis.vega_pos_x);
     // lcd_add("Fvy",&chassis.vega_pos_x);
     // lcd_add("Fva",&chassis.vega_angle);
