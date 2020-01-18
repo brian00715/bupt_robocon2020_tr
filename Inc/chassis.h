@@ -105,8 +105,7 @@ void chassis_goto_vector(vec target_position);
 void chassis_finish_onetrace();
 void chassis_pos_update();
 void chassis_exe();
-
-
+void _chassis_move_vector_2(vec now_speed_vec, vec target_speed_vec, vec distance_vec, float target_angle);
 #ifdef __cplusplus
 }
 #endif

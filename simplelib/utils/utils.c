@@ -1,9 +1,9 @@
 #include "utils.h"
 
-void PID_init() {
+void PID_init(){
 }
 
-float PID_Release(PID_Struct *PID, float target, float now) {
+float PID_Release(PID_Struct *PID, float target, float now){
     float err;
     float err_dt;
     float result;
