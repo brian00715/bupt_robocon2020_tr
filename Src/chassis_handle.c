@@ -18,12 +18,12 @@ void handle_button(can_msg *data)
  //TODO手柄按键功能
  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));
  switch(id){
- case 0:case 10:case 20:case 30:
+ case 0:case 10:case 20:
   flag.chassis_handle_flag = 0;
   flag.chassis_auto_flag = 1;
   uprintf("Change to Auto_mode\r\n");
   break;
-case 1:case 11:case 21:case 31:
+case 1:case 11:case 21:
   flag.chassis_handle_flag = 1;
   flag.chassis_auto_flag = 0;
   uprintf("Change to handle_mode\r\n");
@@ -42,36 +42,71 @@ case 3:
   uprintf("Touchdown try finish\r\n");
   }
   break;
+
+  break;
+case 6:
+  chassis_status.trace_count = 1;
+  break;
+case 7:
+  chassis_status.trace_count = 10;
+  break;
+case 8:  
+  break;
+case 9:
+  break;
+  
 case 4:case 14:case 24:case 34:
 chassis_status.trace_count = -1;
   break;
 case 5:case 15:case 25:case 35:
 chassis_status.trace_count = -1;
   break;
-case 6://停下
-  chassis_status.trace_count = 0;
+ 
+case 30:
+    flag.chassis_auto_flag=1;
+    flag.chassis_handle_flag=0;
+  chassis_status.trace_count = 7;
   break;
-case 7:
-  chassis_status.trace_count = 1;
-  break;
-case 8:
-  chassis_status.trace_count = 2;
-  break;
-case 9:
-  chassis_status.trace_count = 3;
-  break;
-  
-case 36:
-  chassis_status.trace_count = 4;
-  break;
-case 37:
-  chassis_status.trace_count = 5;
-  break;
-case 38:
+case 31:
+  flag.chassis_auto_flag=1;
+  flag.chassis_handle_flag=0;
   chassis_status.trace_count = 6;
   break;
+case 32:
+  if(data->ui8[2] == 'u'){
+    touchdown_status = TOUCHDOWN_GETBALL;    
+    touchdown_ready_flag = 1;
+    touchdown_try_flag = 1;
+    uprintf("Touchdown try\r\n");
+  }
+  break;
+case 33:
+  if(data->ui8[2] == 'u'){
+  touchdown_try_finish_flag = 1;
+  uprintf("Touchdown try finish\r\n");
+  }
+  break;
+
+  
+case 36:
+flag.chassis_auto_flag=1;
+    flag.chassis_handle_flag=0;
+  chassis_status.trace_count = 2;
+  break;
+case 37:
+flag.chassis_auto_flag=1;
+    flag.chassis_handle_flag=0;
+  chassis_status.trace_count = 3;
+  break;
+case 38:
+flag.chassis_auto_flag=1;
+    flag.chassis_handle_flag=0;
+  chassis_status.trace_count = 4;
+  break;
 case 39:
-  chassis_status.trace_count = 7;
+flag.chassis_auto_flag=1;
+    flag.chassis_handle_flag=0;
+  chassis_status.trace_count = 5;
   break;
 default:break;
  }

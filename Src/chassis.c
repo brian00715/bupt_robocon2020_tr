@@ -26,7 +26,7 @@ float Arrive_distance = 0.005;
 
 /**底盘状态初始化*/
 void chassis_init_status(){
-  chassis_status.go_to_point = 0;           //go_to_point_for_test函数控制变量，1为开启，0为关闭
+  chassis_status.go_to_point = -1;           //go_to_point_for_test函数控制变量，1为开启，0为关闭
   chassis_status.count = 0;                //跑点计数，初试为0
   chassis_status.trace_count = 0;
   chassis_status.run_point = 0;
@@ -48,20 +48,6 @@ void chassis_init_pos(float x,float y){
 }
 /**底盘初始化*/
 void chassis_init(void){
-  chassis_swap_xy(points_pos4,81);
-  chassis_swap_xy(points_pos5,83);
-  chassis_swap_xy(points_pos6,83);
-  //启用轨迹时的函数初始化
-  // chassis_swap_xy(points_pos11,83);
-  // chassis_swap_xy(points_pos12,83);
-  // chassis_swap_xy(points_pos13,83);
-  // chassis_swap_xy(points_pos14,83);
-  // chassis_swap_xy(points_pos15,83);
-  // chassis_swap_xy(points_pos16,83);
-  // chassis_swap_xy(points_pos17,83);
-  // chassis_swap_xy(points_pos18,83);
-  // chassis_swap_xy(points_pos19,83);
-  // chassis_swap_xy(points_pos20,83);
   // chassis_init_pos(points_pos0[1].x , points_pos0[1].y);
   chassis_init_pos(0,0);
   chassis_init_status();
@@ -78,8 +64,7 @@ void chassis_swap_xy(Point points_pos[],int point_num){
     points_pos[i].x = points_pos[i].y;
     points_pos[i].y = temp_pos;
     points_pos[i].direct = - points_pos[i].direct;
-    points_pos[i].direct += PI/2;
-    
+    points_pos[i].direct += PI/2;  
   }
   return;
 }
@@ -213,7 +198,7 @@ int chassis_move_trace(Point points_pos[],int point_num){
   }
   if(chassis_status.count < chassis_status.point_num - 3){
 
-//  _chassis_move_vector_2(now_speed_vec, target_speed_vec, distance_vec, points_pos[chassis_status.count].target_angle);
+ //  _chassis_move_vector_2(now_speed_vec, target_speed_vec, distance_vec, points_pos[chassis_status.count].target_angle);
     chassis_move_vector(now_speed_vec, target_speed_vec, distance_vec, points_pos[chassis_status.count].target_angle);
   }
   /*由于速度慢，最后三个点采用其它跑点方法*/
@@ -235,6 +220,7 @@ int chassis_move_trace(Point points_pos[],int point_num){
     chassis.fspeed = chassis_calculate_linespeed(points_pos[chassis_status.count].x ,points_pos[chassis_status.count].y,20,0,20);
     chassis_move(chassis.fspeed,chassis.fangle,points_pos[chassis_status.count].target_angle);
     chassis_finish_onetrace();
+    return 1;
   }
   return 0;
 }
@@ -243,29 +229,70 @@ void chassis_move_traces(int trace_num){
   vec test0 ={0};
   vec test;
   switch (trace_num){
+  case -2:
+    chassis_move(0,0,0);
+    break;
   case -1:
     chassis_canset_motorspeed(0,0,0);
     break;
-  case 0:// mode1 6
+  case 0:
     break;
-  case 1:// mode1 7
+  case 1: //起点-接球
+   if(chassis_status.count == chassis_status.point_num - 2){
+      chassis_status.trace_count = -1;
+      flag.chassis_auto_flag=0;
+      flag.chassis_handle_flag=1;
+    }
+    chassis_move_trace(points_pos0,81);
+    
     break;
-  case 2:// mode1 8
+  case 2: //接球-达阵1  mode4 6
+  if(chassis_status.count == chassis_status.point_num - 1){
+      chassis_status.trace_count = -1;
+      flag.chassis_auto_flag=0;
+      flag.chassis_handle_flag=1;
+    }
+    chassis_move_trace(points_pos1,123);       //点数带更改
+    
     break;
-  case 3:// mode1 9
+  case 3:// 接球-达阵2 mode4 7
+  if(chassis_status.count == chassis_status.point_num - 1){
+      chassis_status.trace_count = -1;
+      flag.chassis_auto_flag=0;
+      flag.chassis_handle_flag=1;
+    }
+      chassis_move_trace(points_pos2,123);       //点数带更改
+    
     break;
-  case 4:// mode4 6    
-  chassis_goto_point(0,0);
+  case 4:// 接球-达阵3 mode4 8
+  if(chassis_status.count == chassis_status.point_num - 1){
+      chassis_status.trace_count = -1;
+      flag.chassis_auto_flag=0;
+      flag.chassis_handle_flag=1;
+    }
+    chassis_move_trace(points_pos3,123);       //点数带更改
+    
     break;
-  case 5:// mode4 7    
-  chassis_move_trace(points_pos5,83);
+  case 5:// 接球-达阵4 mode4 9
+  if(chassis_status.count == chassis_status.point_num - 1){
+      chassis_status.trace_count = -1;
+      flag.chassis_auto_flag=0;
+      flag.chassis_handle_flag=1;
+    }
+    chassis_move_trace(points_pos4,123);       //点数带更改
+    
     break;
-  case 6:// mode4 8
-  chassis_move_trace(points_pos6,83);
+  case 6:// 达阵到接球 mode4 1
+
+    chassis_touchdown_back();
     break;
-  case 7:// mode4 9
-  chassis_move_trace(points_pos4,81);
+  case 7:// 遥控后到接球 mode4 0
+
+    chassis_getball_back();
     break;
+  
+  case 10:
+    chassis_goto_point(0,0);
   default:
     break;
   }
@@ -274,16 +301,16 @@ void chassis_move_traces(int trace_num){
 /****************************测试**************************/
 /**测试用：随距离减速到某一目标点*/
 void chassis_goto_point(float point_x , float point_y){
-  //TODO goto待修改
   float distance = sqrtf((chassis.pos_x - point_x)*(chassis.pos_x - point_x) + (chassis.pos_y - point_y)*(chassis.pos_y - point_y) );
-  if( distance >= Arrive_distance ){     
+  if( distance >= Arrive_distance ){   
+    chassis_status.go_to_point = 1;  
     chassis.fangle = chassis_calculate_traceangle(point_x , point_y);
     chassis.fspeed = chassis_calculate_linespeed(point_x ,point_y,150,0,300);
     chassis_move( chassis.fspeed , chassis.fangle , 0);
   }  
   else{
     chassis_status.go_to_point = 0;
-    // uprintf("arrive:%f,%f,%f\r\n",chassis.pos_x, chassis.pos_y, chassis.angle); 
+    uprintf("arrive:%f,%f,%f\r\n",chassis.pos_x, chassis.pos_y, chassis.angle); 
     chassis_move(0,0,chassis.angle);
   }    
   return;
@@ -388,3 +415,45 @@ void _chassis_move_vector_2(vec now_speed_vec, vec target_speed_vec, vec distanc
 
 }
 ********************************************跑轨迹 改*******************************/
+
+
+void chassis_touchdown_back(){
+  static int arrive_point =0;
+
+  if(arrive_point == 0){
+    chassis_goto_point(4.059,3.802);//!
+  }
+
+  if(chassis_status.go_to_point == 0){arrive_point = 1;chassis_status.go_to_point = -1;}
+
+  if(arrive_point == 1 ){
+    chassis_move(0,0,0);
+    if(chassis.angle < 0.087&&chassis.angle >- 0.087){arrive_point=2;}    
+  }
+
+  if(arrive_point == 2){
+    chassis_move_trace(points_pos4,83);
+    if(chassis_status.count == chassis_status.point_num - 1){
+      chassis_status.trace_count =-1;
+      flag.chassis_auto_flag=0;
+      flag.chassis_handle_flag=1;
+      arrive_point =0;
+    }
+
+  }
+}
+
+void chassis_getball_back(){
+  static int arrive_point =0;
+
+  if(arrive_point == 0){
+    chassis_goto_point(4.976,0.350);//!
+  }
+
+  if(chassis_status.go_to_point == 0){arrive_point = 1;chassis_status.go_to_point = -1;}
+
+  if(arrive_point == 1 ){
+    chassis_move(0,0,0);
+    if(chassis.angle < 0.087&&chassis.angle >- 0.087){chassis_status.trace_count =-1;arrive_point=0;}    
+  }
+}
