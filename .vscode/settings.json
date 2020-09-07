@@ -1,0 +1,14 @@
+{
+    //"files.encoding" :"gb2312",
+    "files.autoGuessEncoding": true,
+    "files.associations": {
+        "calculate.h": "c",
+        "cmd.h": "c",
+        "imitate_spi.h": "c",
+        "stm32f4xx_hal.h": "c",
+        "utils.h": "c",
+        "vega.h": "c"
+    },
+    "cmake.configureOnOpen": false
+
+}

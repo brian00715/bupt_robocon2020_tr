@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "E:\\Robocon_Value\\Chassis_TR"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"can_func.h": "c",
+			"configure.h": "c",
+			"path.h": "c"
+		}
+	}
+}
