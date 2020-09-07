@@ -30,6 +30,7 @@ extern "C" {
 #define RAD2ANGLE(x) (x/PI*180.0f)
 
 /*Struct Area*/
+// 底盘、全场定位、激光的位姿数据
 typedef struct
 {
   float pos_x;           //Chassis
@@ -61,6 +62,7 @@ typedef struct
 
 } Chassis; 
 
+// 底盘的状态机
 typedef struct
 {   
   int vega_is_ready;              //全场定位是否初始化成功变量，1为已经初始化，0为未初始化

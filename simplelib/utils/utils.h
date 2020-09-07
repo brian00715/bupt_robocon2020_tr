@@ -31,6 +31,7 @@ extern "C"
 #define SL_OK 0
 #define SL_ERROR 1
 
+	// PID结构体，成员分别为Kp Kd Ki i last_err i_max last_d I_TIME
 	typedef struct
 	{
 		float KP;

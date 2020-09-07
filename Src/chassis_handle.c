@@ -1,10 +1,10 @@
 /*******************************************************************************
-Copyright:      BUPT
-File name:      chassis_handle.c
-Description:    主要放手柄的控制程序方便封装
-Author:         ZH
-Version：       1.0
-Data:           2019/10/21
+* Copyright:      BUPT
+* File name:      chassis_handle.c
+* Description:    主要放手柄的控制程序方便封装
+* Author:         ZH
+* Version：       1.0
+* Data:           2019/10/21
 *******************************************************************************/
 #include "chassis_handle.h"
 #include "touchdown.h"
@@ -15,7 +15,7 @@ void handle_button(can_msg *data)
 {
   if (0 == flag.main_flag)
     return;
-  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));
+  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));  // data的前两位储存id
   switch (id)
   {
   case 0:
@@ -32,7 +32,7 @@ void handle_button(can_msg *data)
     flag.chassis_auto_flag = 0;
     uprintf("Change to handle_mode\r\n");
     break;
-  case 2:
+  case 2:  // 检测达阵状态是否正常
     if (data->ui8[2] == 'u')
     {
       touchdown_status = TOUCHDOWN_GETBALL;
@@ -122,6 +122,10 @@ void handle_button(can_msg *data)
   }
 }
 
+/**
+ * @brief 处理手柄摇杆的数据
+ * @param data 手柄摇杆的数据使用int16,can可以一次发送4个
+ **/
 void handle_rocker(can_msg *data)
 {
   if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
@@ -137,6 +141,9 @@ void handle_rocker(can_msg *data)
   chassis_handle.lx *= -1;
 }
 
+/**
+ * @brief 手柄执行函数
+ **/
 void handle_exe()
 {
   if (0 == flag.main_flag || flag.chassis_handle_flag == 0)

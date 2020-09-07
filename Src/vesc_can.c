@@ -28,6 +28,7 @@
 #include "kickball.h"
 
 /* Buffer Functions---------------------------------------------------*/
+// 用以将can的8位数据段逐位填充
 void buffer_append_int16(uint8_t *buffer, int16_t number, int32_t *index)
 {
     buffer[(*index)++] = number >> 8;
@@ -156,6 +157,7 @@ float buffer_get_float32_auto(const uint8_t *buffer, int32_t *index)
 
     return ldexpf(sig, e);
 }
+/* Buffer Functions [END]---------------------------------------------------*/
 
 /* CAN Functions---------------------------------------------------*/
 

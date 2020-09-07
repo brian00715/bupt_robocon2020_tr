@@ -29,6 +29,7 @@ double vec_model(vec a)
 {
   return sqrt(a.x * a.x + a.y * a.y);
 }
+
 /**生成向量*/
 vec vec_create(float x, float y)
 {

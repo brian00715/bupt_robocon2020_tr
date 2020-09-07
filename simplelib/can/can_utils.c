@@ -83,7 +83,7 @@ void can_exc_callback(void)
 }
 
 /**
- * brief can接收中断函数
+ * @brief can接收中断函数
  */
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
@@ -117,7 +117,7 @@ int can_send_msg(uint16_t std_id, can_msg *msg)
 #ifdef DEBUG
     uprintf("%d %d %d\r\n", std_id, msg->in[0], msg->in[1]);
 #endif //DEBUG
-    HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox);
+    HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox);  // 发送常规的uint8类型数据
     //   if (HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox) != HAL_OK) {
     //     uprintf("Error: CAN can't send msg.\r\n");
     //     return 1;
@@ -140,7 +140,7 @@ int can_send_msg(uint16_t std_id, can_msg *msg)
                 return 1;
             }
         }
-    };  // TODO:为什么会有问号？
+    };  // TODO:为什么会有分号？
     //return 0;
 }
 

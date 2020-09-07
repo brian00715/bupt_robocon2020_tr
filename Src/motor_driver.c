@@ -4,10 +4,12 @@
 #include "kickball.h"
 #include "motor_driver.h"
 
+/**
+ * @brief 设定本杰明电调的canid为88
+ **/
 void motor_init()
 {
   vesc.id = 88;
-  // vesc.id=88;
 }
 
 //vesc
@@ -44,10 +46,11 @@ void vsec_exe()
     ; //位置环
 }
 
+
 float touchdown_current = 0; // 达阵电流
 float kick_current = 0;      // 踢球电流
 /**
- * @brief m2006电机的执行函数
+ * @brief m2006大疆电机的执行函数
  **/
 void m2006_exe()
 {

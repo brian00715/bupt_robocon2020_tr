@@ -23,7 +23,7 @@ PID_Struct angle_pid = {1000, 0, 0, 0, 0, 5000, 0, 0.005};  //偏高角控制
 float Arrive_distance = 0.005;
 /*****************************初始化*************************/
 
-/**底盘状态初始化*/
+/**底盘状态机初始化*/
 void chassis_init_status()
 {
   chassis_status.go_to_point = -1; // go_to_point_for_test函数控制变量，1为开启，0为关闭
@@ -35,6 +35,7 @@ void chassis_init_status()
   chassis_status.is_begin = 1;
   flag.chassis_control_flag = 0; // 控制周期5ms
 }
+
 /**底盘位置初始化*/
 void chassis_init_pos(float x, float y)
 {
@@ -47,7 +48,8 @@ void chassis_init_pos(float x, float y)
   chassis.vega_init_pos_x += x - chassis.pos_x;
   chassis.vega_init_pos_y += y - chassis.pos_y;
 }
-/**底盘初始化*/
+
+/**底盘总初始化*/
 void chassis_init(void)
 {
   // chassis_init_pos(points_pos0[1].x , points_pos0[1].y);
@@ -58,7 +60,7 @@ void chassis_init(void)
 /****************************计算**************************/
 
 /**
- * @brief 交换x、y坐标的函数，同时修正0度方向，由于轨迹规划上位机坐标轴与实际坐标轴不符合而使用
+ * @brief 交换x、y坐标轴的函数，同时修正0度方向，由于轨迹规划上位机坐标轴与实际坐标轴不符合而使用
  * @param points_pos 待交换轨迹集
  * @param point_num point_num
  * @author zohycao
@@ -98,9 +100,20 @@ int chassis_calculate_linespeed(float point_x, float point_y, int start_speed, i
   return int_speed;
 }
 
-/****************************驱动**************************/
 
-/**底盘电机驱动*/
+
+
+/***********************************【驱动】***********************************
+* 控制架构为：
+* 顶层驱动（跑所有点）→上层驱动（当前点跑到下一个目标点）→中层驱动（跑向量，如何跑到下一个点）→
+  底层驱动（跑速度，实时速度与方向调整）
+*/
+
+
+/**
+ * @brief 底盘电机驱动（设置占空比）
+ * @param s1 s2 s3 三个电机的占空比
+ **/
 void chassis_canset_motorduty(int s1, int s2, int s3)
 {
   can_msg can_TX_data[3];
@@ -116,6 +129,10 @@ void chassis_canset_motorduty(int s1, int s2, int s3)
   can_send_msg(send_id.motor2_id, &can_TX_data[2]);
 }
 
+/**
+ * @brief 底盘电机驱动（设置速度）
+ * @param s1 s2 s3 三个电机的速度
+ **/
 void chassis_canset_motorspeed(int s1, int s2, int s3)
 {
   can_msg can_TX_data[3];
@@ -131,7 +148,6 @@ void chassis_canset_motorspeed(int s1, int s2, int s3)
   can_send_msg(send_id.motor1_id, &can_TX_data[1]);
   can_send_msg(send_id.motor2_id, &can_TX_data[2]);
 }
-
 
 /**
  * @brief  底盘底层驱动(跑速度)
@@ -149,7 +165,7 @@ void chassis_move(int speed, float direction, float target_angle)
   float speed_out_1 = -(speed * cos((ERR_angle_m1 + chassis.angle) - direction));
   float speed_out_2 = -(speed * cos((ERR_angle_m2 + chassis.angle) - direction));
   float angle_output = 0;
-  //此处将angle_output改为了两种，即自动时为偏航角，手动时为自旋角速度，后续需改成根据MODE再判断，
+  // 此处将angle_output改为了两种，即自动时为偏航角，手动时为自旋角速度，后续需改成根据MODE再判断，
   if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)
   {
     angle_output = -PID_Release(&angle_pid, target_angle, chassis.angle);
@@ -166,17 +182,19 @@ void chassis_move(int speed, float direction, float target_angle)
   float motor2 = speed_out_2 + angle_output;
   chassis_canset_motorspeed((int)motor0, (int)motor1, (int)motor2);
 }
-/**
- * 底盘中层驱动(跑向量):now_speed_vec 当前速度;
- * target_speed_vec 目标速度;
- * distance_vec 位移向量; 
- * target_angle偏航角
- **/
+
+
 vec output;
 vec nor;
 float vx_output;
 float vy_output;
 float vector_d = 0;
+/**
+ * @brief 底盘中层驱动(跑向量):now_speed_vec 当前速度;
+ * @param target_speed_vec 目标速度;
+ * @param distance_vec 位移向量; 
+ * @param target_angle 偏航角
+ **/
 void chassis_move_vector(vec now_speed_vec, vec target_speed_vec, vec distance_vec, float target_angle)
 {
   if (vec_is_zero(target_speed_vec))
@@ -200,7 +218,12 @@ void chassis_move_vector(vec now_speed_vec, vec target_speed_vec, vec distance_v
     chassis_move(chassis.fspeed, chassis.fangle, target_angle);
   }
 }
-/**底盘上册层驱动(跑轨迹)：points_pos point 轨迹点集; point_num 轨迹点数 */
+
+/**
+ * @brief  底盘上层驱动(跑轨迹)
+ * @param points_pos 轨迹点集
+ * @param point_num 轨迹点数
+ **/
 int chassis_move_trace(Point points_pos[], int point_num)
 {
   /*只在每一段路径第一次调用这个函数的时候，赋予chassis_status.point_num初值*/
@@ -209,16 +232,19 @@ int chassis_move_trace(Point points_pos[], int point_num)
     chassis_status.point_num = point_num;
     chassis_status.is_begin = 0;
   }
+
   static vec now_speed_vec, target_speed_vec, distance_vec;
   now_speed_vec = vec_create(chassis.speed_x, chassis.speed_y);
   target_speed_vec = vec_create((float)points_pos[chassis_status.count].speed * cos(points_pos[chassis_status.count].direct),
                                 (float)points_pos[chassis_status.count].speed * sin(points_pos[chassis_status.count].direct));
-  distance_vec = vec_create(points_pos[chassis_status.count].x - chassis.pos_x, points_pos[chassis_status.count].y - chassis.pos_y);
+  distance_vec = vec_create(points_pos[chassis_status.count].x - chassis.pos_x,
+                            points_pos[chassis_status.count].y - chassis.pos_y);
 
   double distance_to_next = vec_model(distance_vec);
 
   float dynamic_arrive_distance = 6 * Arrive_distance; //可修改
   int arriveJudge = (distance_to_next <= Arrive_distance || distance_to_next <= dynamic_arrive_distance);
+
   if (arriveJudge && (chassis_status.count <= (chassis_status.point_num - 2))) //判断经过此点
   {
     uprintf("%d---(%f,%f,%f)\r\n", chassis_status.count, chassis.pos_x, chassis.pos_y, chassis.angle);
@@ -231,32 +257,40 @@ int chassis_move_trace(Point points_pos[], int point_num)
     //   return 1;
     // }
   }
+
   if (chassis_status.count < chassis_status.point_num - 3)
   {
-
     //  _chassis_move_vector_2(now_speed_vec, target_speed_vec, distance_vec, points_pos[chassis_status.count].target_angle);
     chassis_move_vector(now_speed_vec, target_speed_vec, distance_vec, points_pos[chassis_status.count].target_angle);
   }
-  /*由于速度慢，最后三个点采用其它跑点方法*/
+
+  /*由于速度慢，*最后三个点*采用其它跑点方法*/
   else if (chassis_status.count == chassis_status.point_num - 3)
   {
     // chassis_status.trace_count = -1;
-    chassis.fangle = chassis_calculate_traceangle(points_pos[chassis_status.count].x, points_pos[chassis_status.count].y);
-    chassis.fspeed = chassis_calculate_linespeed(points_pos[chassis_status.count].x, points_pos[chassis_status.count].y, 60, 40, 60);
+    chassis.fangle = chassis_calculate_traceangle(points_pos[chassis_status.count].x,
+                                                  points_pos[chassis_status.count].y);
+    chassis.fspeed = chassis_calculate_linespeed(points_pos[chassis_status.count].x,
+                                                 points_pos[chassis_status.count].y, 60, 40, 60);
     chassis_move(chassis.fspeed, chassis.fangle, points_pos[chassis_status.count].target_angle);
   }
+
   else if (chassis_status.count == chassis_status.point_num - 2)
   {
     //  chassis_status.trace_count = -1;
-    chassis.fangle = chassis_calculate_traceangle(points_pos[chassis_status.count].x, points_pos[chassis_status.count].y);
-    chassis.fspeed = chassis_calculate_linespeed(points_pos[chassis_status.count].x, points_pos[chassis_status.count].y, 40, 20, 40);
+    chassis.fangle = chassis_calculate_traceangle(points_pos[chassis_status.count].x,
+                                                  points_pos[chassis_status.count].y);
+    chassis.fspeed = chassis_calculate_linespeed(points_pos[chassis_status.count].x,
+                                                 points_pos[chassis_status.count].y, 40, 20, 40);
     chassis_move(chassis.fspeed, chassis.fangle, points_pos[chassis_status.count].target_angle);
     chassis_goto_point(points_pos[chassis_status.count].x, points_pos[chassis_status.count].y);
   }
   else if (chassis_status.count == chassis_status.point_num - 1)
   {
-    chassis.fangle = chassis_calculate_traceangle(points_pos[chassis_status.count].x, points_pos[chassis_status.count].y);
-    chassis.fspeed = chassis_calculate_linespeed(points_pos[chassis_status.count].x, points_pos[chassis_status.count].y, 20, 0, 20);
+    chassis.fangle = chassis_calculate_traceangle(points_pos[chassis_status.count].x,
+                                                  points_pos[chassis_status.count].y);
+    chassis.fspeed = chassis_calculate_linespeed(points_pos[chassis_status.count].x,
+                                                 points_pos[chassis_status.count].y, 20, 0, 20);
     chassis_move(chassis.fspeed, chassis.fangle, points_pos[chassis_status.count].target_angle);
     chassis_finish_onetrace();
     return 1;
@@ -264,7 +298,10 @@ int chassis_move_trace(Point points_pos[], int point_num)
   return 0;
 }
 
-/**底盘顶层驱动(跑全场轨迹)*/
+/**
+ * @brief  底盘顶层驱动(跑全场轨迹)
+ * @param trace_num 
+ **/
 void chassis_move_traces(int trace_num)
 {
   vec test0 = {0};
@@ -344,7 +381,13 @@ void chassis_move_traces(int trace_num)
     break;
   }
 }
+
+
+
+
+
 /****************************测试**************************/
+
 /**测试用：随距离减速到某一目标点*/
 void chassis_goto_point(float point_x, float point_y)
 {
@@ -364,6 +407,7 @@ void chassis_goto_point(float point_x, float point_y)
   }
   return;
 }
+
 /**测试用：按向量跑*/
 void chassis_goto_vector(vec target_position)
 {
@@ -373,7 +417,12 @@ void chassis_goto_vector(vec target_position)
   vec now_speed_vec = vec_create(chassis.speed_x, chassis.speed_y);
   chassis_move_vector(now_speed_vec, target_speed_vec, distance_vec, chassis.angle);
 }
+
+
+
+
 /****************************状态&执行**************************/
+
 /**跑完每一段路径后,标志位的改变*/
 void chassis_finish_onetrace()
 {
@@ -387,31 +436,35 @@ void chassis_finish_onetrace()
   //测试用
   chassis_status.trace_count = -1;
 }
-/**底盘更新坐标*/
+
+/**更新底盘位姿*/
 void chassis_pos_update()
 {
+  // 使用全场定位装置更新底盘坐标
   chassis.pos_x = chassis.vega_pos_x + chassis.vega_init_pos_x;                //m
   chassis.pos_y = chassis.vega_pos_y + chassis.vega_init_pos_y;                //m
   chassis.angle = (chassis.vega_angle / 180.f) * PI + chassis.vega_init_angle; //弧度
 
-  chassis.speed_x = (chassis.pos_x - chassis.last_pos_x) / 0.005;     //m/s
-  chassis.speed_y = (chassis.pos_y - chassis.last_pos_y) / 0.005;     //m/s
-  chassis.speed_angle = (chassis.angle - chassis.last_angle) / 0.005; //弧度/s
-  chassis.now_speed = vec_model(vec_create(chassis.speed_x, chassis.speed_y));
+  // 全场定位can的发送时间间隔为5ms，因此用坐标差除以0.005就是瞬时速度
+  chassis.speed_x = (chassis.pos_x - chassis.last_pos_x) / 0.005;     // m/s
+  chassis.speed_y = (chassis.pos_y - chassis.last_pos_y) / 0.005;     // m/s
+  chassis.speed_angle = (chassis.angle - chassis.last_angle) / 0.005; // 弧度/s
+  chassis.now_speed = vec_model(vec_create(chassis.speed_x, chassis.speed_y)); // 合成速度
 
   chassis.last_pos_x = chassis.pos_x;
   chassis.last_pos_y = chassis.pos_y;
   chassis.last_angle = chassis.angle;
 }
-/**执行函数*/
+
+/**底盘执行函数*/
 void chassis_exe()
 {
-  chassis_pos_update();
-  if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)
+  chassis_pos_update();  // 更新底盘位姿
+  if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)  // 使用自动控制
   {
     chassis_move_traces(chassis_status.trace_count);
   }
-  if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0)
+  if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0)  // 使用手动控制
   {
     handle_exe();
   }
@@ -468,6 +521,7 @@ void _chassis_move_vector_2(vec now_speed_vec, vec target_speed_vec, vec distanc
 
 
 }
+
 ********************************************跑轨迹 改*******************************/
 
 void chassis_touchdown_back()
