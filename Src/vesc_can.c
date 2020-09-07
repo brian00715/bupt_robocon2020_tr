@@ -24,8 +24,11 @@
 #include <stdbool.h>
 #include "vesc_can.h"
 #include "can_utils.h"
+#include "main.h"
+#include "kickball.h"
 
 /* Buffer Functions---------------------------------------------------*/
+// 用以将can的8位数据段逐位填充
 void buffer_append_int16(uint8_t *buffer, int16_t number, int32_t *index)
 {
     buffer[(*index)++] = number >> 8;
@@ -154,6 +157,7 @@ float buffer_get_float32_auto(const uint8_t *buffer, int32_t *index)
 
     return ldexpf(sig, e);
 }
+/* Buffer Functions [END]---------------------------------------------------*/
 
 /* CAN Functions---------------------------------------------------*/
 
@@ -165,7 +169,7 @@ void comm_can_transmit_eid(uint32_t id, const uint8_t *data, uint8_t len)
     }
 
 #if VESC_CAN_ENABLE
-    can_ext_send_msg((uint16_t) id,(can_msg*) data); //须改为自己的can发送函数，拓展帧
+    can_ext_send_msg( id,(can_msg*) data); //须改为自己的can发送函数，拓展帧
 #else
     (void)id;
     (void)data;
@@ -368,6 +372,8 @@ void comm_can_conf_current_limits_in(uint8_t controller_id,
                               ((uint32_t)(store ? CAN_PACKET_CONF_STORE_CURRENT_LIMITS_IN : CAN_PACKET_CONF_CURRENT_LIMITS_IN) << 8),
                           buffer, send_index);
 }
+
+
 
 
 //

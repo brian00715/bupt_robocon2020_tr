@@ -27,6 +27,14 @@ extern Point points_pos9[POINTS_NUM];
 extern Point points_pos10[POINTS_NUM];
 extern Point points_pos11[POINTS_NUM];
 extern Point points_pos12[POINTS_NUM];
+// extern Point points_pos13[POINTS_NUM];
+// extern Point points_pos14[POINTS_NUM];
+// extern Point points_pos15[POINTS_NUM];
+// extern Point points_pos16[POINTS_NUM];
+// extern Point points_pos17[POINTS_NUM];
+// extern Point points_pos18[POINTS_NUM];
+// extern Point points_pos19[POINTS_NUM];
+// extern Point points_pos20[POINTS_NUM];
 
 
 

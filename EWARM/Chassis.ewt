@@ -1207,10 +1207,16 @@
                     <name>$PROJ_DIR$\..\Src\lcd.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\motor_driver.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\robomaster.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\sensor_gpio.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\touchdown.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\vega.c</name>

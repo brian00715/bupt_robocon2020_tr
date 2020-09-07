@@ -14,7 +14,7 @@ Data:           2019/11/24
 #include "utils.h"
 
 //!:全场定位的坐标系变换---数据：上电时刻东大全场定位到坐标原点pos;东大全场定位坐标系定位点 pos
-float vega_in_coordinate[3]={-1,1,PI/4};
+float vega_in_coordinate[3]={0.439f,0.320f,0};
 float center_in_vega[3]={1,1,1};
 
 /**vega校准*/
@@ -41,9 +41,9 @@ void vega_set_position(float Dx ,float Dy ,float Dangle ){
 /**vega坐标系变换*/
 void vega_coordinate(float pos[3]){
 
-  center_in_vega[0]=1;
-  center_in_vega[1]=1;
-  center_in_vega[2]=PI;
+  center_in_vega[0] = chassis.vega_pos_x;
+  center_in_vega[1] = chassis.vega_pos_y;
+  center_in_vega[2] = chassis.vega_angle;
   Coordinate_System_Transform(center_in_vega,vega_in_coordinate,pos);
 }
 /**vega赋值修正*/
@@ -90,4 +90,14 @@ void vega_print_pos(){
       uprintf("Vega:\r\nx:%5f y:%5f angle:%5f\r\n",chassis.vega_pos_x,chassis.vega_pos_y,chassis.vega_angle);}
   else{
       uprintf("vega has not inited\r\n");} 
+}
+//自研全场定位坐标发送，CAN总线方式
+void vega_print_pos_can(){
+  can_msg angle_msg;
+  angle_msg.fl[0]=chassis.vega_angle;
+  can_send_msg(11,&angle_msg);
+  can_msg xy_msg;
+  xy_msg.fl[0]=chassis.vega_pos_x;
+  xy_msg.fl[1]=chassis.vega_pos_y;
+  can_send_msg(22,&xy_msg);
 }

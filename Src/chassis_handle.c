@@ -1,81 +1,203 @@
 /*******************************************************************************
-Copyright:      BUPT
-File name:      chassis_handle.c
-Description:    Ö÷Òª·ÅÊÖ±úµÄ¿ØÖÆ³ÌĞò·½±ã·â×°
-Author:         ZH
-Version£º       1.0
-Data:           2019/10/21
+* Copyright:      BUPT
+* File name:      chassis_handle.c
+* Description:    ä¸»è¦æ”¾æ‰‹æŸ„çš„æ§åˆ¶ç¨‹åºæ–¹ä¾¿å°è£…
+* Author:         ZH
+* Versionï¼š       1.0
+* Data:           2019/10/21
 *******************************************************************************/
 #include "chassis_handle.h"
+#include "touchdown.h"
 Chassis_Handle chassis_handle;
-PID_Struct handle_angle_pid = {1,0,0,0,0,5000,0,0.005};//ÊÖ±úÆ«¸ß½Ç¿ØÖÆ
+PID_Struct handle_angle_pid = {1, 0, 0, 0, 0, 5000, 0, 0.005}; //æ‰‹æŸ„åé«˜è§’æ§åˆ¶
 
 void handle_button(can_msg *data)
 {
-  if(0 == flag.main_flag) return;
- 
- //TODOÊÖ±ú°´¼ü¹¦ÄÜ
- uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));
- switch(id){
-case 0:
-  flag.chassis_handle_flag = 1;
-  flag.chassis_auto_flag = 0;
-  break;
-case 1:
-  flag.chassis_handle_flag = 0;
-  flag.chassis_auto_flag = 1;
-  break;
-case 2:
-  break;
-case 3:
-  break;
-case 4:
-  break;
-case 5:
-  break;
-case 6:
-  break;
-case 7:
-  break;
-case 8:
-  break;
-case 9:
-  break;
-default:break;
- }
+  if (0 == flag.main_flag)
+    return;
+  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));  // dataçš„å‰ä¸¤ä½å‚¨å­˜id
+  switch (id)
+  {
+  case 0:
+  case 10:
+  case 20:
+    flag.chassis_handle_flag = 0;
+    flag.chassis_auto_flag = 1;
+    uprintf("Change to Auto_mode\r\n");
+    break;
+  case 1:
+  case 11:
+  case 21:
+    flag.chassis_handle_flag = 1;
+    flag.chassis_auto_flag = 0;
+    uprintf("Change to handle_mode\r\n");
+    break;
+  case 2:  // æ£€æµ‹è¾¾é˜µçŠ¶æ€æ˜¯å¦æ­£å¸¸
+    if (data->ui8[2] == 'u')
+    {
+      touchdown_status = TOUCHDOWN_GETBALL;
+      touchdown_ready_flag = 1;
+      touchdown_try_flag = 1;
+      uprintf("Touchdown try\r\n");
+    }
+    break;
+  case 3:
+    if (data->ui8[2] == 'u')
+    {
+      touchdown_try_finish_flag = 1;
+      uprintf("Touchdown try finish\r\n");
+    }
+    break;
+  case 6:
+    chassis_status.trace_count = 1;
+    break;
+  case 7:
+    chassis_status.trace_count = 10;
+    break;
+  case 8:
+    break;
+  case 9:
+    break;
+  case 4:
+  case 14:
+  case 24:
+  case 34:
+    chassis_status.trace_count = -1;
+    break;
+  case 5:
+  case 15:
+  case 25:
+  case 35:
+    chassis_status.trace_count = -1;
+    break;
+
+  case 30:
+    flag.chassis_auto_flag = 1;
+    flag.chassis_handle_flag = 0;
+    chassis_status.trace_count = 7;
+    break;
+  case 31:
+    flag.chassis_auto_flag = 1;
+    flag.chassis_handle_flag = 0;
+    chassis_status.trace_count = 6;
+    break;
+  case 32:
+    if (data->ui8[2] == 'u')
+    {
+      touchdown_status = TOUCHDOWN_GETBALL;
+      touchdown_ready_flag = 1;
+      touchdown_try_flag = 1;
+      uprintf("Touchdown try\r\n");
+    }
+    break;
+  case 33:
+    if (data->ui8[2] == 'u')
+    {
+      touchdown_try_finish_flag = 1;
+      uprintf("Touchdown try finish\r\n");
+    }
+    break;
+  case 36:
+    flag.chassis_auto_flag = 1;
+    flag.chassis_handle_flag = 0;
+    chassis_status.trace_count = 2;
+    break;
+  case 37:
+    flag.chassis_auto_flag = 1;
+    flag.chassis_handle_flag = 0;
+    chassis_status.trace_count = 3;
+    break;
+  case 38:
+    flag.chassis_auto_flag = 1;
+    flag.chassis_handle_flag = 0;
+    chassis_status.trace_count = 4;
+    break;
+  case 39:
+    flag.chassis_auto_flag = 1;
+    flag.chassis_handle_flag = 0;
+    chassis_status.trace_count = 5;
+    break;
+  default:
+    break;
+  }
 }
 
+/**
+ * @brief å¤„ç†æ‰‹æŸ„æ‘‡æ†çš„æ•°æ®
+ * @param data æ‰‹æŸ„æ‘‡æ†çš„æ•°æ®ä½¿ç”¨int16,canå¯ä»¥ä¸€æ¬¡å‘é€4ä¸ª
+ **/
 void handle_rocker(can_msg *data)
 {
-  if(0 == flag.main_flag || flag.chassis_handle_flag == 0) return;
-  
-  //TODO :ÊÖ±úÒ¡¸ËÁãÆ«
-  //³£ÊıĞŞ¸ÄÁãÆ«
-  chassis_handle.ry = (int)data->i16[0] - 14;
-  chassis_handle.rx = (int)data->i16[1] - 4;
-  chassis_handle.ly = (int)data->i16[2] - 2;
-  chassis_handle.lx = (int)data->i16[3] - 3;
-  
-  //±ä»»×ø±êÏµ
+  if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
+    return;
+
+  //å¸¸æ•°ä¿®æ”¹é›¶å
+  chassis_handle.ry = (int)data->i16[0] - 15;
+  chassis_handle.rx = (int)data->i16[1] - 7;
+  chassis_handle.ly = (int)data->i16[2] - 3;
+  chassis_handle.lx = (int)data->i16[3] - 2;
+  //å˜æ¢åæ ‡ç³»
   chassis_handle.rx *= -1;
   chassis_handle.lx *= -1;
 }
-//TODO handle_button ÔÚÄÄÀïÊ¹ÓÃ²ÎÊıcan_msgÀ´Ô´ ÊÖ±ú·¢ËÍÎÊÌâ
+
+/**
+ * @brief æ‰‹æŸ„æ‰§è¡Œå‡½æ•°
+ **/
 void handle_exe()
 {
-  if(0 == flag.main_flag || flag.chassis_handle_flag == 0) return;
-  
-  chassis.fangle = atan2(chassis_handle.ly, chassis_handle.lx);
-  //TODO ÎªÊÖ±ú¿ØÖÆ¼ÓÈëpid
-  chassis.fspeed = (int)( sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx) );
-  if(chassis.fspeed < 60) chassis.fspeed = 0;
-  if(chassis.fspeed > chassis_handle.handle_max_speed) chassis.fspeed = chassis_handle.handle_max_speed;
-  
-  chassis.fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);  
-  if(chassis.fturn > 100)
-  chassis.fturn = 100 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI/2) * (-1);
-  else 
-  chassis.fturn = 0;
-  
-  chassis_move(chassis.fspeed,chassis.fangle,chassis.fturn);  
+  if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
+    return;
+  //é€Ÿåº¦ä¸ºé›¶æ—¶ï¼Œåº”ä¸è¯»å–è§’åº¦ï¼Œæ•…å°†æ­¤å¤„çš„è§’åº¦å…ˆè¯»ä¸ºtemp,
+  float temp_fangle = atan2(chassis_handle.ly, chassis_handle.lx);
+  //åŠ å‡é€Ÿç”¨çº¿æ€§å˜åŒ–ï¼Œæ­¤å¤„å°†é€Ÿåº¦å€¼è®¾ä¸ºtemp--czh add
+  int temp_fspeed = 4 * (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx));
+  if (temp_fspeed < CHASSIS_HANDLE_MIN_SPEED)
+  {
+    temp_fspeed = 0;
+  }
+  else if (temp_fspeed > CHASSIS_HANDLE_MAX_SPEED)
+  {
+    temp_fspeed = CHASSIS_HANDLE_MAX_SPEED;
+  }
+  else
+  {
+    chassis.fangle = temp_fangle;
+  }
+
+  int fspeed_diff = temp_fspeed - chassis.fspeed;
+  if (fspeed_diff > 5)
+  {
+    chassis.fspeed = chassis.fspeed + 5;
+  }
+  else if (fspeed_diff < -10)
+  {
+    chassis.fspeed = chassis.fspeed - 10;
+  }
+  else
+    chassis.fspeed = temp_fspeed;
+
+  float temp_fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);
+  if (temp_fturn > 100)
+  {
+    temp_fturn = 100 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI / 2) * (-1);
+  }
+  else
+  {
+    temp_fturn = 0;
+  }
+  float fturn_diff = temp_fturn - chassis.fturn;
+  if (fturn_diff > 5)
+  {
+    chassis.fturn += 5;
+  }
+  else if (fturn_diff < -5)
+  {
+    chassis.fturn -= 5;
+  }
+  else
+  {
+    chassis.fturn = temp_fturn;
+  }
+  chassis_move(chassis.fspeed, chassis.fangle, chassis.fturn);
 }

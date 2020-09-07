@@ -25,7 +25,7 @@ void vega_coordinate(float pos[3]);
 void vega_set_position(float Dx ,float Dy ,float Dangle );
 void vega_correct_pos(float x,float y,float angle);
 void vega_print_pos();
-
+void vega_print_pos_can();
 
 #ifdef __cplusplus
 }

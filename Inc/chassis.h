@@ -24,7 +24,13 @@ extern "C" {
 
 /*Define Area*/
 
+//角度制转化为弧度制
+#define ANGLE2RAD(x) (x/180.0f*PI)
+//弧度制转换为角度制
+#define RAD2ANGLE(x) (x/PI*180.0f)
+
 /*Struct Area*/
+// 底盘、全场定位、激光的位姿数据
 typedef struct
 {
   float pos_x;           //Chassis
@@ -56,9 +62,10 @@ typedef struct
 
 } Chassis; 
 
+// 底盘的状态机
 typedef struct
 {   
-  int vega_is_ready;    //全场定位是否初始化成功变量，1为已经初始化，0为未初始化
+  int vega_is_ready;              //全场定位是否初始化成功变量，1为已经初始化，0为未初始化
   int go_to_point;                                               
     
   int is_begin;                   //用于给point_num赋值的标志位
@@ -84,6 +91,7 @@ void chassis_init_status();
 void chassis_init_pos(float x,float y);
 void chassis_init(void);
 
+void chassis_swap_xy(Point points_pos[],int point_num);
 float chassis_calculate_traceangle(float point_x , float point_y);
 int chassis_calculate_linespeed(float point_x , float point_y , int start_speed , int final_speed , int max_speed);
 
@@ -101,6 +109,10 @@ void chassis_pos_update();
 void chassis_exe();
 
 
+void chassis_getball_back();
+void chassis_touchdown_back();
+
+void _chassis_move_vector_2(vec now_speed_vec, vec target_speed_vec, vec distance_vec, float target_angle);
 #ifdef __cplusplus
 }
 #endif

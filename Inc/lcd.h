@@ -9,7 +9,9 @@ typedef struct{
 }Lcd_Msg;
 int lcd_add(char tag[],void* value_pointer);
 void lcd_init();
-int lcd_exe();
+void lcd_exe();
+void lcd_send_flag();
+void lcd_send_var();
 
 
 

@@ -23,9 +23,9 @@
 
 if ($debugfile -eq "")
 {
-& "G:\SOFTWARE\IAR\common\bin\cspybat" -f "E:\Robocon_Value\Chassis\EWARM\settings\Chassis.Chassis.general.xcl" --backend -f "E:\Robocon_Value\Chassis\EWARM\settings\Chassis.Chassis.driver.xcl" 
+& "D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\EWARM\settings\Chassis.Chassis.general.xcl" --backend -f "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\EWARM\settings\Chassis.Chassis.driver.xcl" 
 }
 else
 {
-& "G:\SOFTWARE\IAR\common\bin\cspybat" -f "E:\Robocon_Value\Chassis\EWARM\settings\Chassis.Chassis.general.xcl" --debug_file=$debugfile --backend -f "E:\Robocon_Value\Chassis\EWARM\settings\Chassis.Chassis.driver.xcl" 
+& "D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\EWARM\settings\Chassis.Chassis.general.xcl" --debug_file=$debugfile --backend -f "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\EWARM\settings\Chassis.Chassis.driver.xcl" 
 }

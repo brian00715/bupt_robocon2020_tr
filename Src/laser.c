@@ -30,7 +30,7 @@ PID_Struct laser_xpos_pid = {700,50,0,0,0,0,0,0.005};
 void laser_calculate_kb(LASER *sensor){
   sensor->k_param = (sensor->FAR_distance - sensor->NEAR_distance) / (sensor->FAR_voltage - sensor->NEAR_voltage);
   sensor->b_param = sensor->FAR_distance - sensor->k_param * sensor->FAR_voltage;
-  uprintf("k is %f and b is %f\r\n", sensor->k_param, sensor->b_param);
+  // uprintf("k is %f and b is %f\r\n", sensor->k_param, sensor->b_param);
 }
 /**j激光ADC三个通道分别取数*/
 void laser_adc_split(LASER* laser_l,LASER* laser_r,LASER* laser_s){
@@ -72,6 +72,8 @@ float laser_calculate_angle(){
 }
 /**激光初始化:计算kb;打开DMA*/
 void laser_init(){
+
+  //TODO 待校准
   laser_left.FAR_distance = 0.7;
   laser_left.FAR_voltage = 2663;
   laser_left.NEAR_distance = 0.2;
@@ -87,11 +89,11 @@ void laser_init(){
   laser_side.FAR_distance = 0.70;
   laser_side.FAR_voltage = 2649;
 
-  uprintf("Left---");
+  // uprintf("Left---");
   laser_calculate_kb(&laser_left);
-  uprintf("Right---");
+  // uprintf("Right---");
   laser_calculate_kb(&laser_right);
-  uprintf("Side---");
+  // uprintf("Side---");
   laser_calculate_kb(&laser_side);
   
   if (HAL_ADC_Start_DMA(&hadc1,(uint32_t *)laser_adc, 3*AVERAGE_AMOUNT) != HAL_OK){
@@ -112,6 +114,8 @@ void laser_exe(){
   chassis.laser_pos_x = laser_calculate_x();
   chassis.laser_pos_y = laser_calculate_y();
   chassis.laser_angle = laser_calculate_angle();
+
+  flag.chassis_laser_flag = 0;
 }
 /**激光打印三个距离*/
 void laser_print_distance(){

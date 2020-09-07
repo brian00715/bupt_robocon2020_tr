@@ -55,13 +55,13 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(DCT_GPIO_Port, DCT_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED1_Pin|LED2_Pin|LED3_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, LED1_Pin | LED2_Pin | LED3_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(QG_GPIO_Port, QG_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PEPin PEPin */
-  GPIO_InitStruct.Pin = KEY1_Pin|KEY2_Pin;
+  GPIO_InitStruct.Pin = KEY1_Pin | KEY2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -74,7 +74,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(DCT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PAPin PAPin PAPin PAPin */
-  GPIO_InitStruct.Pin = LED1_Pin|QG_Pin|LED2_Pin|LED3_Pin;
+  GPIO_InitStruct.Pin = LED1_Pin | QG_Pin | LED2_Pin | LED3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -87,7 +87,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GDDG_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin */
-  GPIO_InitStruct.Pin = M_KEY3_Pin|M_KEY2_Pin;
+  GPIO_InitStruct.Pin = M_KEY3_Pin | M_KEY2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -97,10 +97,23 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(M_KEY1_GPIO_Port, &GPIO_InitStruct);
-
 }
 
 /* USER CODE BEGIN 2 */
+extern CAN_HandleTypeDef hcan1;
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  CAN_TxHeaderTypeDef TxMsg;
+  TxMsg.DLC = 8;
+  TxMsg.IDE = CAN_ID_STD;
+  TxMsg.StdId = 324;
+  TxMsg.RTR = CAN_RTR_DATA;
+  TxMsg.TransmitGlobalTime = DISABLE;
+  uint8_t send_data[8] = "1234567";
+  uint32_t mailbox;
+  HAL_CAN_AddTxMessage(&hcan1, &TxMsg, send_data, &mailbox);
+  HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+}
 
 /* USER CODE END 2 */
 

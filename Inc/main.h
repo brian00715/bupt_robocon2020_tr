@@ -84,6 +84,7 @@ void Error_Handler(void);
 typedef struct{
   uint8_t min;
   uint8_t sec;
+  uint32_t m_sec;
 }Clock;
 extern Clock clock;
 typedef struct{
@@ -94,6 +95,7 @@ typedef struct{
   int chassis_laser_flag;
   int lcd_flag;
   int m2006_flag;
+  int vesc_flag;
   int clock_1s_flag;
 }Flag;
 extern Flag flag;
@@ -101,6 +103,8 @@ extern Flag flag;
 
 
 void inc(void);
+
+extern float test_value[10];
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

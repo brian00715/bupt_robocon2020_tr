@@ -1,14 +1,14 @@
-"G:\SOFTWARE\IAR\arm\bin\armproc.dll" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\bin\armproc.dll" 
 
-"G:\SOFTWARE\IAR\arm\bin\armjlink2.dll" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\bin\armjlink2.dll" 
 
-"E:\Robocon_Value\Chassis\EWARM\Chassis\Exe\Chassis.out" 
+"D:\ProgramPractice\RobotTeam\STM\Chassic_TR\EWARM\Chassis\Exe\Chassis.out" 
 
---plugin="G:\SOFTWARE\IAR\arm\bin\armbat.dll" 
+--plugin="D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\bin\armbat.dll" 
 
---device_macro="G:\SOFTWARE\IAR\arm\config\debugger\ST\STM32F4xx.dmac" 
+--device_macro="D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\config\debugger\ST\STM32F4xx.dmac" 
 
---flash_loader="G:\SOFTWARE\IAR\arm\config\flashloader\ST\FlashSTM32F4xxx.board" 
+--flash_loader="D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\config\flashloader\ST\FlashSTM32F4xxx.board" 
 
 
 

@@ -17,6 +17,8 @@ extern "C" {
 #include "math.h"
 #include "can_utils.h"
 /*Define Area*/
+#define CHASSIS_HANDLE_MAX_SPEED 600
+#define CHASSIS_HANDLE_MIN_SPEED 150
 /*Struct Area*/
 typedef struct{
   int lx;

@@ -9,6 +9,7 @@ Data:           2019/11/24
 #include "vec.h"
 #include "math.h"
 
+#define VEC_PI 3.1415926
 
 /**向量加法*/
 vec vec_add(vec a, vec b)
@@ -28,6 +29,7 @@ double vec_model(vec a)
 {
   return sqrt(a.x * a.x + a.y * a.y);
 }
+
 /**生成向量*/
 vec vec_create(float x, float y)
 {
@@ -63,4 +65,36 @@ int vec_is_zero(vec a)
   if(fabs(a.x) < 1e-6 && fabs(a.y) < 1e-6)
     return 1;
   return 0;
+}
+
+
+/**向量求角度*/
+float vec_angle(vec a){
+  float angle=0;
+  if(0 == a.x){
+    if(0 < a.y)
+    angle=VEC_PI/2;
+    if(0 == a.y)
+    angle=0;
+    if(0 > a.y)
+    angle=-VEC_PI/2;
+  } 
+  else{
+  angle=atan2f( a.y , a.x );}
+  return angle;
+}
+
+float vec_angle_sub(vec b,vec a){
+  float a_angle = vec_angle(a);
+  float b_angle = vec_angle(b);
+
+  float angle = b_angle - a_angle;
+  while (angle>VEC_PI){
+    angle -= VEC_PI;
+  }
+  while (angle<=-VEC_PI){
+    angle += VEC_PI;
+  }
+  return angle;
+
 }
