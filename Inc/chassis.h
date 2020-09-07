@@ -63,7 +63,7 @@ typedef struct
 
 typedef struct
 {   
-  int vega_is_ready;    //全场定位是否初始化成功变量，1为已经初始化，0为未初始化
+  int vega_is_ready;              //全场定位是否初始化成功变量，1为已经初始化，0为未初始化
   int go_to_point;                                               
     
   int is_begin;                   //用于给point_num赋值的标志位

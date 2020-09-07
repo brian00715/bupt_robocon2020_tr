@@ -20,36 +20,35 @@ static const char *delim = ", \r\n\0";
 static HashTable cmd_table;
 
 UART_HandleTypeDef CMD_USART;
-char *cmd_argv[MAX_ARGC]; 
+char *cmd_argv[MAX_ARGC];
 uint8_t DMAaRxBuffer[DMA_BUFFER_SIZE];
 char DMAUSART_RX_BUF[DMA_BUFFER_SIZE];
 
 int buffer_count = 0;
 char uart_buffer[DMA_BUFFER_SIZE];
 
-static union
-{
+static union {
     uint8_t data[24];
     float ActVal[6];
-}posture;   //用于全场定位传输数据的结构体
-int DMA_RxOK_Flag_vega=0;       //vega接收buffer
-char DMAUSART_RX_BUF_vega[99];  //全场定位接收buffer
-uint8_t DMAaRxBuffer_vega[99];  //全场定位接收buffer
-void usart_exc_DMA_vega();      //全场定位：将读到的数据存入（结合IDLE中断使用）
+} posture;                     //用于全场定位传输数据的结构体
+int DMA_RxOK_Flag_vega = 0;    //vega接收buffer
+char DMAUSART_RX_BUF_vega[99]; //全场定位接收buffer
+uint8_t DMAaRxBuffer_vega[99]; //全场定位接收buffer
+void usart_exc_DMA_vega();     //全场定位：将读到的数据存入（结合IDLE中断使用）
 /* private function -----------------------------------------------------*/
 static int str_cmp(const void *a, const void *b);
 static void _cmd_help(const void *key, void **value, void *c1);
 
-
 /* cmd实现函数定义 -----------------------------------------------------*/
 
-void usart_DMA_init(UART_HandleTypeDef *cmd_usart) {
+void usart_DMA_init(UART_HandleTypeDef *cmd_usart)
+{
     CMD_USART = *cmd_usart;
     HAL_UART_Receive_DMA(&CMD_USART, (uint8_t *)&DMAaRxBuffer, 99);
-    HAL_UART_Receive_DMA(&VEGA_USART,(uint8_t *)&DMAaRxBuffer_vega, 99); //开启DMA
+    HAL_UART_Receive_DMA(&VEGA_USART, (uint8_t *)&DMAaRxBuffer_vega, 99); //开启DMA
     cmd_init();
-    __HAL_UART_ENABLE_IT(&CMD_USART,UART_IT_IDLE); // 开启空闲中断
-    __HAL_UART_ENABLE_IT(&VEGA_USART,UART_IT_IDLE);
+    __HAL_UART_ENABLE_IT(&CMD_USART, UART_IT_IDLE); // 开启空闲中断
+    __HAL_UART_ENABLE_IT(&VEGA_USART, UART_IT_IDLE);
 }
 
 /**开启dma
@@ -58,7 +57,8 @@ void usart_DMA_init(UART_HandleTypeDef *cmd_usart) {
 *说明: 将此函数加在while循环之前
 *by：zx
 */
-void usart_dma_init(){
+void usart_dma_init()
+{
     HAL_UART_Receive_DMA(&huart1, (uint8_t *)&DMAaRxBuffer_vega, 99);
 }
 
@@ -66,80 +66,90 @@ void usart_dma_init(){
  * @brief	指令初始化函数，仅供模块初始化调用
  * @return	None
  */
-void cmd_init(void) {
-    if (cmd_table == NULL) {
+void cmd_init(void)
+{
+    if (cmd_table == NULL)
+    {
         cmd_table = HashTable_create(str_cmp, hashStr, NULL);
     }
     cmd_add("help", "show cmd usage", cmd_help_func);
-    
 }
 
-void usart_exc_DMA() {
+void usart_exc_DMA()
+{
     int cmd_argc;
     int erro_n;
-    erro_n = cmd_parse((char *)DMAUSART_RX_BUF, &cmd_argc, cmd_argv);  //解析命令
-    erro_n = cmd_exec(cmd_argc, cmd_argv);                             //执行命令
+    erro_n = cmd_parse((char *)DMAUSART_RX_BUF, &cmd_argc, cmd_argv); //解析命令
+    erro_n = cmd_exec(cmd_argc, cmd_argv);                            //执行命令
     UNUSED(erro_n);
     memset(DMAUSART_RX_BUF, 0, 98);
     buffer_count = 0;
 }
 
-void HAL_UART_IDLECallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == CMD_USART.Instance) 
+/**
+ * @brief 串口中断回调函数
+ * @param hurat 串口号
+ */
+void HAL_UART_IDLECallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == CMD_USART.Instance)
     {
         uint8_t temp;
-        __HAL_UART_CLEAR_IDLEFLAG(huart);  //清除函数空闲标志
+        __HAL_UART_CLEAR_IDLEFLAG(huart); //清除函数空闲标志
         temp = huart->Instance->SR;
-        temp = huart->Instance->DR;  //读出串口的数据，防止在关闭DMA期间有数据进来，造成ORE错误
+        temp = huart->Instance->DR; //读出串口的数据，防止在关闭DMA期间有数据进来，造成ORE错误
         UNUSED(temp);
         // temp = hdma_usart3_rx.Instance->CNDTR;
         // huart->hdmarx->XferCpltCallback(huart->hdmarx);
         // //调用DMA接受完毕后的回调函数，最主要的目的是要将串口的状态设置为Ready，否则无法开启下一次DMA
-        HAL_UART_DMAStop(&CMD_USART);  //停止本次DMA
+        HAL_UART_DMAStop(&CMD_USART); //停止本次DMA
 
         uint8_t *clr = DMAaRxBuffer;
-        while(*(clr++) == '\0' && clr < DMAaRxBuffer+DMA_BUFFER_SIZE);
-        strcpy((char *)DMAUSART_RX_BUF,(char *)(clr-1));
-        if (DMAUSART_RX_BUF[0] != '\0') 
+        while (*(clr++) == '\0' && clr < DMAaRxBuffer + DMA_BUFFER_SIZE)
+            ;
+        strcpy((char *)DMAUSART_RX_BUF, (char *)(clr - 1));
+        if (DMAUSART_RX_BUF[0] != '\0')
         {
             DMA_RxOK_Flag = 1;
         }
         memset(DMAaRxBuffer, 0, 98);
-        HAL_UART_Receive_DMA(&CMD_USART, (uint8_t *)&DMAaRxBuffer, 99);
+        HAL_UART_Receive_DMA(&CMD_USART, (uint8_t *)&DMAaRxBuffer, 99); // 开启下一次中断
     }
-    
-    if(huart->Instance==VEGA_USART.Instance)
+
+    if (huart->Instance == VEGA_USART.Instance)
     {
         uint8_t temp;
-        __HAL_UART_CLEAR_IDLEFLAG(huart);   //清除函数空闲标志
-        temp= huart->Instance->SR;
-        temp= huart->Instance->DR;//读出串口的数据，防止在关闭DMA期间有数据进来，造成ORE错误
-        //temp = hdma_usart3_rx.Instance->CNDTR; 
+        __HAL_UART_CLEAR_IDLEFLAG(huart); //清除函数空闲标志
+        temp = huart->Instance->SR;
+        temp = huart->Instance->DR; //读出串口的数据，防止在关闭DMA期间有数据进来，造成ORE错误
+        //temp = hdma_usart3_rx.Instance->CNDTR;
         //huart->hdmarx->XferCpltCallback(huart->hdmarx); //调用DMA接受完毕后的回调函数，最主要的目的是要将串口的状态设置为Ready，否则无法开启下一次DMA
-        HAL_UART_DMAStop(&VEGA_USART);      //停止本次DMA
+        HAL_UART_DMAStop(&VEGA_USART); //停止本次DMA
         UNUSED(temp);
-        strcpy((char *)DMAUSART_RX_BUF_vega,(char *)DMAaRxBuffer_vega);
-        if(DMAUSART_RX_BUF_vega[0]!='\0')
-            DMA_RxOK_Flag_vega=1;
-        
+        strcpy((char *)DMAUSART_RX_BUF_vega, (char *)DMAaRxBuffer_vega);
+        if (DMAUSART_RX_BUF_vega[0] != '\0')
+            DMA_RxOK_Flag_vega = 1;
+
         usart_exc_DMA_vega();
-        memset(DMAaRxBuffer_vega,0,98);
-        HAL_UART_Receive_DMA(&VEGA_USART,(uint8_t *)&DMAaRxBuffer_vega, 99); //开启DMA？
+        memset(DMAaRxBuffer_vega, 0, 98);  // 缓存数组清零
+        HAL_UART_Receive_DMA(&VEGA_USART, (uint8_t *)&DMAaRxBuffer_vega, 99); //开启DMA串口中断
     }
 }
 
 /**
  * @brief	将输入分割，并记录参数个数
  * @param	cmd_line	输入指令字符串
- *          argc        指令个数
- *          argv        分割后参数列表
+ * @param   argc        指令个数
+ * @param   argv        分割后参数列表
  * @return	None
  */
-int cmd_parse(char *cmd_line,int *argc,char *argv[]){
+int cmd_parse(char *cmd_line, int *argc, char *argv[])
+{
     char *token = strtok(cmd_line, delim);
     int arg_index = 0;
 
-    while(token && arg_index <= MAX_ARGC) {
+    while (token && arg_index <= MAX_ARGC)
+    {
         argv[arg_index++] = token;
         token = strtok(NULL, delim);
     }
@@ -150,13 +160,15 @@ int cmd_parse(char *cmd_line,int *argc,char *argv[]){
 /**
  * @brief	指令执行函数
  * @param	argc    参数个数
- *          argv    参数列表 
+ * @param   argv    参数列表 
  * @return	0   正常执行返回
  *          1   未找到指令
  */
-int cmd_exec(int argc,char *argv[]){
-    struct cmd_info *cmd = (struct cmd_info*)HashTable_get(cmd_table, argv[0]);
-    if (cmd != NULL) {
+int cmd_exec(int argc, char *argv[])
+{
+    struct cmd_info *cmd = (struct cmd_info *)HashTable_get(cmd_table, argv[0]);
+    if (cmd != NULL)
+    {
         cmd->cmd_func(argc, argv);
         return 0;
     }
@@ -169,7 +181,8 @@ int cmd_exec(int argc,char *argv[]){
  * @param	忽略参数
  * @return	None
  */
-void cmd_help_func(int argc,char *argv[]){
+void cmd_help_func(int argc, char *argv[])
+{
     // FIXME: ZeroVoid	2019/09/23	 dma usage 输出不完整，调试输出没问题
     uprintf("help:\r\n");
     HashTable_map(cmd_table, _cmd_help, NULL);
@@ -182,11 +195,12 @@ void cmd_help_func(int argc,char *argv[]){
  * @param   cmd_func    指令函数指针 argc 参数个数(含指令名称), argv 参数字符串数组
  * @return	None
  */
-void cmd_add(char *cmd_name, char *cmd_usage, void (*cmd_func)(int argc, char *argv[])) {
+void cmd_add(char *cmd_name, char *cmd_usage, void (*cmd_func)(int argc, char *argv[]))
+{
     // FIXME: ZeroVoid	2019/9/23	 name or usage too long
-    struct cmd_info *new_cmd = (struct cmd_info*)malloc(sizeof(struct cmd_info)); 
-    char *name = (char*) malloc( sizeof(char)*(strlen(cmd_name)+1) );
-    char *usage = (char*) malloc(sizeof(char)*(strlen(cmd_name)+1));
+    struct cmd_info *new_cmd = (struct cmd_info *)malloc(sizeof(struct cmd_info));
+    char *name = (char *)malloc(sizeof(char) * (strlen(cmd_name) + 1));
+    char *usage = (char *)malloc(sizeof(char) * (strlen(cmd_name) + 1));
     strcpy(name, cmd_name);
     strcpy(usage, cmd_usage);
     new_cmd->cmd_func = cmd_func;
@@ -195,7 +209,8 @@ void cmd_add(char *cmd_name, char *cmd_usage, void (*cmd_func)(int argc, char *a
 }
 
 char print_buffer[PRINT_BUFFER_SIZE];
-void uprintf(char *fmt, ...) {
+void uprintf(char *fmt, ...)
+{
     int size;
     va_list arg_ptr;
     va_start(arg_ptr, fmt);
@@ -213,10 +228,11 @@ void uprintf(char *fmt, ...) {
     */
     // TODO:	ZeroVoid	due:10/7	优化输出，异步输出，可能纯在busy时再次调用，会被忽略，输出缺失
     //while(CMD_USART.hdmatx->State != HAL_DMA_STATE_READY);
-    HAL_UART_Transmit(&CMD_USART, (uint8_t*)print_buffer, size, 1000);
+    HAL_UART_Transmit(&CMD_USART, (uint8_t *)print_buffer, size, 0xffff);
 }
 
-void uprintf_to(UART_HandleTypeDef *huart, char *fmt, ...) {
+void uprintf_to(UART_HandleTypeDef *huart, char *fmt, ...)
+{
     int size;
     va_list arg_ptr;
     va_start(arg_ptr, fmt);
@@ -228,7 +244,8 @@ void uprintf_to(UART_HandleTypeDef *huart, char *fmt, ...) {
 }
 
 static char s[22] = {'b', 'y', 16, 6};
-void send_wave(float arg1, float arg2, float arg3, float arg4) {
+void send_wave(float arg1, float arg2, float arg3, float arg4)
+{
     //s[2] = 16;  // length
     //s[3] = 6;   // type
     s[20] = '\r';
@@ -245,19 +262,20 @@ void send_wave(float arg1, float arg2, float arg3, float arg4) {
 /**
  * @brief	字符串比较函数，hash表中使用
  */
-static int str_cmp(const void *a, const void *b) {
-    return strcmp((char*)a, (char*)b) != 0;
+static int str_cmp(const void *a, const void *b)
+{
+    return strcmp((char *)a, (char *)b) != 0;
 }
 
 /**
  * @brief	输出函数使用说明，遍历hash表中使用
  */
-static void _cmd_help(const void *key, void **value, void *c1) {
+static void _cmd_help(const void *key, void **value, void *c1)
+{
     UNUSED(c1);
-    char *usage = ((struct cmd_info*)(*value))->cmd_usage;
+    char *usage = ((struct cmd_info *)(*value))->cmd_usage;
     uprintf("%s: %s\r\n", key, usage);
 }
-
 
 /**将全场定位从串口收到的数据存入
 *参数：void
@@ -267,28 +285,28 @@ static void _cmd_help(const void *key, void **value, void *c1) {
 */
 void usart_exc_DMA_vega()
 {
-    if(DMA_RxOK_Flag_vega)
+    if (DMA_RxOK_Flag_vega)
     {
-        for(int j = 0; j < 99; j++)
+        for (int j = 0; j < 99; j++)
         {
-            if(DMAaRxBuffer_vega[j] == 0x0d)
+            if (DMAaRxBuffer_vega[j] == 0x0d)
             {
-                if(DMAaRxBuffer_vega[j + 1] == 0x0a && j < 73 && DMAaRxBuffer_vega[j + 26] == 0x0a && DMAaRxBuffer_vega[j + 27] == 0x0d)
+                if (DMAaRxBuffer_vega[j + 1] == 0x0a && j < 73 && DMAaRxBuffer_vega[j + 26] == 0x0a && DMAaRxBuffer_vega[j + 27] == 0x0d)
                 {
-                    for(int k = 0; k < 24 ; k++)
+                    for (int k = 0; k < 24; k++)
                     {
-                      posture.data[k] = DMAaRxBuffer_vega[j + 2 + k];
+                        posture.data[k] = DMAaRxBuffer_vega[j + 2 + k];
                     }
                     chassis.vega_angle = posture.ActVal[0];
-                    chassis.vega_pos_x = posture.ActVal[3]/1000;
-                    chassis.vega_pos_y = posture.ActVal[4]/1000;
+                    chassis.vega_pos_x = posture.ActVal[3] / 1000;
+                    chassis.vega_pos_y = posture.ActVal[4] / 1000;
                     DMA_RxOK_Flag_vega = 0;
-                    memset(DMAUSART_RX_BUF_vega,0,98);
+                    memset(DMAUSART_RX_BUF_vega, 0, 98);
                     return;
                 }
             }
         }
         DMA_RxOK_Flag_vega = 0;
-        memset(DMAUSART_RX_BUF_vega,0,98);        
+        memset(DMAUSART_RX_BUF_vega, 0, 98);
     }
 }

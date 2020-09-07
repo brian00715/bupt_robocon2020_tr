@@ -76,6 +76,8 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+// flag用来决定启用哪些模块，响应模块的执行函数会扫描flag中对应位置的值，为0则不执行
 Flag flag = {
     0, //main_flag
     0, //chassis_control_flag
@@ -87,8 +89,9 @@ Flag flag = {
     0, //vesc_flag
     0  //clock_1s_flag
 };
-float test_value[10]={0};
-int test_flag0 = 0;
+float test_value[10] = {0};
+int time_5ms_cnt = 0;
+
 /* USER CODE END 0 */
 
 /**
@@ -136,12 +139,15 @@ int main(void)
   motor_init();
   laser_init();
   lcd_init();
-  test_flag0 = 1;
   flag.main_flag = 1;
   flag.chassis_auto_flag = 1;
   flag.chassis_handle_flag = 0;
 
+  can_msg msg1;
+  msg1.in[0] = 0;  // pwm模式
+  msg1.in[1] = 20; // 占空比
 
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, SET);
 
   /* USER CODE END 2 */
 
@@ -149,17 +155,34 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
     simplelib_run();
-    clock_exe();       //时钟
-    lcd_exe();         //lcd消息�?
-    gpio_sensor_exe(); //IO口外部设
-    m2006_exe();       //大疆电机
-    vsec_exe();
-    kickball_exe();  //踢球系统
-    touchdown_exe(); //达阵装置
-    laser_exe();//激光  
-    chassis_exe();//底盘，及坐标更新
+    clock_exe();          // 时钟
+    // lcd_exe();         // lcd消息
+    gpio_sensor_exe();    // IO口执行函数
+    // m2006_exe();       // 大疆电机
+    // vsec_exe();
+    // kickball_exe();    // 踢球系统
+    // touchdown_exe();   // 达阵装置
+    // laser_exe();       // 激光
+    // chassis_exe();     // 底盘，及坐标更新
+
+    if (time_5ms_cnt == 1) // 5ms中断
+    {
+      time_5ms_cnt = 0;
+      can_send_msg(324, &msg1);
+    }
+
+    if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == RESET)
+    {
+      HAL_Delay(100);
+      if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == RESET)
+      {
+        uint32_t mailbox;
+        uprintf("key1 pressed!\n");
+        can_send_msg(324, &msg1);
+        HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+      }
+    }
 
     //加入底盘，下方的测试函数弃用，故改为2,--czh
     // if(test_flag0 == 1) {
@@ -168,8 +191,6 @@ int main(void)
     //   //chassis_move((int)test_value[0],ANGLE2RAD(test_value[1]),test_value[2]);
     //   // chassis_canset_motorspeed(test_value[0],test_value[1],test_value[2]);
     // }
-
-     
 
     /* USER CODE END WHILE */
 
@@ -241,8 +262,6 @@ void inc(void)
     //20ms
     if (time_1ms_cnt % 20 == 0)
     {
-
-      
     }
     if (time_1ms_cnt % 10 == 0)
     {
@@ -252,10 +271,11 @@ void inc(void)
 
     //5ms
     if (time_1ms_cnt % 5 == 0)
-    { 
+    {
       flag.lcd_flag = 1;
-      
-      test_flag0 = 1;
+
+      time_5ms_cnt = 1;
+
       if (chassis_status.vega_is_ready == 1)
       {
         flag.chassis_control_flag = 1;
@@ -265,14 +285,14 @@ void inc(void)
       flag.m2006_flag = 1;
     }
 
-    //vega
+    //vega（全场定位）初始化时间设定，需要有15s的启动时间
     if (time_1ms_cnt % 15000 == 0 && chassis_status.vega_is_ready == 0)
     {
       chassis_status.vega_is_ready = 1;
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
       uprintf("Vega init done!!!\r\n");
     }
-    if (time_1ms_cnt >= 60000)
+    if (time_1ms_cnt >= 60000) // 防止int类型溢出
     {
       time_1ms_cnt = 0;
     }
