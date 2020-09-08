@@ -181,6 +181,8 @@ int main(void)
         uprintf("key1 pressed!\n");
         can_send_msg(324, &msg1);
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+        // CAN_FM1R_FBM0 = 0;
+
       }
     }
 
