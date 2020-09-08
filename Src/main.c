@@ -140,7 +140,7 @@ int main(void)
   laser_init();
   lcd_init();
   flag.main_flag = 1;
-  flag.chassis_auto_flag = 1;
+  flag.chassis_auto_flag = 1;  // 配置底盘运动手动/自动模式
   flag.chassis_handle_flag = 0;
 
   can_msg msg1;

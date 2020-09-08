@@ -30,7 +30,8 @@ char uart_buffer[DMA_BUFFER_SIZE];
 static union {
     uint8_t data[24];
     float ActVal[6];
-} posture;                     //用于全场定位传输数据的结构体
+} posture; //用于全场定位传输数据的结构体
+
 int DMA_RxOK_Flag_vega = 0;    //vega接收buffer
 char DMAUSART_RX_BUF_vega[99]; //全场定位接收buffer
 uint8_t DMAaRxBuffer_vega[99]; //全场定位接收buffer
@@ -130,8 +131,8 @@ void HAL_UART_IDLECallback(UART_HandleTypeDef *huart)
         if (DMAUSART_RX_BUF_vega[0] != '\0')
             DMA_RxOK_Flag_vega = 1;
 
-        usart_exc_DMA_vega();
-        memset(DMAaRxBuffer_vega, 0, 98);  // 缓存数组清零
+        usart_exc_DMA_vega();                                                 // 将全场定位通过串口发送的消息存入
+        memset(DMAaRxBuffer_vega, 0, 98);                                     // 缓存数组清零
         HAL_UART_Receive_DMA(&VEGA_USART, (uint8_t *)&DMAaRxBuffer_vega, 99); //开启DMA串口中断
     }
 }
@@ -277,19 +278,22 @@ static void _cmd_help(const void *key, void **value, void *c1)
     uprintf("%s: %s\r\n", key, usage);
 }
 
-/**将全场定位从串口收到的数据存入
-*参数：void
-*返回值： void 注：直接将结果写入了底盘结构体中
-*说明: 更新底盘目前位置的函数
-*移植者: zx
-*/
+/**
+ * @brief 将全场定位从串口收到的数据存入
+ *        说明: 更新底盘目前位置的函数
+ *        移植者: zx
+ * @param void
+ * @return void 注：直接将结果写入了底盘结构体中
+ *
+ *
+ */
 void usart_exc_DMA_vega()
 {
     if (DMA_RxOK_Flag_vega)
     {
         for (int j = 0; j < 99; j++)
         {
-            if (DMAaRxBuffer_vega[j] == 0x0d)
+            if (DMAaRxBuffer_vega[j] == 0x0d) // 0x0d是回车符，0x0a是换行符
             {
                 if (DMAaRxBuffer_vega[j + 1] == 0x0a && j < 73 && DMAaRxBuffer_vega[j + 26] == 0x0a && DMAaRxBuffer_vega[j + 27] == 0x0d)
                 {

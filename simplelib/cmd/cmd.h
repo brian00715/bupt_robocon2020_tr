@@ -45,7 +45,7 @@ extern char cmd_line[MAX_CMD_LINE_LENGTH + 1];
 extern char *cmd_argv[MAX_ARGC];
 
 struct cmd_info {
-    void (*cmd_func)(int argc, char *argv[]);
+    void (*cmd_func)(int argc, char *argv[]);  // 函数指针
     char *cmd_usage;
 };
 
