@@ -134,12 +134,12 @@ void handle_rocker(can_msg *data)
   if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
     return;
 
-  //常数修改零点漂移
+  // 常数修改零点漂移
   chassis_handle.ry = (int)data->i16[0] - 15;
   chassis_handle.rx = (int)data->i16[1] - 7;
   chassis_handle.ly = (int)data->i16[2] - 3;
   chassis_handle.lx = (int)data->i16[3] - 2;
-  //变换坐标系
+  // 变换坐标系
   chassis_handle.rx *= -1;
   chassis_handle.lx *= -1;
 }
@@ -189,7 +189,7 @@ void handle_exe()
   {
     temp_fturn = 0;
   }
-  
+
   float fturn_diff = temp_fturn - chassis.fturn;
   if (fturn_diff > 5)
   {

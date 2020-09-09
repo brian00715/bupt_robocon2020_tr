@@ -185,8 +185,9 @@ int cmd_exec(int argc, char *argv[])
 void cmd_help_func(int argc, char *argv[])
 {
     // FIXME: ZeroVoid	2019/09/23	 dma usage 输出不完整，调试输出没问题
-    uprintf("help:\r\n");
-    HashTable_map(cmd_table, _cmd_help, NULL);
+    uprintf("=======================help=====================\r\n");
+    HashTable_map(cmd_table, _cmd_help, NULL);  // 遍历哈希表，打印所有帮助指令
+    uprintf("================================================\r\n");
 }
 
 /**
@@ -201,7 +202,7 @@ void cmd_add(char *cmd_name, char *cmd_usage, void (*cmd_func)(int argc, char *a
     // FIXME: ZeroVoid	2019/9/23	 name or usage too long
     struct cmd_info *new_cmd = (struct cmd_info *)malloc(sizeof(struct cmd_info));
     char *name = (char *)malloc(sizeof(char) * (strlen(cmd_name) + 1));
-    char *usage = (char *)malloc(sizeof(char) * (strlen(cmd_name) + 1));
+    char *usage = (char *)malloc(sizeof(char) * (strlen(cmd_usage) + 1));
     strcpy(name, cmd_name);
     strcpy(usage, cmd_usage);
     new_cmd->cmd_func = cmd_func;
@@ -275,7 +276,7 @@ static void _cmd_help(const void *key, void **value, void *c1)
 {
     UNUSED(c1);
     char *usage = ((struct cmd_info *)(*value))->cmd_usage;
-    uprintf("%s: %s\r\n", key, usage);
+    uprintf("|%22s: %-22s|\r\n", key, usage);
 }
 
 /**

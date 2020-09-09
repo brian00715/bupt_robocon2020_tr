@@ -148,12 +148,12 @@ void cmd_kickball_auto(int argc, char *argv[])
         kickball_stop_magnet_flag = 0;
         kickball_kick_flag = 0;
         kickball_auto = 1;
-        uprintf("Kickball switch to auto mode\r\n");
+        uprintf("--Kickball switch to auto mode--\r\n");
     }
     else
     {
         kickball_auto = 0;
-        uprintf("Kickball switch to handle mode\r\n");
+        uprintf("--Kickball switch to handle mode--\r\n");
         uprintf("kicknum = %d\r\n", kickball_num + 1);
     }
 }
@@ -185,28 +185,28 @@ void cmd_kickball_vesc(int argc, char *argv[])
 void cmd_kickball_prepare(int argc, char *argv[])
 {
     kickball_prepare_flag = 1;
-    uprintf("Kickball prapare!\r\nManget is going up\r\n");
+    uprintf("--Kickball prapare!--\r\nManget is going up.\r\n");
 }
 
 
 void cmd_kickball_pull_magnet(int argc, char *argv[])
 {
     kickball_pull_magnet_flag = 1;
-    uprintf("Magnet is going down!\r\n");
+    uprintf("--Magnet is going down!--\r\n");
 }
 
 
 void cmd_kickball_stop_magnet(int argc, char *argv[])
 {
     kickball_stop_magnet_flag = 1;
-    uprintf("Magnet stopped!\r\nReady to kick\r\n");
+    uprintf("--Magnet stopped!--\r\nReady to kick.\r\n");
 }
 
 
 void cmd_kickball_kick(int argc, char *argv[])
 {
     kickball_kick_flag = 1;
-    uprintf("Kick the ball!!!\r\n");
+    uprintf("--Kick the ball!!--\r\n");
 }
 //touchdown
 void cmd_touchdown_auto(int argc, char *argv[])
@@ -216,31 +216,31 @@ void cmd_touchdown_auto(int argc, char *argv[])
         touchdown_ready_flag = 0;
         touchdown_try_flag = 0;
         touchdown_auto_flag = 1;
-        uprintf("Touchdwon switch to auto mode\r\n");
+        uprintf("--Touchdwon switch to auto mode--\r\n");
     }
     else
     {
         touchdown_auto_flag = 0;
-        uprintf("Touchdwon switch to handle mode\r\n");
+        uprintf("--Touchdwon switch to handle mode--\r\n");
     }
 }
 void cmd_touchdown_open(int argc, char *argv[])
 {
     if (atof(argv[1]) > 0)
     {
-        uprintf("Touchdwon open current should < 0\r\n");
+        uprintf("Touchdwon open current should < 0.\r\n");
     }
     else
     {
         touchdown_m2006_open(atof(argv[1]));
-        uprintf("Touchdwon open current is %f\r\n", atof(argv[1]));
+        uprintf("Touchdwon open current is %f.\r\n", atof(argv[1]));
     }
 }
 void cmd_touchdown_close(int argc, char *argv[])
 {
     if (atof(argv[1]) < 0)
     {
-        uprintf("Touchdwon open current should > 0\r\n");
+        uprintf("Touchdwon open current should > 0.\r\n");
     }
     else
     {
@@ -257,7 +257,7 @@ void cmd_touchdown_try(int argc, char *argv[])
     }
     else
     {
-        uprintf("No ball in the basket\r\n");
+        uprintf("No ball in the basket.\r\n");
     }
 }
 void cmd_chassis_move(int argc, char *argv[])
@@ -282,20 +282,20 @@ void cmd_touchdown_try_finish(int argc, char *argv[])
     }
     else
     {
-        uprintf("HAven't try\r\n");
+        uprintf("Haven't try\r\n");
     }
 }
 
 void cmd_func_init(void)
 {
-    cmd_add("hello", " ", cmd_hello);
+    cmd_add("hello", "", cmd_hello);
     //point
     cmd_add("point_print_path", "", cmd_point_print_path);
     //vega
     cmd_add("vega_print_pos", "", cmd_vega_print_pos);
     cmd_add("vega_correct_pos", "", cmd_vega_correct_pos);
     cmd_add("vega_set_position", "", cmd_vega_set_position);
-    cmd_add("vega_reset", "", cmd_vega_reset);
+    cmd_add("vega_reset", "reset the vega.", cmd_vega_reset);
     cmd_add("vega_calibrate", "", cmd_vega_calibrate);
     //laser
     cmd_add("laser_print_diatance", "", cmd_laser_print_diatance);
