@@ -51,19 +51,22 @@ void cmd_laser_print_pos(int argc, char *argv[])
 {
     laser_print_pos();
 }
+
 //point
 void cmd_point_print_path(int argc, char *argv[])
 {
     point_print_path();
 }
+
 //motor_vesc_m2006
 void cmd_m2006(int argc, char *argv[])
 {
     touchdown_current = atof(argv[1]);
     kick_current = atof(argv[2]);
-    uprintf("M2006 touchdown current is %f\r\n", atof(argv[1]));
-    uprintf("M2006 kick current is %f\r\n", atof(argv[2]));
+    uprintf("M2006 touchdown current is %f.\r\n", atof(argv[1]));
+    uprintf("M2006 kick current is %f.\r\n", atof(argv[2]));
 }
+
 void cmd_vesc(int argc, char *argv[])
 {
     vesc.mode = atoi(argv[1]);
@@ -265,7 +268,7 @@ void cmd_chassis_move(int argc, char *argv[])
     test_value[0] = atof(argv[1]);
     test_value[1] = atof(argv[2]);
     test_value[2] = atof(argv[3]);
-    uprintf("move in %d  %f  %f\r\n", atoi(argv[1]), atof(argv[2]), atof(argv[3]));
+    uprintf("move in %f  %f  %f\r\n", atoi(argv[1]), atof(argv[2]), atof(argv[3]));
 }
 
 //打印实际的底盘坐标
@@ -291,39 +294,45 @@ void cmd_func_init(void)
     cmd_add("hello", "", cmd_hello);
     //point
     cmd_add("point_print_path", "", cmd_point_print_path);
+    
     //vega
     cmd_add("vega_print_pos", "", cmd_vega_print_pos);
     cmd_add("vega_correct_pos", "", cmd_vega_correct_pos);
     cmd_add("vega_set_position", "", cmd_vega_set_position);
-    cmd_add("vega_reset", "reset the vega.", cmd_vega_reset);
+    cmd_add("vega_reset", "reset the vega", cmd_vega_reset);
     cmd_add("vega_calibrate", "", cmd_vega_calibrate);
+
     //laser
     cmd_add("laser_print_diatance", "", cmd_laser_print_diatance);
     cmd_add("laser_print_pos", "", cmd_laser_print_pos);
+
     //gpio
-    cmd_add("gpio_magnet", "", cmd_gpio_magnet);
-    cmd_add("gpio_cylinder", "", cmd_gpio_cylinder);
-    cmd_add("gpio_microswitch", "", cmd_gpio_microswitch);
-    cmd_add("gpio_infrared", "", cmd_gpio_infrared);
-    cmd_add("gpio_all", "", cmd_gpio_all);
+    cmd_add("gpio_magnet", "get magnet state", cmd_gpio_magnet);
+    cmd_add("gpio_cylinder", "get cylinder state", cmd_gpio_cylinder);
+    cmd_add("gpio_microswitch", "get microswitch state", cmd_gpio_microswitch);
+    cmd_add("gpio_infrared", "get infrared state", cmd_gpio_infrared);
+    cmd_add("gpio_all", "get all gpio state", cmd_gpio_all);
+
     //motor
-    cmd_add("vesc", "", cmd_vesc);
-    cmd_add("m2006", "", cmd_m2006);
+    cmd_add("vesc", "<mode(0,1,2)> <value>", cmd_vesc);
+    cmd_add("m2006", "<touchdown;kickball current>", cmd_m2006);
+
     //kickball
-    cmd_add("kickball_auto", "", cmd_kickball_auto);
-    cmd_add("kickball_m2006", "", cmd_kickball_m2006);
-    cmd_add("kickball_vesc", "", cmd_kickball_vesc);
-    cmd_add("kickball_prepare", "", cmd_kickball_prepare);
+    cmd_add("kickball_auto", "change control mode", cmd_kickball_auto);
+    cmd_add("kickball_m2006", "<current value>", cmd_kickball_m2006);
+    cmd_add("kickball_vesc", "<current value>(>0pull;<0loose)", cmd_kickball_vesc);
+    cmd_add("kickball_prepare", "turn magnet to board", cmd_kickball_prepare);
     cmd_add("kickball_pull_magnet", "", cmd_kickball_pull_magnet);
     cmd_add("kickball_stop_magnet", "", cmd_kickball_stop_magnet);
     cmd_add("kickball_kick", "", cmd_kickball_kick);
+
     //touchdown
     cmd_add("touchdown_auto", "", cmd_touchdown_auto);
-    cmd_add("touchdown_open", "", cmd_touchdown_open);
-    cmd_add("touchdown_close", "", cmd_touchdown_close);
+    cmd_add("touchdown_open", "<current value>", cmd_touchdown_open);
+    cmd_add("touchdown_close", "<current value>", cmd_touchdown_close);
     cmd_add("touchdown_try", "", cmd_touchdown_try);
     cmd_add("touchdown_try_finish", "", cmd_touchdown_try_finish);
 
-    cmd_add("chassis_move", "", cmd_chassis_move);
+    cmd_add("chassis_move", "<speed of 3 motors>", cmd_chassis_move);
     cmd_add("chassis_print_pos", "", cmd_chassis_print_pos);
 }

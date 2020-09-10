@@ -185,9 +185,10 @@ int cmd_exec(int argc, char *argv[])
 void cmd_help_func(int argc, char *argv[])
 {
     // FIXME: ZeroVoid	2019/09/23	 dma usage 输出不完整，调试输出没问题
-    uprintf("=======================help=====================\r\n");
+    uprintf("===============================help===============================\r\n");
+    uprintf("|              CMD              |           Description          |\r\n");
     HashTable_map(cmd_table, _cmd_help, NULL);  // 遍历哈希表，打印所有帮助指令
-    uprintf("================================================\r\n");
+    uprintf("==================================================================\r\n");
 }
 
 /**
@@ -276,7 +277,7 @@ static void _cmd_help(const void *key, void **value, void *c1)
 {
     UNUSED(c1);
     char *usage = ((struct cmd_info *)(*value))->cmd_usage;
-    uprintf("|%22s: %-22s|\r\n", key, usage);
+    uprintf("|%31s: %-31s|\r\n", key, usage);
 }
 
 /**

@@ -159,7 +159,7 @@ int main(void)
     clock_exe();          // 时钟
     // lcd_exe();         // lcd消息
     gpio_sensor_exe();    // IO口执行函数
-    // m2006_exe();       // 大疆电机
+    m2006_exe();       // 大疆电机
     // vsec_exe();
     // kickball_exe();    // 踢球系统
     // touchdown_exe();   // 达阵装置
