@@ -2,6 +2,6 @@
 *.o
 .zip
 *.tmp
-EWARM/Chassic
-EWARM/Chassic.dep
+EWARM/Chassis
+EWARM/Chassis.*
 
