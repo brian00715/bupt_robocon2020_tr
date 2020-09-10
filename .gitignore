@@ -2,6 +2,6 @@
 *.o
 .zip
 *.tmp
-.vscode/BROWSE.DB-wal
-.vscode/BROWSE.DB-shm
-.vscode/BROWSE.DB-wal
+EWARM/Chassis
+EWARM/Chassis.dep
+
