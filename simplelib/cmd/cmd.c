@@ -272,6 +272,8 @@ static int str_cmp(const void *a, const void *b)
 
 /**
  * @brief	输出函数使用说明，遍历hash表中使用
+ * @param key cmd_name
+ * @param value cmd_usage
  */
 static void _cmd_help(const void *key, void **value, void *c1)
 {
@@ -286,8 +288,6 @@ static void _cmd_help(const void *key, void **value, void *c1)
  *        移植者: zx
  * @param void
  * @return void 注：直接将结果写入了底盘结构体中
- *
- *
  */
 void usart_exc_DMA_vega()
 {

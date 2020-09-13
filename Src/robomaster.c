@@ -63,7 +63,6 @@ void can_robomaster_rcv_2(can_msg *pRxMsg)
   robomaster[1].total_angle = robomaster[1].round_cnt * 8192 + robomaster[1].angle - robomaster[1].offset_angle;
 }
 
-
 /*电机驱动*/
 void RoboconMaster_Control()
 {
@@ -95,7 +94,6 @@ float robomaster_position_pid_control(int id)
   //speed_out=PID_Release(&Robomaster_Speed_PID[id],(float)robomaster[id].target_speed,(float)robomaster[id].speed_rpm);
   return speed_out;
 }
-
 
 /*电流环*/
 void robomaster_set_current(int16_t iq1, int16_t iq2, int16_t iq3, int16_t iq4)

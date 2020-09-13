@@ -61,12 +61,13 @@ void cmd_point_print_path(int argc, char *argv[])
 //motor_vesc_m2006
 void cmd_m2006(int argc, char *argv[])
 {
-    touchdown_current = atof(argv[1]);
-    kick_current = atof(argv[2]);
+    touchdown_current = atof(argv[1]); // 达阵电机电流
+    kick_current = atof(argv[2]);      // 转磁铁电机电流
     uprintf("M2006 touchdown current is %f.\r\n", atof(argv[1]));
     uprintf("M2006 kick current is %f.\r\n", atof(argv[2]));
 }
 
+/*设置大电机的参数*/
 void cmd_vesc(int argc, char *argv[])
 {
     vesc.mode = atoi(argv[1]);
@@ -74,6 +75,7 @@ void cmd_vesc(int argc, char *argv[])
     {
     case 0:
     {
+        // 正值顺时针转动（收线），负值逆时针转动（放线）
         vesc.duty = atof(argv[2]);
         uprintf("Vesc work in Duty at %f\r\n", atof(argv[2]));
         break;
@@ -113,25 +115,21 @@ void cmd_gpio_magnet(int argc, char *argv[])
     uprintf("Magnet state is %d\r\n", atoi(argv[1]));
 }
 
-
 void cmd_gpio_cylinder(int argc, char *argv[])
 {
     cylinder_state = atoi(argv[1]);
     uprintf("Cylinder state is %d\r\n", atoi(argv[1]));
 }
 
-
 void cmd_gpio_microswitch(int argc, char *argv[])
 {
     uprintf("Key state is %d\r\n", microswitch_state);
 }
 
-
 void cmd_gpio_infrared(int argc, char *argv[])
 {
     uprintf("Infrared state is %d\r\n", infrared_state);
 }
-
 
 void cmd_gpio_all(int argc, char *argv[])
 {
@@ -140,10 +138,11 @@ void cmd_gpio_all(int argc, char *argv[])
     uprintf("Magnet      state is %d\r\n", magnet_state);
     uprintf("Cylinder    state is %d\r\n", cylinder_state);
 }
+
 //kickball
 void cmd_kickball_auto(int argc, char *argv[])
 {
-    if (atof(argv[1]) == 1)
+    if (atof(argv[1]) == 1) // 输入1启动自动控制模式
     {
         kickball_ready_flag = 0;
         kickball_prepare_flag = 0;
@@ -153,22 +152,26 @@ void cmd_kickball_auto(int argc, char *argv[])
         kickball_auto = 1;
         uprintf("--Kickball switch to auto mode--\r\n");
     }
-    else
+    else // 输入0启动手动控制模式
     {
         kickball_auto = 0;
         uprintf("--Kickball switch to handle mode--\r\n");
-        uprintf("kicknum = %d\r\n", kickball_num + 1);
+        uprintf("kicknum = %d\r\n", kickball_num + 1); // 踢第几颗球
     }
 }
 
-//kickball handle
+/**
+ * @brief cmd设定转磁铁的m2006的电流值，用以调试转速
+ **/
 void cmd_kickball_m2006(int argc, char *argv[])
 {
     kickball_M2006_set_current(atof(argv[1]));
     uprintf("M2006 current set to %f A\r\n", atof(argv[1]));
 }
 
-
+/**
+ * @brief cmd设定收放线电机的电流值，用以调试转速
+ **/
 void cmd_kickball_vesc(int argc, char *argv[])
 {
     if (atof(argv[1]) >= 0)
@@ -183,35 +186,42 @@ void cmd_kickball_vesc(int argc, char *argv[])
     }
 }
 
-
-//kickball auto
+/**
+ * @brief 只有自动控制模式下才能使用此函数，执行将磁铁往上转的过程
+ **/
 void cmd_kickball_prepare(int argc, char *argv[])
 {
     kickball_prepare_flag = 1;
     uprintf("--Kickball prapare!--\r\nManget is going up.\r\n");
 }
 
-
+/**
+ * @brief 磁铁吸到踢球版上后开始往下拉
+ **/
 void cmd_kickball_pull_magnet(int argc, char *argv[])
 {
     kickball_pull_magnet_flag = 1;
     uprintf("--Magnet is going down!--\r\n");
 }
 
-
+/**
+ * @brief 人眼判断弹簧拉紧后cmd调用此函数，电机停转，准备踢出
+ **/
 void cmd_kickball_stop_magnet(int argc, char *argv[])
 {
     kickball_stop_magnet_flag = 1;
     uprintf("--Magnet stopped!--\r\nReady to kick.\r\n");
 }
 
-
 void cmd_kickball_kick(int argc, char *argv[])
 {
     kickball_kick_flag = 1;
     uprintf("--Kick the ball!!--\r\n");
 }
-//touchdown
+
+/**
+ * @brief 达阵控制模式 1 自动控制 0 手动控制
+ **/
 void cmd_touchdown_auto(int argc, char *argv[])
 {
     if (atof(argv[1]) == 1)
@@ -239,6 +249,7 @@ void cmd_touchdown_open(int argc, char *argv[])
         uprintf("Touchdwon open current is %f.\r\n", atof(argv[1]));
     }
 }
+
 void cmd_touchdown_close(int argc, char *argv[])
 {
     if (atof(argv[1]) < 0)
@@ -251,6 +262,7 @@ void cmd_touchdown_close(int argc, char *argv[])
         uprintf("Touchdwon close current is %f\r\n", atof(argv[1]));
     }
 }
+
 void cmd_touchdown_try(int argc, char *argv[])
 {
     if (touchdown_ready_flag == 1)
@@ -263,6 +275,7 @@ void cmd_touchdown_try(int argc, char *argv[])
         uprintf("No ball in the basket.\r\n");
     }
 }
+
 void cmd_chassis_move(int argc, char *argv[])
 {
     test_value[0] = atof(argv[1]);
@@ -294,13 +307,13 @@ void cmd_func_init(void)
     cmd_add("hello", "", cmd_hello);
     //point
     cmd_add("point_print_path", "", cmd_point_print_path);
-    
+
     //vega
     cmd_add("vega_print_pos", "", cmd_vega_print_pos);
-    cmd_add("vega_correct_pos", "", cmd_vega_correct_pos);
-    cmd_add("vega_set_position", "", cmd_vega_set_position);
-    cmd_add("vega_reset", "reset the vega", cmd_vega_reset);
-    cmd_add("vega_calibrate", "", cmd_vega_calibrate);
+    // cmd_add("vega_correct_pos", "", cmd_vega_correct_pos);
+    // cmd_add("vega_set_position", "", cmd_vega_set_position);
+    // cmd_add("vega_reset", "reset the vega(BAN!)", cmd_vega_reset);
+    // cmd_add("vega_calibrate", "BAN!", cmd_vega_calibrate);
 
     //laser
     cmd_add("laser_print_diatance", "", cmd_laser_print_diatance);
@@ -318,7 +331,7 @@ void cmd_func_init(void)
     cmd_add("m2006", "<touchdown;kickball current>", cmd_m2006);
 
     //kickball
-    cmd_add("kickball_auto", "change control mode", cmd_kickball_auto);
+    cmd_add("kickball_auto", "0 to handle; 1 to auto", cmd_kickball_auto);
     cmd_add("kickball_m2006", "<current value>", cmd_kickball_m2006);
     cmd_add("kickball_vesc", "<current value>(>0pull;<0loose)", cmd_kickball_vesc);
     cmd_add("kickball_prepare", "turn magnet to board", cmd_kickball_prepare);

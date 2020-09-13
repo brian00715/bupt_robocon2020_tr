@@ -86,6 +86,12 @@ int HashTable_length(HashTable hashTable)
     return hashTable->length;
 }
 
+/**
+ * @brief 将键值对添加到哈希表中
+ * @param hashTable 哈希表数组
+ * @param key 键
+ * @param value key所对应的值
+ **/
 void *HashTable_insert(HashTable hashTable, const void *key, void *value)
 {
     void *prev = NULL; //之前的值
@@ -96,17 +102,17 @@ void *HashTable_insert(HashTable hashTable, const void *key, void *value)
     assert(key);
 
     //search hashTable for key
-    index = hashTable->hash(key) % BUCKET_SIZE;
+    index = hashTable->hash(key) % BUCKET_SIZE; // 计算存储位置
     //printf("insert index:%d\n", index);
     for (p = hashTable->bucket[index]; p; p = p->next)
     {
-        if (hashTable->cmp(key, p->key) == 0)
+        if (hashTable->cmp(key, p->key) == 0) // 如果重名，则直接return
         {
             break;
         }
     }
 
-    if (p == NULL)
+    if (p == NULL) // 如果存储位置重叠了，并且遍历到了链表的表尾，则将新元素添加到链表中
     {
         p = malloc(sizeof(*p));
         if (p == NULL)
@@ -194,11 +200,13 @@ void HashTable_map(HashTable hashTable, void (*apply)(const void *key, void **va
     assert(apply);
 
     stamp = hashTable->timestamp;
-    for (int i = 0; i < BUCKET_SIZE; ++i)
+    // 多个key算出的哈希值相同时，会以链表的形式在哈希表元素中存储
+    for (int i = 0; i < BUCKET_SIZE; ++i) // 遍历链表
     {
         for (p = hashTable->bucket[i]; p; p = p->next)
         {
-            apply(p->key, &(p->value), c1);
+            // p->key就是cmd_name;p->value就是cmd_usage,是一个字符串数组
+            apply(p->key, &(p->value), c1); // 相当于_cmd_help(p->key, &(p->value), c1)
             assert(stamp == hashTable->timestamp);
         }
     }

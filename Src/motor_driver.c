@@ -25,7 +25,7 @@ VESC_STATE vesc = {0}; // 本杰明电调的状态机状态表
  **/
 void vsec_exe()
 {
-  flag.vesc_flag = 0;
+  // flag.vesc_flag = 0;
   if (flag.vesc_flag == 0)
   {
     return;
