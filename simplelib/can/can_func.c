@@ -29,6 +29,9 @@ void can_suc_rx(can_msg *data)
 }
 
 int can_data_show_flag = 1;
+/**
+ * @brief 串口打印手柄摇杆的信息
+ **/
 void can_show_rocker(can_msg *data)
 {
     if (can_data_show_flag)
@@ -39,6 +42,10 @@ void can_show_rocker(can_msg *data)
                 (int16_t)data->ui16[3]);
     }
 }
+
+/**
+ * @brief 串口打印手柄按钮的信息
+ **/
 void can_show_button(can_msg *data)
 {
     uprintf("%d %d %c\r\n", data->ui8[0], data->ui8[1], data->ui8[2]);

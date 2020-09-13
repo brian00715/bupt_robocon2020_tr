@@ -1,7 +1,0 @@
-{
-    "version": 1,
-    "path": "D:\\Program Files (x86)\\IAR Systems\\Embedded Workbench 8.2\\",
-    "project":"D:\\ProgramPractice\\RobotTeam\\STM\\Chassic_TR\\EWARM\\Chassis.ewp",
-    "config": "Chassis",
-    "parallel" : true
-}

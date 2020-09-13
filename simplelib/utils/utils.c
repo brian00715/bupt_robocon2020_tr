@@ -59,7 +59,7 @@ float Angle_Limit_PI(float angle)
   return angle;
 }
 
-/**??????*/
+/**两角的差值，并限制在[0,π]*/
 float Angle_Subtract(float a, float b)
 {
   float out = a - b;

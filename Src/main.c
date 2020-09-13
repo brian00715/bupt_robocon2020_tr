@@ -140,7 +140,7 @@ int main(void)
   laser_init();
   lcd_init();
   flag.main_flag = 1;
-  flag.chassis_auto_flag = 1;
+  flag.chassis_auto_flag = 1;  // 配置底盘运动手动/自动模式
   flag.chassis_handle_flag = 0;
 
   can_msg msg1;
@@ -159,7 +159,7 @@ int main(void)
     clock_exe();          // 时钟
     // lcd_exe();         // lcd消息
     gpio_sensor_exe();    // IO口执行函数
-    // m2006_exe();       // 大疆电机
+    m2006_exe();       // 大疆电机
     // vsec_exe();
     // kickball_exe();    // 踢球系统
     // touchdown_exe();   // 达阵装置

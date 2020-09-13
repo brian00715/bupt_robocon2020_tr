@@ -2,5 +2,11 @@
 *.o
 .zip
 *.tmp
+<<<<<<< HEAD
 EWARM/Chassis.dep
 EWARM/Chassis/
+=======
+EWARM/Chassis
+EWARM/Chassis.*
+
+>>>>>>> 40766f692a0ef90a48f857cfe26f712bda0d2661
