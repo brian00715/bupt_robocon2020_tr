@@ -14,29 +14,35 @@
 #include <limits.h>
 #include <stdlib.h>
 
-static int cmpAtom(const void *x, const void *y) {
+static int cmpAtom(const void *x, const void *y)
+{
     return x != y;
 }
 
-static unsigned long hashAtom(const void *key) {
+static unsigned long hashAtom(const void *key)
+{
     return (unsigned long)key >> 2;
 }
 
-static void freeKeyAtom(const void *key) {
+static void freeKeyAtom(const void *key)
+{
 }
 
-unsigned int hashStr(const void *key) {
+unsigned int hashStr(const void *key)
+{
     unsigned int hash = 5381;
     char *ch = (char *)key;
-    while (*ch) {
+    while (*ch)
+    {
         hash += (hash << 5) + (*ch++);
     }
     return (hash & 0x7FFFFFFF);
 }
 
-HashTable HashTable_create(int (*cmp)(const void *, const void *), 
-                           unsigned int (*hash)(const void *), 
-                           void (*freeKey)(const void *key)) {
+HashTable HashTable_create(int (*cmp)(const void *, const void *),
+                           unsigned int (*hash)(const void *),
+                           void (*freeKey)(const void *key))
+{
     int i;
     HashTable hashTable;
     //确定bucket的数目，分配内存，bucket内存紧跟着hashTable
@@ -55,13 +61,17 @@ HashTable HashTable_create(int (*cmp)(const void *, const void *),
     return hashTable;
 }
 
-void HashTable_destory(HashTable *hashTable) {
+void HashTable_destory(HashTable *hashTable)
+{
     assert(hashTable && *hashTable);
 
-    if ((*hashTable)->length > 0) {
+    if ((*hashTable)->length > 0)
+    {
         HashNode *p, *q;
-        for (int i = 0; i < (*hashTable)->length; ++i) {
-            for (p = (*hashTable)->bucket[i]; p; p = q) {
+        for (int i = 0; i < (*hashTable)->length; ++i)
+        {
+            for (p = (*hashTable)->bucket[i]; p; p = q)
+            {
                 q = p->next;
                 ((*hashTable)->freeKey)(p->key);
                 free(p);
@@ -71,12 +81,20 @@ void HashTable_destory(HashTable *hashTable) {
     free(hashTable);
 }
 
-int HashTable_length(HashTable hashTable) {
+int HashTable_length(HashTable hashTable)
+{
     return hashTable->length;
 }
 
-void *HashTable_insert(HashTable hashTable, const void *key, void *value) {
-    void *prev = NULL;  //之前的值
+/**
+ * @brief 将键值对添加到哈希表中
+ * @param hashTable 哈希表数组
+ * @param key 键
+ * @param value key所对应的值
+ **/
+void *HashTable_insert(HashTable hashTable, const void *key, void *value)
+{
+    void *prev = NULL; //之前的值
     HashNode *p;
     unsigned int index;
 
@@ -84,24 +102,30 @@ void *HashTable_insert(HashTable hashTable, const void *key, void *value) {
     assert(key);
 
     //search hashTable for key
-    index = hashTable->hash(key) % BUCKET_SIZE;
+    index = hashTable->hash(key) % BUCKET_SIZE; // 计算存储位置
     //printf("insert index:%d\n", index);
-    for (p = hashTable->bucket[index]; p; p = p->next) {
-        if (hashTable->cmp(key, p->key) == 0) {
+    for (p = hashTable->bucket[index]; p; p = p->next)
+    {
+        if (hashTable->cmp(key, p->key) == 0) // 如果重名，则直接return
+        {
             break;
         }
     }
 
-    if (p == NULL) {
+    if (p == NULL) // 如果存储位置重叠了，并且遍历到了链表的表尾，则将新元素添加到链表中
+    {
         p = malloc(sizeof(*p));
-        if (p == NULL) {
+        if (p == NULL)
+        {
             return NULL;
         }
         p->key = key;
         p->next = hashTable->bucket[index];
         hashTable->bucket[index] = p;
         hashTable->length++;
-    } else {
+    }
+    else
+    {
         prev = p->value;
     }
 
@@ -111,7 +135,8 @@ void *HashTable_insert(HashTable hashTable, const void *key, void *value) {
     return prev;
 }
 
-void *HashTable_get(HashTable hashTable, const void *key) {
+void *HashTable_get(HashTable hashTable, const void *key)
+{
     unsigned int index;
     HashNode *p;
 
@@ -120,8 +145,10 @@ void *HashTable_get(HashTable hashTable, const void *key) {
 
     index = hashTable->hash(key) % BUCKET_SIZE;
     //printf("get index:%d\n", index);
-    for (p = hashTable->bucket[index]; p; p = p->next) {
-        if (hashTable->cmp(key, p->key) == 0) {
+    for (p = hashTable->bucket[index]; p; p = p->next)
+    {
+        if (hashTable->cmp(key, p->key) == 0)
+        {
             break;
         }
     }
@@ -129,7 +156,8 @@ void *HashTable_get(HashTable hashTable, const void *key) {
     return p ? p->value : NULL;
 }
 
-void *HashTable_remove(HashTable hashTable, const void *key) {
+void *HashTable_remove(HashTable hashTable, const void *key)
+{
     HashNode **pp;
     unsigned int index;
 
@@ -141,8 +169,10 @@ void *HashTable_remove(HashTable hashTable, const void *key) {
     hashTable->timestamp++;
     index = (hashTable->hash)(key) % BUCKET_SIZE;
     //printf("index:%d\n", index);
-    for (pp = &hashTable->bucket[index]; *pp; pp = &((*pp)->next)) {
-        if ((hashTable->cmp)(key, (*pp)->key) == 0) {
+    for (pp = &hashTable->bucket[index]; *pp; pp = &((*pp)->next))
+    {
+        if ((hashTable->cmp)(key, (*pp)->key) == 0)
+        {
             HashNode *p = *pp;
             void *value = p->value;
             *pp = p->next;
@@ -156,7 +186,13 @@ void *HashTable_remove(HashTable hashTable, const void *key) {
     return NULL;
 }
 
-void HashTable_map(HashTable hashTable, void (*apply)(const void *key, void **value, void *c1), void *c1) {
+/**
+ * @brief 遍历哈希表
+ * @param hashTable 哈希表
+ * @param apply 函数指针
+ **/
+void HashTable_map(HashTable hashTable, void (*apply)(const void *key, void **value, void *c1), void *c1)
+{
     HashNode *p;
     unsigned int stamp;
 
@@ -164,22 +200,28 @@ void HashTable_map(HashTable hashTable, void (*apply)(const void *key, void **va
     assert(apply);
 
     stamp = hashTable->timestamp;
-    for (int i = 0; i < BUCKET_SIZE; ++i) {
-        for (p = hashTable->bucket[i]; p; p = p->next) {
-            apply(p->key, &(p->value), c1);
+    // 多个key算出的哈希值相同时，会以链表的形式在哈希表元素中存储
+    for (int i = 0; i < BUCKET_SIZE; ++i) // 遍历链表
+    {
+        for (p = hashTable->bucket[i]; p; p = p->next)
+        {
+            // p->key就是cmd_name;p->value就是cmd_usage,是一个字符串数组
+            apply(p->key, &(p->value), c1); // 相当于_cmd_help(p->key, &(p->value), c1)
             assert(stamp == hashTable->timestamp);
         }
     }
 }
 
-void **HashTable_toArray(HashTable hashTable, void *end) {
+void **HashTable_toArray(HashTable hashTable, void *end)
+{
     int i, j = 0;
     void **array;
     HashNode *p;
     assert(hashTable);
     array = malloc((2 * hashTable->length + 1) * sizeof(*array));
     for (i = 0; i < BUCKET_SIZE; i++)
-        for (p = hashTable->bucket[i]; p; p = p->next) {
+        for (p = hashTable->bucket[i]; p; p = p->next)
+        {
             array[j++] = (void *)p->key;
             array[j++] = p->value;
         }

@@ -30,7 +30,8 @@ char uart_buffer[DMA_BUFFER_SIZE];
 static union {
     uint8_t data[24];
     float ActVal[6];
-} posture;                     //用于全场定位传输数据的结构体
+} posture; //用于全场定位传输数据的结构体
+
 int DMA_RxOK_Flag_vega = 0;    //vega接收buffer
 char DMAUSART_RX_BUF_vega[99]; //全场定位接收buffer
 uint8_t DMAaRxBuffer_vega[99]; //全场定位接收buffer
@@ -130,8 +131,8 @@ void HAL_UART_IDLECallback(UART_HandleTypeDef *huart)
         if (DMAUSART_RX_BUF_vega[0] != '\0')
             DMA_RxOK_Flag_vega = 1;
 
-        usart_exc_DMA_vega();
-        memset(DMAaRxBuffer_vega, 0, 98);  // 缓存数组清零
+        usart_exc_DMA_vega();                                                 // 将全场定位通过串口发送的消息存入
+        memset(DMAaRxBuffer_vega, 0, 98);                                     // 缓存数组清零
         HAL_UART_Receive_DMA(&VEGA_USART, (uint8_t *)&DMAaRxBuffer_vega, 99); //开启DMA串口中断
     }
 }
@@ -184,8 +185,10 @@ int cmd_exec(int argc, char *argv[])
 void cmd_help_func(int argc, char *argv[])
 {
     // FIXME: ZeroVoid	2019/09/23	 dma usage 输出不完整，调试输出没问题
-    uprintf("help:\r\n");
-    HashTable_map(cmd_table, _cmd_help, NULL);
+    uprintf("===============================help===============================\r\n");
+    uprintf("|              CMD              |           Description          |\r\n");
+    HashTable_map(cmd_table, _cmd_help, NULL);  // 遍历哈希表，打印所有帮助指令
+    uprintf("==================================================================\r\n");
 }
 
 /**
@@ -200,7 +203,7 @@ void cmd_add(char *cmd_name, char *cmd_usage, void (*cmd_func)(int argc, char *a
     // FIXME: ZeroVoid	2019/9/23	 name or usage too long
     struct cmd_info *new_cmd = (struct cmd_info *)malloc(sizeof(struct cmd_info));
     char *name = (char *)malloc(sizeof(char) * (strlen(cmd_name) + 1));
-    char *usage = (char *)malloc(sizeof(char) * (strlen(cmd_name) + 1));
+    char *usage = (char *)malloc(sizeof(char) * (strlen(cmd_usage) + 1));
     strcpy(name, cmd_name);
     strcpy(usage, cmd_usage);
     new_cmd->cmd_func = cmd_func;
@@ -269,27 +272,30 @@ static int str_cmp(const void *a, const void *b)
 
 /**
  * @brief	输出函数使用说明，遍历hash表中使用
+ * @param key cmd_name
+ * @param value cmd_usage
  */
 static void _cmd_help(const void *key, void **value, void *c1)
 {
     UNUSED(c1);
     char *usage = ((struct cmd_info *)(*value))->cmd_usage;
-    uprintf("%s: %s\r\n", key, usage);
+    uprintf("|%31s: %-31s|\r\n", key, usage);
 }
 
-/**将全场定位从串口收到的数据存入
-*参数：void
-*返回值： void 注：直接将结果写入了底盘结构体中
-*说明: 更新底盘目前位置的函数
-*移植者: zx
-*/
+/**
+ * @brief 将全场定位从串口收到的数据存入
+ *        说明: 更新底盘目前位置的函数
+ *        移植者: zx
+ * @param void
+ * @return void 注：直接将结果写入了底盘结构体中
+ */
 void usart_exc_DMA_vega()
 {
     if (DMA_RxOK_Flag_vega)
     {
         for (int j = 0; j < 99; j++)
         {
-            if (DMAaRxBuffer_vega[j] == 0x0d)
+            if (DMAaRxBuffer_vega[j] == 0x0d) // 0x0d是回车符，0x0a是换行符
             {
                 if (DMAaRxBuffer_vega[j + 1] == 0x0a && j < 73 && DMAaRxBuffer_vega[j + 26] == 0x0a && DMAaRxBuffer_vega[j + 27] == 0x0d)
                 {

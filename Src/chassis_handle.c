@@ -8,7 +8,7 @@
 *******************************************************************************/
 #include "chassis_handle.h"
 #include "touchdown.h"
-Chassis_Handle chassis_handle;
+Chassis_Handle chassis_handle;  // 手柄数据结构体，包含摇杆位置数据、模式等
 PID_Struct handle_angle_pid = {1, 0, 0, 0, 0, 5000, 0, 0.005}; //手柄偏高角控制
 
 void handle_button(can_msg *data)
@@ -16,6 +16,8 @@ void handle_button(can_msg *data)
   if (0 == flag.main_flag)
     return;
   uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));  // data的前两位储存id
+  //  CAN_ID 20和21切换手动/自动模式
+  //         2/3，32/33检测达阵功能
   switch (id)
   {
   case 0:
@@ -123,7 +125,8 @@ void handle_button(can_msg *data)
 }
 
 /**
- * @brief 处理手柄摇杆的数据
+ * @brief 处理手柄摇杆的数据。
+ *        左摇杆的深浅控制速度，方向控制偏航角。
  * @param data 手柄摇杆的数据使用int16,can可以一次发送4个
  **/
 void handle_rocker(can_msg *data)
@@ -131,12 +134,12 @@ void handle_rocker(can_msg *data)
   if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
     return;
 
-  //常数修改零偏
+  // 常数修改零点漂移
   chassis_handle.ry = (int)data->i16[0] - 15;
   chassis_handle.rx = (int)data->i16[1] - 7;
   chassis_handle.ly = (int)data->i16[2] - 3;
   chassis_handle.lx = (int)data->i16[3] - 2;
-  //变换坐标系
+  // 变换坐标系
   chassis_handle.rx *= -1;
   chassis_handle.lx *= -1;
 }
@@ -148,9 +151,9 @@ void handle_exe()
 {
   if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
     return;
-  //速度为零时，应不读取角度，故将此处的角度先读为temp,
+  // 速度为零时，应不读取角度，故将此处的角度先读为temp,
   float temp_fangle = atan2(chassis_handle.ly, chassis_handle.lx);
-  //加减速用线性变化，此处将速度值设为temp--czh add
+  // 加减速用线性变化，此处将速度值设为temp--czh add
   int temp_fspeed = 4 * (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx));
   if (temp_fspeed < CHASSIS_HANDLE_MIN_SPEED)
   {
@@ -186,6 +189,7 @@ void handle_exe()
   {
     temp_fturn = 0;
   }
+
   float fturn_diff = temp_fturn - chassis.fturn;
   if (fturn_diff > 5)
   {

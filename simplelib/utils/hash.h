@@ -39,7 +39,7 @@ typedef struct{
 	int (*cmp)(const void *x, const void * y);
 	unsigned int (*hash)(const void *key);
 	void (*freeKey)(const void *key);
-} *HashTable;
+}* HashTable;  // HashTable是指向结构体的指针
 
 unsigned int hashStr(const void *key);
 

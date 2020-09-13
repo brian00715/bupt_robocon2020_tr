@@ -89,11 +89,12 @@ float chassis_calculate_traceangle(float point_x, float point_y)
 /**计算直线跑点速度*/
 int chassis_calculate_linespeed(float point_x, float point_y, int start_speed, int final_speed, int max_speed)
 {
-  float distance_to_target = 1000 * sqrtf((point_x - chassis.pos_x) * (point_x - chassis.pos_x) + (point_y - chassis.pos_y) * (point_y - chassis.pos_y));
+  float distance_to_target = 1000 * sqrtf((point_x - chassis.pos_x) * (point_x - chassis.pos_x) + 
+                                          (point_y - chassis.pos_y) * (point_y - chassis.pos_y));
 
   //int int_speed = (int)((start_speed - final_speed)*distance_to_target + final_speed);
 
-  int int_speed = (int)distance_to_target;
+  int int_speed = (int)distance_to_target;  // 直接用
 
   // if(int_speed < 0) int_speed = -int_speed;
   Limit_From_To(int_speed, 0, max_speed);
@@ -460,14 +461,14 @@ void chassis_pos_update()
 void chassis_exe()
 {
   chassis_pos_update();  // 更新底盘位姿
-  if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)  // 使用自动控制
+  /*if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)  // 使用自动控制
   {
     chassis_move_traces(chassis_status.trace_count);
   }
   if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0)  // 使用手动控制
   {
     handle_exe();
-  }
+  }*/
 }
 
 /********************************************跑轨迹 改*******************************

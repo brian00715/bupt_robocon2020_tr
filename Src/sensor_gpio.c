@@ -3,7 +3,7 @@
 #include "cmd.h"
 int microswitch_state = 0;
 int infrared_state = 1; //没有东西挡住时 为1
-int magnet_state = 0;
+int magnet_state = 0;  // 值为1上电，0断电
 int cylinder_state = 0;
 
 

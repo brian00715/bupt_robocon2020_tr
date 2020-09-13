@@ -116,9 +116,10 @@ int can_send_msg(uint16_t std_id, can_msg *msg)
     TxHeader.IDE = CAN_ID_STD;
 #ifdef DEBUG
     uprintf("%d %d %d\r\n", std_id, msg->in[0], msg->in[1]);
-#endif //DEBUG
-    HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox);  // 发送常规的uint8类型数据
-    //   if (HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox) != HAL_OK) {
+#endif                                                            //DEBUG
+    HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox); // 发送常规的uint8类型数据
+    //   if (HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox) != HAL_OK)
+    //   {
     //     uprintf("Error: CAN can't send msg.\r\n");
     //     return 1;
     //   }
@@ -140,7 +141,7 @@ int can_send_msg(uint16_t std_id, can_msg *msg)
                 return 1;
             }
         }
-    };  // TODO:为什么会有分号？
+    }; // TODO:为什么会有分号？
     //return 0;
 }
 

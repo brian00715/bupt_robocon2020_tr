@@ -80,13 +80,13 @@ void SystemClock_Config(void);
 // flag用来决定启用哪些模块，响应模块的执行函数会扫描flag中对应位置的值，为0则不执行
 Flag flag = {
     0, //main_flag
-    0, //chassis_control_flag
+    1, //chassis_control_flag
     0, //chassis_handle_flag
     0, //chassis_auto_flag
     0, //chassis_laser_flag
     0, //lcd_flag
-    0, //m2006_flag
-    0, //vesc_flag
+    1, //m2006_flag
+    1, //vesc_flag
     0  //clock_1s_flag
 };
 float test_value[10] = {0};
@@ -140,12 +140,14 @@ int main(void)
   laser_init();
   lcd_init();
   flag.main_flag = 1;
-  flag.chassis_auto_flag = 1;
-  flag.chassis_handle_flag = 0;
+  flag.chassis_auto_flag = 0; // 配置底盘运动手动/自动模式
+  flag.chassis_handle_flag = 1;
 
   can_msg msg1;
   msg1.in[0] = 0;  // pwm模式
   msg1.in[1] = 20; // 占空比
+  int motor_set_flag = 1;
+  int Chassis_MoterDuty = 10;
 
   HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, SET);
 
@@ -156,33 +158,39 @@ int main(void)
   while (1)
   {
     simplelib_run();
-    clock_exe();          // 时钟
-    // lcd_exe();         // lcd消息
-    gpio_sensor_exe();    // IO口执行函数
-    // m2006_exe();       // 大疆电机
-    // vsec_exe();
-    // kickball_exe();    // 踢球系统
-    // touchdown_exe();   // 达阵装置
-    // laser_exe();       // 激光
-    // chassis_exe();     // 底盘，及坐标更新
+    clock_exe(); // 时钟
+    lcd_exe();         // lcd消息
+    gpio_sensor_exe(); // IO口执行函数
+    m2006_exe();       // 大疆电机
+    vsec_exe();
+    kickball_exe();  // 踢球系统
+    // touchdown_exe(); // 达阵装置
+    laser_exe();       // 激光
+    chassis_exe(); // 底盘，及坐标更新
 
-    if (time_5ms_cnt == 1) // 5ms中断
-    {
-      time_5ms_cnt = 0;
-      can_send_msg(324, &msg1);
-    }
 
-    if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == RESET)
+    // key1按下
+    if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == RESET)  
     {
       HAL_Delay(100);
       if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == RESET)
       {
         uint32_t mailbox;
         uprintf("key1 pressed!\n");
-        can_send_msg(324, &msg1);
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+        // chassis_canset_motorduty(0, 0, 0);
         // CAN_FM1R_FBM0 = 0;
-
+      }
+    }
+    // key2按下
+    if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == RESET)  
+    {
+      HAL_Delay(100);
+      if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == RESET)
+      {
+        Chassis_MoterDuty = (Chassis_MoterDuty + 10) % 50;
+        uprintf("key2 pressed!\n");
+        // chassis_canset_motorduty(Chassis_MoterDuty, Chassis_MoterDuty, Chassis_MoterDuty);
       }
     }
 

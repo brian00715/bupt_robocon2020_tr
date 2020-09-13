@@ -16,7 +16,7 @@ void motor_init()
 VESC_STATE vesc = {0}; // 本杰明电调的状态机状态表
 
 /**
- * @brief 本杰明电调的执行函数
+ * @brief 本杰明电调的执行函数，从cmd获取数据
  *        根据vesc结构体的mode执行相应功能
  *        mode0 占空比
  *        mode1 电流环
@@ -25,7 +25,7 @@ VESC_STATE vesc = {0}; // 本杰明电调的状态机状态表
  **/
 void vsec_exe()
 {
-  flag.vesc_flag = 0;
+  // flag.vesc_flag = 0;
   if (flag.vesc_flag == 0)
   {
     return;
@@ -47,10 +47,10 @@ void vsec_exe()
 }
 
 
-float touchdown_current = 0; // 达阵电流
+float touchdown_current = 0; // 达阵电流,单位毫安
 float kick_current = 0;      // 踢球电流
 /**
- * @brief m2006大疆电机的执行函数
+ * @brief m2006大疆电机的执行函数,从cmd获取目标电流
  **/
 void m2006_exe()
 {
