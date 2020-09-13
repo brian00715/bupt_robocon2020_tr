@@ -1,4 +1,6 @@
-.vscode
+.vscode/
 *.o
 .zip
 *.tmp
+EWARM/Chassis.dep
+EWARM/Chassis/
