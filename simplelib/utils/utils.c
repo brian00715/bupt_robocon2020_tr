@@ -73,7 +73,7 @@ float Angle_Between_Points(float start_x, float start_y, float end_x, float end_
   {
     if (start_y < end_y)
       angle = PI / 2;
-    if (start_y = end_y)
+    if (start_y == end_y)
       angle = 0;
     if (start_y > end_y)
       angle = -PI / 2;

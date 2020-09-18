@@ -305,8 +305,49 @@ int chassis_move_trace(Point points_pos[], int point_num)
  **/
 void chassis_move_traces(int trace_num)
 {
-  vec test0 = {0};
-  vec test;
+  // vec test0 = {0};
+  // vec test;
+  switch (trace_num)
+  {
+    case -2: //设置底盘电机占空比为0
+      chassis_canset_motorduty(0, 0, 0);
+      break;
+    case -1: //设置底盘电机速度为0
+      chassis_canset_motorspeed(0, 0, 0);
+      break;
+    case 0: 
+      break;
+    case 1: //小车移动到初始点
+      chassis_GotoPoint(0, 0, 0);
+      break;
+    case 2: //跑测试点
+      chassis_GotoPoint(0.3, 0, 0);
+      break;
+    case 3:
+      chassis_GotoPoint(0, 0.3, 0);
+      break;
+    case 4: 
+      chassis_GotoPoint(0, 0, 0.5);
+      break;
+    case 5:
+      chassis_goto_point(0.5, 0);
+      break;
+    case 6:
+      chassis_GotoPoint(0.5, 0.5, 0);
+      break;
+    case 7:
+      chassis_GotoPoint(0.2, 0, 0.05);
+      break;
+    case 8:
+      chassis_GotoPoint(0.6, 0.3, 0.2);
+      break;
+    case 9:
+      chassis_GotoPoint(0, 0.6, 0.1);
+      break;
+    default:
+      break;
+  }
+  /*旧车代码（已不用）
   switch (trace_num)
   {
   case -2:
@@ -381,6 +422,7 @@ void chassis_move_traces(int trace_num)
   default:
     break;
   }
+  */
 }
 
 
@@ -405,6 +447,32 @@ void chassis_goto_point(float point_x, float point_y)
     chassis_status.go_to_point = 0;
     uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
     chassis_move(0, 0, chassis.angle);
+  }
+  return;
+}
+
+/**
+  * @brief 底盘直线跑点
+  * @param <point_x> 目标点横坐标
+  * @param <point_y> 目标点纵坐标
+  * @param <target_angle> 底盘目标位姿
+  **/
+ void chassis_GotoPoint(float point_x, float point_y, float target_angle)
+{
+  float distance = sqrtf((chassis.pos_x - point_x) * (chassis.pos_x - point_x) + (chassis.pos_y - point_y) * (chassis.pos_y - point_y));
+  if (distance >= Arrive_distance)
+  {
+    chassis_status.go_to_point = 1;
+    chassis.fangle = chassis_calculate_traceangle(point_x, point_y);
+    chassis.fspeed = chassis_calculate_linespeed(point_x, point_y, 150, 0, 300);
+    //chassis.fturn = target_angle;
+    chassis_move(chassis.fspeed, chassis.fangle, target_angle);
+  }
+  else
+  {
+    chassis_status.go_to_point = 0;
+    // uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, target_angle);
+    chassis_move(0, 0, target_angle);
   }
   return;
 }
@@ -461,14 +529,14 @@ void chassis_pos_update()
 void chassis_exe()
 {
   chassis_pos_update();  // 更新底盘位姿
-  /*if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)  // 使用自动控制
+  if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)  // 使用自动控制
   {
     chassis_move_traces(chassis_status.trace_count);
   }
   if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0)  // 使用手动控制
   {
     handle_exe();
-  }*/
+  }
 }
 
 /********************************************跑轨迹 改*******************************

@@ -137,11 +137,11 @@ int main(void)
   can_id_init();
   chassis_init();
   motor_init();
-  laser_init();
+  // laser_init();
   lcd_init();
   flag.main_flag = 1;
-  flag.chassis_auto_flag = 0; // 配置底盘运动手动/自动模式
-  flag.chassis_handle_flag = 1;
+  flag.chassis_auto_flag = 1; // 配置底盘运动手动/自动模式
+  flag.chassis_handle_flag = 0;
 
   can_msg msg1;
   msg1.in[0] = 0;  // pwm模式
@@ -165,7 +165,7 @@ int main(void)
     vsec_exe();
     kickball_exe();  // 踢球系统
     // touchdown_exe(); // 达阵装置
-    laser_exe();       // 激光
+    // laser_exe();       // 激光
     chassis_exe(); // 底盘，及坐标更新
 
 

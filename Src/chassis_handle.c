@@ -7,7 +7,8 @@
 * Data:           2019/10/21
 *******************************************************************************/
 #include "chassis_handle.h"
-#include "touchdown.h"
+//#include "touchdown.h"
+#include "kickball.h"
 Chassis_Handle chassis_handle;  // 手柄数据结构体，包含摇杆位置数据、模式等
 PID_Struct handle_angle_pid = {1, 0, 0, 0, 0, 5000, 0, 0.005}; //手柄偏高角控制
 
@@ -18,6 +19,61 @@ void handle_button(can_msg *data)
   uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));  // data的前两位储存id
   //  CAN_ID 20和21切换手动/自动模式
   //         2/3，32/33检测达阵功能
+  switch (id)
+  {
+    /*设置为自动模式，电机占空比设为0*/
+    case 0:
+      flag.chassis_handle_flag = 0;
+      flag.chassis_auto_flag = 1;
+      chassis_status.trace_count = -1;
+      uprintf("Change to Auto_mode\r\n");
+      break;
+    /*设置为手动模式*/
+    case 1:
+      flag.chassis_handle_flag = 0;
+      flag.chassis_auto_flag = 1;
+      uprintf("Change to handle_mode\r\n");
+      break;
+    case 2:
+      kickball_auto = 1;
+      uprintf("Kickball_auto now\r\n");
+      break;
+    case 3:
+      kickball_auto = 0;
+      uprintf("Kickball_handle now\r\n");
+    case 6: //踢球准备
+      kickball_prepare_flag = 1;
+      uprintf("Kickball prapare!\r\nManget is going up\r\n");
+      break;
+    case 7: //拉电磁铁
+      kickball_pull_magnet_flag = 1;
+      uprintf("Magnet is going down!\r\n");
+      break;
+    case 8: //停止拉电磁铁
+      kickball_stop_magnet_flag = 1;
+      uprintf("Magnet stopped!\r\nReady to kick\r\n");
+      break;
+    case 9: //开始踢球
+      kickball_kick_flag = 1;
+      uprintf("Kick the ball!!!\r\n");
+      break;
+    case 12:
+      if (flag.chassis_auto_flag) 
+      {
+        chassis_status.trace_count = 2;
+        uprintf("Go to point(1, 1)\r\n");
+      }
+      break;
+    case 13:
+      if (flag.chassis_auto_flag)
+      {
+        chassis_status.trace_count = 1;
+        uprintf("GO to point(0, 0)\r\n");
+      }
+    default:
+      break;
+  }
+  /*
   switch (id)
   {
   case 0:
@@ -122,6 +178,7 @@ void handle_button(can_msg *data)
   default:
     break;
   }
+  */
 }
 
 /**

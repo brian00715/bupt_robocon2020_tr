@@ -99,6 +99,7 @@ extern "C"
   void chassis_move_traces(int trace_rank);
 
   void chassis_goto_point(float point_x, float point_y);
+  void chassis_GotoPoint(float point_x, float point_y, float target_angle);
   void chassis_goto_vector(vec target_position);
 
   void chassis_finish_onetrace();

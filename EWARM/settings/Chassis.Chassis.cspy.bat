@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\EWARM\settings\Chassis.Chassis.general.xcl" --backend -f "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\EWARM\settings\Chassis.Chassis.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.1\common\bin\cspybat" -f "D:\北邮机器人队\资料\教程\代码\Chassis_TR（notes）\chassic-tr\EWARM\settings\Chassis.Chassis.general.xcl" --backend -f "D:\北邮机器人队\资料\教程\代码\Chassis_TR（notes）\chassic-tr\EWARM\settings\Chassis.Chassis.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\EWARM\settings\Chassis.Chassis.general.xcl" "--debug_file=%~1" --backend -f "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\EWARM\settings\Chassis.Chassis.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.1\common\bin\cspybat" -f "D:\北邮机器人队\资料\教程\代码\Chassis_TR（notes）\chassic-tr\EWARM\settings\Chassis.Chassis.general.xcl" "--debug_file=%~1" --backend -f "D:\北邮机器人队\资料\教程\代码\Chassis_TR（notes）\chassic-tr\EWARM\settings\Chassis.Chassis.driver.xcl" 
 
 @echo off 
 :end

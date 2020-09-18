@@ -302,6 +302,16 @@ void cmd_touchdown_try_finish(int argc, char *argv[])
     }
 }
 
+//更改底盘运动情况
+void cmd_chassis_trace_count(int argc, char *argv[])
+{
+    if (flag.chassis_auto_flag) 
+    {
+        chassis_status.trace_count = atoi(argv[1]);
+        uprintf("--Chassis_trace_count change to %d\r\n", atoi(argv[1]));
+    }
+}
+
 void cmd_func_init(void)
 {
     cmd_add("hello", "", cmd_hello);
@@ -345,7 +355,9 @@ void cmd_func_init(void)
     cmd_add("touchdown_close", "<current value>", cmd_touchdown_close);
     cmd_add("touchdown_try", "", cmd_touchdown_try);
     cmd_add("touchdown_try_finish", "", cmd_touchdown_try_finish);
-
+    
+    //chassis
     cmd_add("chassis_move", "<speed of 3 motors>", cmd_chassis_move);
     cmd_add("chassis_print_pos", "", cmd_chassis_print_pos);
+    cmd_add("chassis_trace_count", "", cmd_chassis_trace_count);
 }
