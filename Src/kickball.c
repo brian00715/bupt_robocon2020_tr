@@ -98,11 +98,11 @@ void kickball_set_status(KICKBALL_STATUS status)
 
 /****************************外部调用**************************/
 
-float kickball_m2006_current = -6;       //-5   // 控制大疆电机将磁铁转到踢球版的电流大小
+float kickball_m2006_current = -5;       //-5   // 控制大疆电机将磁铁转到踢球版的电流大小
 float kickball_vesc_lossen_duty = -0.35; // duty为负值时放线
-float kickball_vesc_pull_current5 = 2.3;
-float kickball_vesc_pull_current10 = 1.2;
-float kickball_vesc_pull_current20 = 1.2;
+float kickball_vesc_pull_current5 = 6;
+float kickball_vesc_pull_current10 = 5;
+float kickball_vesc_pull_current20 = 5;
 // 外部调用flag
 int kickball_prepare_flag = 0; //cmd控制，置1时开始动作：电磁铁转到踢球版上，到位后上电
 int kickball_ready_flag = 0;   //内部置1 反馈给主控

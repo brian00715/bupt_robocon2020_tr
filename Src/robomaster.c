@@ -95,7 +95,7 @@ float robomaster_position_pid_control(int id)
   return speed_out;
 }
 
-/*电流环*/
+/*电流环,参数单位毫安*/
 void robomaster_set_current(int16_t iq1, int16_t iq2, int16_t iq3, int16_t iq4)
 {
   uint8_t Data[8];
@@ -112,7 +112,7 @@ void robomaster_set_current(int16_t iq1, int16_t iq2, int16_t iq3, int16_t iq4)
   {
     dji_data.ui8[i] = Data[i];
   }
-  can_send_msg(0x200, &dji_data); // can总线控制大疆电机
+  can_send_msg(0x200, &dji_data); // can总线控制大疆电机，前4个电机CAN ID 为0x200，后4个ID为0x1ff
 }
 
 void M2006_init(int id)
