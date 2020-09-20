@@ -37,19 +37,19 @@ void kickball_VESC_set_rpm(float rpm)
   vesc.rpm = rpm;
 }
 
-/**大电机放线占空比 单位A 负值放线（逆时针旋转）*/
+/**大电机放线占空比 单位A 正值放线*/
 void kickball_VESC_set_loosen_duty(float duty)
 {
-  if (duty > 0)
+  if (duty < 0)
     return;
   vesc.mode = 0;
   vesc.duty = duty;
 }
 
-/**大电机拉电磁铁电流 正值拉线（顺时针旋转）*/
+/**大电机拉电磁铁电流 负值拉线*/
 void kickball_VESC_set_pull_current(float current)
 {
-  if (current < 0)
+  if (current > 0)
     return;
   vesc.mode = 1;
   vesc.current = current;
@@ -97,12 +97,14 @@ void kickball_set_status(KICKBALL_STATUS status)
 }
 
 /****************************外部调用**************************/
-
-float kickball_m2006_current = -6;       //-5   // 控制大疆电机将磁铁转到踢球版的电流大小
-float kickball_vesc_lossen_duty = -0.35; // duty为负值时放线
-float kickball_vesc_pull_current5 = 2.3;
-float kickball_vesc_pull_current10 = 1.2;
-float kickball_vesc_pull_current20 = 1.2;
+/**
+ * vesc正值放线，负值收线
+ **/
+float kickball_m2006_current = 4;      // 控制大疆电机将磁铁转到踢球版的电流大小
+float kickball_vesc_lossen_duty = 0.6; // duty为正时放线
+float kickball_vesc_pull_current5 = -8;
+float kickball_vesc_pull_current10 = -2;
+float kickball_vesc_pull_current20 = -2;
 // 外部调用flag
 int kickball_prepare_flag = 0; //cmd控制，置1时开始动作：电磁铁转到踢球版上，到位后上电
 int kickball_ready_flag = 0;   //内部置1 反馈给主控
@@ -204,7 +206,7 @@ void kickball_state_machine()
 
   case KICKBALL_BOARD_READY: // 踢球板就位
   {
-    kickball_VESC_set_rpm(0);
+    kickball_VESC_set_rpm(0); //停止收线
     kickball_ready_flag = 1;
     if (kickball_kick_flag == 1)
     {

@@ -203,6 +203,11 @@ void comm_can_set_duty(uint8_t controller_id, float duty)
                           buffer, send_index);
 }
 
+/**
+ * @brief 设置本杰明电调输出电流
+ * @param id 电调接收can id
+ * @param current 电流值/A
+ **/
 void comm_can_set_current(uint8_t controller_id, float current)
 {
     int32_t send_index = 0;
