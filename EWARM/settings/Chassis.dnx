@@ -18,7 +18,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>2629297044</Checksum>
+        <Checksum>2076012158</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -151,10 +151,11 @@
         <Count>3</Count>
     </Breakpoints2>
     <Aliases>
-        <A0>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_can.c" ""</A0>
-        <A1>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.c" ""</A1>
-        <A2>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A2>
-        <Count>3</Count>
+        <A0>_ "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A0>
+        <A1>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_can.c" ""</A1>
+        <A2>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.c" ""</A2>
+        <A3>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A3>
+        <Count>4</Count>
         <SuppressDialog>0</SuppressDialog>
     </Aliases>
 </settings>
