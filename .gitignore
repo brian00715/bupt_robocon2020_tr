@@ -4,4 +4,4 @@
 *.tmp
 EWARM/Chassis/
 EWARM/Chassis.dep
-
+EWARM/settings/
