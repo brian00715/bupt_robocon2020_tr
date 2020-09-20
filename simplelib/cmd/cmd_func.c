@@ -105,7 +105,6 @@ void cmd_vesc(int argc, char *argv[])
         break;
     }
     }
-    uprintf("Magnet state is %d\r\n", atoi(argv[1]));
 }
 
 //gpio
@@ -138,6 +137,7 @@ void cmd_gpio_all(int argc, char *argv[])
     uprintf("Magnet      state is %d\r\n", magnet_state);
     uprintf("Cylinder    state is %d\r\n", cylinder_state);
 }
+
 
 //kickball
 void cmd_kickball_auto(int argc, char *argv[])
@@ -320,8 +320,8 @@ void cmd_func_init(void)
     cmd_add("laser_print_pos", "", cmd_laser_print_pos);
 
     //gpio
-    cmd_add("gpio_magnet", "get magnet state", cmd_gpio_magnet);
-    cmd_add("gpio_cylinder", "get cylinder state", cmd_gpio_cylinder);
+    cmd_add("gpio_magnet", "set magnet state", cmd_gpio_magnet);
+    cmd_add("gpio_cylinder", "set cylinder state", cmd_gpio_cylinder);
     cmd_add("gpio_microswitch", "get microswitch state", cmd_gpio_microswitch);
     cmd_add("gpio_infrared", "get infrared state", cmd_gpio_infrared);
     cmd_add("gpio_all", "get all gpio state", cmd_gpio_all);
@@ -346,6 +346,7 @@ void cmd_func_init(void)
     cmd_add("touchdown_try", "", cmd_touchdown_try);
     cmd_add("touchdown_try_finish", "", cmd_touchdown_try_finish);
 
+    //chassis
     cmd_add("chassis_move", "<speed of 3 motors>", cmd_chassis_move);
     cmd_add("chassis_print_pos", "", cmd_chassis_print_pos);
 }

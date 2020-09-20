@@ -160,7 +160,7 @@ int main(void)
     simplelib_run();
     clock_exe(); // 时钟
     //lcd_exe();         // lcd消息
-    //gpio_sensor_exe(); // IO口执行函数
+    gpio_sensor_exe(); // IO口执行函数
     //m2006_exe();       // 大疆电机
     //vsec_exe();
     //kickball_exe();  // 踢球系统
@@ -171,6 +171,7 @@ int main(void)
     if(time_5ms_cnt==1)
     {
       //robomaster_set_current(1000,0,0,0);
+      comm_can_set_duty(88, 0.5);
       time_5ms_cnt=0;
     }
     // key1按下
@@ -182,8 +183,8 @@ int main(void)
         uint32_t mailbox;
         uprintf("key1 pressed!\n");
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-        //
-        // chassis_canset_motorduty(0, 0, 0);
+        robomaster_set_current(3,0,0,0);
+        chassis_canset_motorduty(0, 0, 0);
         // CAN_FM1R_FBM0 = 0;
       }
     }
@@ -195,7 +196,7 @@ int main(void)
       {
         Chassis_MoterDuty = (Chassis_MoterDuty + 10) % 50;
         uprintf("key2 pressed!\n");
-        // chassis_canset_motorduty(Chassis_MoterDuty, Chassis_MoterDuty, Chassis_MoterDuty);
+        chassis_canset_motorduty(Chassis_MoterDuty, Chassis_MoterDuty, Chassis_MoterDuty);
       }
     }
 
