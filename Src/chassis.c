@@ -158,13 +158,13 @@ void chassis_canset_motorspeed(int s1, int s2, int s3)
  **/
 void chassis_move(int speed, float direction, float target_angle)
 {
-  float ERR_angle_m2 = PI / 3, ERR_angle_m1 = -PI / 3, ERR_angle_m0 = PI; //三轮与全场定位模块安装偏角
+  float ERR_angle_m2 = -PI/2, ERR_angle_m1 = PI*5/6, ERR_angle_m0 = PI/6; //三轮与全场定位模块安装偏角
 
   Limit(speed, MAX_CHASSIS_MOVE_SPEED);
 
-  float speed_out_0 = -(speed * cos((ERR_angle_m0 + chassis.angle) - direction));
-  float speed_out_1 = -(speed * cos((ERR_angle_m1 + chassis.angle) - direction));
-  float speed_out_2 = -(speed * cos((ERR_angle_m2 + chassis.angle) - direction));
+  float speed_out_0 = speed * sin((ERR_angle_m0 + chassis.angle) - direction);
+  float speed_out_1 = speed * sin((ERR_angle_m1 + chassis.angle) - direction);
+  float speed_out_2 = speed * sin((ERR_angle_m2 + chassis.angle) - direction);
   float angle_output = 0;
   // 此处将angle_output改为了两种，即自动时为偏航角，手动时为自旋角速度，后续需改成根据MODE再判断，
   if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)
@@ -321,7 +321,7 @@ void chassis_move_traces(int trace_num)
       chassis_GotoPoint(0, 0, 0);
       break;
     case 2: //跑测试点
-      chassis_GotoPoint(0.3, 0, 0);
+      chassis_GotoPoint(0.5, 0, 0);
       break;
     case 3:
       chassis_GotoPoint(0, 0.3, 0);
@@ -330,13 +330,13 @@ void chassis_move_traces(int trace_num)
       chassis_GotoPoint(0, 0, 0.5);
       break;
     case 5:
-      chassis_goto_point(0.5, 0);
+      chassis_goto_point(-0.5, 0);
       break;
     case 6:
-      chassis_GotoPoint(0.5, 0.5, 0);
+      chassis_GotoPoint(0.8, 0.5, 0);
       break;
     case 7:
-      chassis_GotoPoint(0.2, 0, 0.05);
+      chassis_GotoPoint(-0.8, 0.5, 0);
       break;
     case 8:
       chassis_GotoPoint(0.6, 0.3, 0.2);

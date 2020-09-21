@@ -937,7 +937,7 @@
                     <item>vy_output</item>
                     <item>vector_d</item>
                     <item>nor</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

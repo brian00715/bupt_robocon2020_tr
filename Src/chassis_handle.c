@@ -21,55 +21,58 @@ void handle_button(can_msg *data)
   //         2/3，32/33检测达阵功能
   switch (id)
   {
-    /*设置为自动模式，电机占空比设为0*/
-    case 0:
+    case 0: //底盘设置为自动模式，电机占空比设为0
       flag.chassis_handle_flag = 0;
       flag.chassis_auto_flag = 1;
-      chassis_status.trace_count = -1;
-      uprintf("Change to Auto_mode\r\n");
+      chassis_status.trace_count = -2;
+      uprintf("--Change to Auto_mode\r\n");
       break;
-    /*设置为手动模式*/
-    case 1:
-      flag.chassis_handle_flag = 0;
-      flag.chassis_auto_flag = 1;
-      uprintf("Change to handle_mode\r\n");
+    case 1: //底盘设置为手动模式
+      flag.chassis_handle_flag = 1;
+      flag.chassis_auto_flag = 0;
+      uprintf("--Change to handle_mode\r\n");
       break;
-    case 2:
+    case 2: //踢球设置为自动模式，重置踢球状态
       kickball_auto = 1;
-      uprintf("Kickball_auto now\r\n");
+      kickball_status = KICKBALL_NONE;
+      uprintf("--Kickball_auto now\r\n");
       break;
-    case 3:
+    case 3: //踢球设置为手动模式
       kickball_auto = 0;
-      uprintf("Kickball_handle now\r\n");
+      uprintf("--Kickball_handle now\r\n");
+      break;
     case 6: //踢球准备
-      kickball_prepare_flag = 1;
-      uprintf("Kickball prapare!\r\nManget is going up\r\n");
+      if (kickball_auto == 1 && kickball_status == KICKBALL_NONE)
+      {
+        kickball_prepare_flag = 1;
+        uprintf("--Kickball prapare!\r\n--Manget is going up\r\n");
+      }
       break;
     case 7: //拉电磁铁
-      kickball_pull_magnet_flag = 1;
-      uprintf("Magnet is going down!\r\n");
+      if (kickball_auto == 1 && kickball_status == KICKBALL_MAGNET_READY)
+      {
+        kickball_pull_magnet_flag = 1;
+        uprintf("--Magnet is going down!\r\n");
+      }
       break;
     case 8: //停止拉电磁铁
-      kickball_stop_magnet_flag = 1;
-      uprintf("Magnet stopped!\r\nReady to kick\r\n");
+      if (kickball_auto == 0) break;
+      if (kickball_status==KICKBALL_BOARD_TO_DOWN5 ||
+      kickball_status==KICKBALL_BOARD_TO_DOWN10 ||
+      kickball_status==KICKBALL_BOARD_TO_DOWN20)
+      {
+        kickball_stop_magnet_flag = 1;
+        uprintf("--Magnet stopped!\r\nReady to kick\r\n");
+      }
       break;
     case 9: //开始踢球
-      kickball_kick_flag = 1;
-      uprintf("Kick the ball!!!\r\n");
-      break;
-    case 12:
-      if (flag.chassis_auto_flag) 
+      if (kickball_auto == 1 && kickball_status == KICKBALL_BOARD_READY)
       {
-        chassis_status.trace_count = 2;
-        uprintf("Go to point(1, 1)\r\n");
+        kickball_kick_flag = 1;
+        uprintf("--Kick the ball!!!\r\n");
       }
       break;
-    case 13:
-      if (flag.chassis_auto_flag)
-      {
-        chassis_status.trace_count = 1;
-        uprintf("GO to point(0, 0)\r\n");
-      }
+    
     default:
       break;
   }
