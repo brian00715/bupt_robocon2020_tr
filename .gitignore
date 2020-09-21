@@ -3,7 +3,5 @@
 .zip
 *.tmp
 EWARM/Chassis/
-EWARM/Chassis/settings
 EWARM/Chassis.dep
-
-
+EWARM/settings/

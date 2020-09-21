@@ -168,12 +168,6 @@ int main(void)
     //laser_exe();       // 激光
     //chassis_exe(); // 底盘，及坐标更新
     
-    if(time_5ms_cnt==1)
-    {
-      //robomaster_set_current(1000,0,0,0);
-      comm_can_set_duty(88, 0.5);
-      time_5ms_cnt=0;
-    }
     // key1按下
     if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == RESET)  
     {
@@ -183,11 +177,12 @@ int main(void)
         uint32_t mailbox;
         uprintf("key1 pressed!\n");
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-        robomaster_set_current(3,0,0,0);
-        chassis_canset_motorduty(0, 0, 0);
+        // robomaster_set_current(3,0,0,0);
+        // chassis_canset_motorduty(0, 0, 0);
         // CAN_FM1R_FBM0 = 0;
       }
     }
+    
     // key2按下
     if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == RESET)  
     {
@@ -196,7 +191,8 @@ int main(void)
       {
         Chassis_MoterDuty = (Chassis_MoterDuty + 10) % 50;
         uprintf("key2 pressed!\n");
-        chassis_canset_motorduty(Chassis_MoterDuty, Chassis_MoterDuty, Chassis_MoterDuty);
+        // chassis_canset_motorduty(Chassis_MoterDuty, Chassis_MoterDuty, Chassis_MoterDuty);
+
       }
     }
 
