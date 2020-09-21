@@ -25,7 +25,7 @@ KICKBALL_STATUS kickball_status = KICKBALL_NONE; // 踢球状态机的状态表
 /**M2006踢球电流 单位A current为负时把磁铁往上转*/
 void kickball_M2006_set_current(float current)
 {
-  kick_current = current;
+  MoterDriver_M2006_Current = current;
 }
 
 /**
@@ -98,13 +98,13 @@ void kickball_set_status(KICKBALL_STATUS status)
 
 /****************************外部调用**************************/
 /**
- * vesc正值放线，负值收线
+ * vesc正值放线，负值收线;2006正值把踢球版往上转，负值往下转
  **/
-float kickball_m2006_current = 4;      // 控制大疆电机将磁铁转到踢球版的电流大小
-float kickball_vesc_lossen_duty = 0.6; // duty为正时放线
-float kickball_vesc_pull_current5 = -8;
-float kickball_vesc_pull_current10 = -2;
-float kickball_vesc_pull_current20 = -2;
+float kickball_m2006_current = 4;        // 控制大疆电机将磁铁转到踢球版的电流大小
+float kickball_vesc_lossen_duty = 0.6;   // duty为正时放线
+float kickball_vesc_pull_current5 = -5;  // 5分球电流
+float kickball_vesc_pull_current10 = -8; // 10分球电流
+float kickball_vesc_pull_current20 = -12; // 20分球电流
 // 外部调用flag
 int kickball_prepare_flag = 0; //cmd控制，置1时开始动作：电磁铁转到踢球版上，到位后上电
 int kickball_ready_flag = 0;   //内部置1 反馈给主控
@@ -127,7 +127,7 @@ void kickball_state_machine()
   case KICKBALL_NONE:
   {
     if (kickball_prepare_flag == 1)
-    {                                                // 外部启动 ready_flag
+    {                                                // cmd启动 ready_flag
       kickball_num++;                                // 执行下一个状态
       kickball_num %= 5;                             // 控制状态循环
       kickball_set_status(KICKBALL_MAGNET_TO_BOARD); // 执行下一个状态：把磁铁转上去
@@ -140,7 +140,7 @@ void kickball_state_machine()
   {
     kickball_M2006_set_current(kickball_m2006_current);       // 磁铁往上转
     kickball_VESC_set_loosen_duty(kickball_vesc_lossen_duty); // 本杰明电调放线（占空比为负值，逆时针旋转）
-    if (kickball_get_microswitch_status() == 1)               //闭环检测微动开关flag
+    if (kickball_get_microswitch_status() == 1)               // 闭环检测微动开关flag
     {
       kickball_set_magnet_status(1);              // 磁铁上电
       kickball_VESC_set_loosen_duty(0);           // 本杰明电机断电
@@ -228,10 +228,10 @@ void kickball_state_machine()
   }
 }
 
-int kickball_auto = 1; // 踢球控制模式 0 手动 1 自动
+CONTROL_MODE Kickball_ControlMode = AUTO; // 踢球控制模式 0 手动 1 自动
 void kickball_exe()
 {
-  if (kickball_auto == 1)
+  if (Kickball_ControlMode == AUTO)
     kickball_state_machine(); // 自动控制则启动状态机
   else
   {

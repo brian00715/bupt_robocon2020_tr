@@ -182,6 +182,7 @@ int main(void)
         // CAN_FM1R_FBM0 = 0;
       }
     }
+    
     // key2按下
     if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == RESET)  
     {
