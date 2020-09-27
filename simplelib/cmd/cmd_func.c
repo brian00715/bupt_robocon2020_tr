@@ -126,7 +126,7 @@ void CMD_VESC_SetParam(int argc, char *argv[])
 void CMD_GPIO_Magnet_SetStatus(int argc, char *argv[])
 {
     magnet_state = atoi(argv[1]);
-    uprintf("Magnet state is %d\r\n", atoi(argv[1]));
+    uprintf("Magnet state set to %d\r\n", atoi(argv[1]));
 }
 
 // void cmd_gpio_cylinder(int argc, char *argv[])
@@ -165,12 +165,12 @@ void CMD_Kickball_SetControlMode(int argc, char *argv[])
         kickball_stop_magnet_flag = 0;
         kickball_kick_flag = 0;
         Kickball_ControlMode = AUTO;
-        uprintf("--Kickball switch to auto mode.\r\n");
+        uprintf("--Kickball control mode switch to auto mode.\r\n");
     }
     else // 输入0启动手动控制模式
     {
         Kickball_ControlMode = MANUAL;
-        uprintf("--Kickball switch to manual mode.\r\n");
+        uprintf("--Kickball control mode switch to manual mode.\r\n");
         uprintf("  kicknum = %d\r\n", kickball_num + 1); // 踢第几颗球
     }
 }
@@ -209,7 +209,7 @@ void CMD_Kickball_VESC(int argc, char *argv[])
     else // 参数大于0则是放线占空比
     {
         kickball_vesc_lossen_duty = (atof(argv[1]));
-        uprintf("--kickball VESC lossen duty set to %.2f A. \r\n", atof(argv[1]));
+        uprintf("--kickball VESC lossen duty set to %.2f. \r\n", atof(argv[1]));
     }
 }
 
@@ -275,7 +275,7 @@ void CMD_Kickball_StopAll(int argc, char *argv[])
     comm_can_set_rpm(vesc.id, vesc.rpm); // 立即执行
     MoterDriver_M2006_Current = 0;
     robomaster_set_current(0, 0, 0, 0); // 立即执行
-    uprintf("##All Moter Stoped!##\r\n");
+    uprintf("\r\n##All Moter Stoped!##\r\n");
 
     // 状态机复位
     kickball_ready_flag = 0;
@@ -284,12 +284,15 @@ void CMD_Kickball_StopAll(int argc, char *argv[])
     kickball_stop_magnet_flag = 0;
     kickball_kick_flag = 0;
     Kickball_ControlMode = MANUAL;
-    uprintf("##Status Machine Reseted! Now is Maunal Mode##\r\n");
-    uprintf("--you can enter <kickball_reset_megnet> to continue.\r\n");
+    kickball_status = KICKBALL_NONE;
+    magnet_state = 0;
+    uprintf("==Status Machine Reseted! Now is Maunal Mode==\r\n");
+    uprintf("--You can enter <kickball_reset_megnet> to continue.\r\n\r\n");
     kickball_stoped_flag = 1;
 }
 
 /*将钢丝收回，重新准备下一次踢球动作*/
+/*可以手动设置收线电流，或使用默认值*/
 void CMD_Kickball_ResetMegnet(int argc, char *argv[])
 {
     if (kickball_stoped_flag == 0)
@@ -297,18 +300,29 @@ void CMD_Kickball_ResetMegnet(int argc, char *argv[])
         uprintf("##Please Call <CMD_Kickball_StopAll> at first!##\r\n");
         return;
     }
-    kickball_stoped_flag = 0;           // 标志复位
+    kickball_stoped_flag = 0; // 标志复位
     uprintf("--megnet start reset.\r\n");
     uprintf("  please enter <vesc 0 0> at proper time.\r\n");
-    kickball_VESC_set_pull_current(-2); // 收线
+    if (argc < 2)
+    {
+        kickball_VESC_set_pull_current(-1); // 收线
+    }
+    else
+    {
+        kickball_VESC_set_pull_current(atof(argv[1]));
+    }
 }
 
 void CMD_Chassis_Move(int argc, char *argv[])
 {
-    test_value[0] = atof(argv[1]);
-    test_value[1] = atof(argv[2]);
-    test_value[2] = atof(argv[3]);
-    uprintf("move in %f  %f  %f\r\n", atoi(argv[1]), atof(argv[2]), atof(argv[3]));
+    // test_value[0] = atof(argv[1]);
+    // test_value[1] = atof(argv[2]);
+    // test_value[2] = atof(argv[3]);
+    Chassis_MoterDuty[0] = atoi(argv[1]);
+    Chassis_MoterDuty[1] = atoi(argv[2]);
+    Chassis_MoterDuty[2] = atoi(argv[3]);
+    uprintf("move in duty of %d  %d %d\r\n", Chassis_MoterDuty[0], 
+    Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
 }
 
 //打印实际的底盘坐标
@@ -331,7 +345,7 @@ void cmd_func_init(void)
     // cmd_add("vega_calibrate", "BAN!", cmd_vega_calibrate);
 
     //gpio
-    cmd_add("gpio_set_magnet_status", "", CMD_GPIO_Magnet_SetStatus);
+    cmd_add("gpio_set_magnet_status", "<1 to on;0 to off>", CMD_GPIO_Magnet_SetStatus);
     // cmd_add("gpio_cylinder", "set cylinder state", cmd_gpio_cylinder);
     cmd_add("gpio_microswitch", "get microswitch state", CMD_GPIO_Microswitch_GetStatus);
     // cmd_add("gpio_infrared", "get infrared state", cmd_gpio_infrared);
@@ -339,14 +353,14 @@ void cmd_func_init(void)
 
     //motor
     cmd_add("vesc", "<mode(0,1,2)> <value>", CMD_VESC_SetParam);
-    cmd_add("m2006", "<touchdown;kickball current>", CMD_M2006_SetCurrent);
+    cmd_add("m2006", "<current>", CMD_M2006_SetCurrent);
 
     //kickball
     cmd_add("kickball_set_control_mode", "0 to handle; 1 to auto", CMD_Kickball_SetControlMode);
     cmd_add("kickball_m2006", "<current value>", CMD_Kickball_M2006Current);
     cmd_add("kickball_vesc", "<current value>(<0pull;>0loose)", CMD_Kickball_VESC);
     cmd_add("kickball_prepare", "turn magnet to board", CMD_Kickball_Prepare);
-    cmd_add("kickball_pull_magnet", "", CMD_Kickball_Prepare);
+    cmd_add("kickball_pull_magnet", "", CMD_Kickball_PullMagnet);
     cmd_add("kickball_stop_pull_magnet", "", CMD_Kickball_StopPullMagnet);
     cmd_add("kickball_kick", "", CMD_Kickball_Kick);
     cmd_add("kickball_stop_all", "stop moter & reset status", CMD_Kickball_StopAll);

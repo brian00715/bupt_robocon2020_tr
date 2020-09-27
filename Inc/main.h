@@ -24,34 +24,35 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+  /* Private includes ----------------------------------------------------------*/
+  /* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
+  /* USER CODE END Includes */
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+  /* Exported types ------------------------------------------------------------*/
+  /* USER CODE BEGIN ET */
 
-/* USER CODE END ET */
+  /* USER CODE END ET */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
+  /* Exported constants --------------------------------------------------------*/
+  /* USER CODE BEGIN EC */
 
-/* USER CODE END EC */
+  /* USER CODE END EC */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+  /* Exported macro ------------------------------------------------------------*/
+  /* USER CODE BEGIN EM */
 
-/* USER CODE END EM */
+  /* USER CODE END EM */
 
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
+  /* Exported functions prototypes ---------------------------------------------*/
+  void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -80,32 +81,33 @@ void Error_Handler(void);
 #define M_KEY2_GPIO_Port GPIOB
 #define M_KEY1_Pin GPIO_PIN_0
 #define M_KEY1_GPIO_Port GPIOE
-/* USER CODE BEGIN Private defines */
-typedef struct{
-  uint8_t min;
-  uint8_t sec;
-  uint32_t m_sec;
-}Clock;
-extern Clock clock;
-typedef struct{
-  int main_flag;
-  int chassis_control_flag;
-  int chassis_handle_flag;
-  int chassis_auto_flag;
-  int chassis_laser_flag;
-  int lcd_flag;
-  int m2006_flag;
-  int vesc_flag;
-  int clock_1s_flag;
-}Flag;
-extern Flag flag;
+  /* USER CODE BEGIN Private defines */
+  typedef struct
+  {
+    uint8_t min;
+    uint8_t sec;
+    uint32_t m_sec;
+  } Clock;
+  extern Clock clock;
+  typedef struct
+  {
+    int main_flag;
+    int chassis_control_flag;
+    int chassis_handle_flag;
+    int chassis_auto_flag;
+    int chassis_laser_flag;
+    int lcd_flag;
+    int m2006_flag;
+    int vesc_flag;
+    int clock_1s_flag;
+  } Flag;
+  extern Flag flag;
 
+  void inc(void);
 
-
-void inc(void);
-
-extern float test_value[10];
-/* USER CODE END Private defines */
+  extern float test_value[10];
+  extern int Chassis_MoterDuty[3];
+  /* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

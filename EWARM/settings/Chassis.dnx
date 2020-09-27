@@ -18,7 +18,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>328575759</Checksum>
+        <Checksum>60756318</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -148,7 +148,7 @@
         <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\Src\simplelib.c}.33.5" 0 0 1 "" 0 "" 0</Bp0>
         <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\Src\simplelib.c}.47.9" 0 0 1 "" 0 "" 0</Bp1>
         <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\stm32f4xx_it.c}.278.3" 0 0 1 "" 0 "" 0</Bp2>
-        <Bp3>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\kickball.c}.123.3" 0 0 1 "" 0 "" 0</Bp3>
+        <Bp3>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\kickball.c}.125.3" 0 0 1 "" 0 "" 0</Bp3>
         <Count>4</Count>
     </Breakpoints2>
     <Aliases>

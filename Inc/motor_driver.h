@@ -15,7 +15,7 @@ typedef struct
 } VESC_STATE;
 
 extern VESC_STATE vesc;
-void vsec_exe();
+void vesc_exe();
 //m2006
 extern float touchdown_current;
 extern float MoterDriver_M2006_Current;

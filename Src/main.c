@@ -77,7 +77,7 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-// flagÁî®Êù•ÂÜ≥ÂÆöÂêØÁî®Âì™‰∫õÊ®°ÂùóÔºåÂìçÂ∫îÊ®°ÂùóÁöÑÊâßË°åÂáΩÊï∞‰ºöÊâ´Êèèflag‰∏≠ÂØπÂ∫î‰ΩçÁΩÆÁöÑÂÄºÔºå‰∏∫0Âàô‰∏çÊâßË°å
+// flag”√¿¥æˆ∂®∆Ù”√ƒƒ–©ƒ£øÈ£¨œÏ”¶ƒ£øÈµƒ÷¥––∫Ø ˝ª·…®√Ëflag÷–∂‘”¶Œª÷√µƒ÷µ£¨??0‘Ú≤ª÷¥––
 Flag flag = {
     0, //main_flag
     1, //chassis_control_flag
@@ -91,6 +91,8 @@ Flag flag = {
 };
 float test_value[10] = {0};
 int time_5ms_cnt = 0;
+int time_20ms_flag = 0;
+int Chassis_MoterDuty[3] = {0};
 
 /* USER CODE END 0 */
 
@@ -103,6 +105,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
+  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -140,16 +143,15 @@ int main(void)
   laser_init();
   lcd_init();
   flag.main_flag = 1;
-  flag.chassis_auto_flag = 0; // ÈÖçÁΩÆÂ∫ïÁõòËøêÂä®ÊâãÂä®/Ëá™Âä®Ê®°Âºè
+  flag.chassis_auto_flag = 0; // ≈‰÷√µ◊≈Ã‘À∂Ø ÷∂Ø/◊‘∂Øƒ£ Ω
   flag.chassis_handle_flag = 1;
 
   can_msg msg1;
-  msg1.in[0] = 0;  // pwmÊ®°Âºè
-  msg1.in[1] = 20; // Âç†Á©∫ÊØî
-  int motor_set_flag = 1;
-  int Chassis_MoterDuty = 10;
+  msg1.in[0] = 0;  // pwmƒ£ Ω
+  msg1.in[1] = 0;  // ’ºø’±»
+  int duty = 0;
 
-  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, SET);
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
 
   /* USER CODE END 2 */
 
@@ -158,45 +160,59 @@ int main(void)
   while (1)
   {
     simplelib_run();
-    clock_exe(); // Êó∂Èíü
-    //lcd_exe();         // lcdÊ∂àÊÅØ
-    gpio_sensor_exe(); // IOÂè£ÊâßË°åÂáΩÊï∞
-    m2006_exe();       // Â§ßÁñÜÁîµÊú∫
-    vsec_exe();
-    kickball_exe();  // Ë∏¢ÁêÉÁ≥ªÁªü
-    // touchdown_exe(); // ËææÈòµË£ÖÁΩÆ
-    //laser_exe();       // ÊøÄÂÖâ
-    //chassis_exe(); // Â∫ïÁõòÔºåÂèäÂùêÊ†áÊõ¥Êñ∞
-    
-    // key1Êåâ‰∏ã
-    if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == RESET)  
+    clock_exe(); //  ±÷”
+    // lcd_exe();         // lcdœ˚œ¢
+    gpio_sensor_exe(); // ∂Àø⁄÷¥––∫Ø ˝
+    m2006_exe();       // ¥ÛΩÆµÁª˙
+    vesc_exe();
+    kickball_exe(); // Ãﬂ«ÚœµÕ≥
+    // touchdown_exe();
+    // laser_exe();
+    chassis_exe(); // µ◊≈Ã£¨º∞◊¯±Í∏¸–¬
+
+    // msg1.in[1] = Chassis_MoterDuty;
+    if (time_5ms_cnt == 1)
     {
-      HAL_Delay(100);
-      if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == RESET)
+      time_5ms_cnt = 0;
+      // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+      // can_send_msg(103,&msg1);
+    }
+
+    if (time_20ms_flag == 1)
+    {
+      time_20ms_flag = 0;
+      // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+      // can_send_msg(103,&msg1);
+    }
+
+    // key1∞¥œ¬
+    if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET)
+    {
+      HAL_Delay(80);
+      if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET)
       {
-        uint32_t mailbox;
         uprintf("key1 pressed!\n");
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-        // robomaster_set_current(3,0,0,0);
-        // chassis_canset_motorduty(0, 0, 0);
-        // CAN_FM1R_FBM0 = 0;
+        Chassis_MoterDuty[0] = 0;
+        Chassis_MoterDuty[1] = 0;
+        Chassis_MoterDuty[2] = 0;
       }
     }
-    
-    // key2Êåâ‰∏ã
-    if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == RESET)  
+
+    // key2∞¥œ¬
+    if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
     {
-      HAL_Delay(100);
-      if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == RESET)
+      HAL_Delay(80);
+      if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
       {
-        Chassis_MoterDuty = (Chassis_MoterDuty + 10) % 50;
-        uprintf("key2 pressed!\n");
-        // chassis_canset_motorduty(Chassis_MoterDuty, Chassis_MoterDuty, Chassis_MoterDuty);
-
+        duty = (duty + 10) % 100;
+        chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+        uprintf("--key2 pressed!\r\n");
+        uprintf("--motor duty is %d%%.\r\n", Chassis_MoterDuty[0]);
       }
     }
 
-    //Âä†ÂÖ•Â∫ïÁõòÔºå‰∏ãÊñπÁöÑÊµãËØïÂáΩÊï∞ÂºÉÁî®ÔºåÊïÖÊîπ‰∏∫2,--czh
+    //º”»Îµ◊≈Ã£¨œ¬∑Ωµƒ≤‚ ‘∫Ø ˝∆˙”√£¨π ∏ƒŒ™2,--czh
     // if(test_flag0 == 1) {
     //   test_flag0 = 0;
     //   vega_print_pos_can();
@@ -241,7 +257,8 @@ void SystemClock_Config(void)
   }
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -269,15 +286,17 @@ void inc(void)
     //500ms
     if (time_1ms_cnt % 500 == 0)
     {
-      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin); //ledÈó™ÁÉÅ
+      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin); //led…¡À∏
     }
     //20ms
     if (time_1ms_cnt % 20 == 0)
     {
+      time_20ms_flag = 1;
     }
+
+    //10ms
     if (time_1ms_cnt % 10 == 0)
     {
-
       clock.m_sec++;
     }
 
@@ -297,14 +316,14 @@ void inc(void)
       flag.m2006_flag = 1;
     }
 
-    //vegaÔºàÂÖ®Âú∫ÂÆö‰ΩçÔºâÂàùÂßãÂåñÊó∂Èó¥ËÆæÂÆöÔºåÈúÄË¶ÅÊúâ15sÁöÑÂêØÂä®Êó∂Èó¥
+    //vega£®»´≥°∂®Œª£©≥ı ºªØ ±º‰…Ë∂®£¨“™”–15sµƒ∆Ù∂Ø ±º‰?
     if (time_1ms_cnt % 15000 == 0 && chassis_status.vega_is_ready == 0)
     {
       chassis_status.vega_is_ready = 1;
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
       uprintf("Vega init done!!!\r\n");
     }
-    if (time_1ms_cnt >= 60000) // Èò≤Ê≠¢intÁ±ªÂûãÊ∫¢Âá∫
+    if (time_1ms_cnt >= 60000) // ∑¿÷πint¿‡–Õ“Á≥ˆ
     {
       time_1ms_cnt = 0;
     }
@@ -325,7 +344,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -334,7 +353,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{
+{ 
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

@@ -23,7 +23,7 @@ VESC_STATE vesc = {0}; // 本杰明电调的状态机状态表
  *        mode2 速度环
  *        mode3 位置环（通常不用）
  **/
-void vsec_exe()
+void vesc_exe()
 {
   // flag.vesc_flag = 0;
   if (flag.vesc_flag == 0)
@@ -56,8 +56,6 @@ void m2006_exe()
 {
   if (flag.m2006_flag == 0)  // 控制5ms发一次
     return;
-  // int16_t door_I = (int16_t)(touchdown_current * 1000);
-  // robomaster_set_current(door_I, kick_I, 0, 0);
   int16_t kick_I = (int16_t)(MoterDriver_M2006_Current * 1000);
   robomaster_set_current(kick_I, 0, 0, 0);
   flag.m2006_flag = 0;
