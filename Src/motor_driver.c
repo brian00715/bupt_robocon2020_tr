@@ -1,7 +1,3 @@
-#include "main.h"
-#include "robomaster.h"
-#include "vesc_can.h"
-#include "kickball.h"
 #include "motor_driver.h"
 
 /**
@@ -23,7 +19,7 @@ VESC_STATE vesc = {0}; // 本杰明电调的状态机状态表
  *        mode2 速度环
  *        mode3 位置环（通常不用）
  **/
-void vsec_exe()
+void vesc_exe()
 {
   // flag.vesc_flag = 0;
   if (flag.vesc_flag == 0)
@@ -43,22 +39,21 @@ void vsec_exe()
     comm_can_set_rpm(vesc.id, vesc.rpm);
   }
   if (vesc.mode == 3)
-    ; //位置环
+    comm_can_set_pos(vesc.id, vesc.position); //位置环
 }
 
-//float touchdown_current = 0; // 达阵电流,单位毫安
-float MoterDriver_M2006_Current = 0;      // 踢球电流
+// float touchdown_current = 0; // 达阵电流,单位毫安
+float MoterDriver_M2006_Current = 0; // 踢球电流
 /**
  * @brief m2006大疆电机的执行函数,从cmd获取目标电流
  *        已弃用达阵，转踢球板的为1号电调
  **/
 void m2006_exe()
 {
-  if (flag.m2006_flag == 0)  // 控制5ms发一次
+  if (flag.m2006_flag == 0) // 控制5ms发一次
     return;
-  // int16_t door_I = (int16_t)(touchdown_current * 1000);
-  // robomaster_set_current(door_I, kick_I, 0, 0);
   int16_t kick_I = (int16_t)(MoterDriver_M2006_Current * 1000);
   robomaster_set_current(kick_I, 0, 0, 0);
+  // Robomaster_StopByAngle(0);
   flag.m2006_flag = 0;
 }

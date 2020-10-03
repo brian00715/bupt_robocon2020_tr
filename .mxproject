@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=E:/Robocon_Value/Chassis/Inc
+HeaderPath=D:/ProgramPractice/RobotTeam/STM/Chassis_TR/Inc
 HeaderFiles=gpio.h;sys.h;stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;adc.h;dma.h;can.h;usart.h;
-SourcePath=E:/Robocon_Value/Chassis/Src
+SourcePath=D:/ProgramPractice/RobotTeam/STM/Chassis_TR/Src
 SourceFiles=gpio.c;sys.c;stm32f4xx_it.c;stm32f4xx_hal_msp.c;main.c;adc.c;dma.c;can.c;usart.c;
 
 [PreviousLibFiles]

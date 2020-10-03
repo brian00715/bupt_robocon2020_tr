@@ -59,7 +59,7 @@ extern "C"
     float fangle;
     float fturn;
 
-  } Chassis;  // 底盘、全场定位、激光的位姿数据
+  } Chassis; // 底盘、全场定位、激光的位姿数据
 
   typedef struct
   {
@@ -93,6 +93,7 @@ extern "C"
   int chassis_calculate_linespeed(float point_x, float point_y, int start_speed, int final_speed, int max_speed);
 
   void chassis_canset_motorspeed(int s1, int s2, int s3);
+  void chassis_canset_motorduty(int s1, int s2, int s3);
   void chassis_move(int speed, float direction, float target_angle);
   void chassis_move_vector(vec now_speed_vec, vec target_speed_vec, vec distance_vec, float target_angle);
   int chassis_move_trace(Point points_pos[], int point_num);

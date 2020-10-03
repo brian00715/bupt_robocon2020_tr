@@ -38,6 +38,7 @@
 #include "kickball.h"
 #include "touchdown.h"
 #include "motor_driver.h"
+#include "robomaster.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -77,7 +78,7 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-// flagç”¨æ¥å†³å®šå¯ç”¨å“ªäº›æ¨¡å—ï¼Œå“åº”æ¨¡å—çš„æ‰§è¡Œå‡½æ•°ä¼šæ‰«æflagä¸­å¯¹åº”ä½ç½®çš„å€¼ï¼Œä¸º0åˆ™ä¸æ‰§è¡Œ
+// flagÓÃÀ´¾ö¶¨ÆôÓÃÄÄĞ©Ä£¿é£¬ÏìÓ¦Ä£¿éµÄÖ´ĞĞº¯Êı»áÉ¨ÃèflagÖĞ¶ÔÓ¦Î»ÖÃµÄÖµ£¬??0Ôò²»Ö´ĞĞ
 Flag flag = {
     0, //main_flag
     1, //chassis_control_flag
@@ -91,6 +92,9 @@ Flag flag = {
 };
 float test_value[10] = {0};
 int time_5ms_cnt = 0;
+int time_20ms_flag = 0;
+int time_1s_flag = 0;
+int Chassis_MoterDuty[3] = {0};
 
 /* USER CODE END 0 */
 
@@ -140,16 +144,11 @@ int main(void)
   laser_init();
   lcd_init();
   flag.main_flag = 1;
-  flag.chassis_auto_flag = 0; // é…ç½®åº•ç›˜è¿åŠ¨æ‰‹åŠ¨/è‡ªåŠ¨æ¨¡å¼
+  flag.chassis_auto_flag = 0; // ÅäÖÃµ×ÅÌÔË¶¯ÊÖ¶¯/×Ô¶¯Ä£Ê½
   flag.chassis_handle_flag = 1;
+  int duty = 0;
 
-  can_msg msg1;
-  msg1.in[0] = 0;  // pwmæ¨¡å¼
-  msg1.in[1] = 20; // å ç©ºæ¯”
-  int motor_set_flag = 1;
-  int Chassis_MoterDuty = 10;
-
-  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, SET);
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
 
   /* USER CODE END 2 */
 
@@ -158,51 +157,63 @@ int main(void)
   while (1)
   {
     simplelib_run();
-    clock_exe(); // æ—¶é’Ÿ
-    //lcd_exe();         // lcdæ¶ˆæ¯
-    gpio_sensor_exe(); // IOå£æ‰§è¡Œå‡½æ•°
-    //m2006_exe();       // å¤§ç–†ç”µæœº
-    //vsec_exe();
-    //kickball_exe();  // è¸¢çƒç³»ç»Ÿ
-    // touchdown_exe(); // è¾¾é˜µè£…ç½®
-    //laser_exe();       // æ¿€å…‰
-    //chassis_exe(); // åº•ç›˜ï¼ŒåŠåæ ‡æ›´æ–°
-    
-    // key1æŒ‰ä¸‹
-    if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == RESET)  
+    clock_exe(); // Ê±ÖÓ
+    // lcd_exe();         // lcdÏûÏ¢
+    // gpio_sensor_exe(); // ¶Ë¿ÚÖ´ĞĞº¯Êı
+    // m2006_exe();       // ´ó½®µç»ú
+    // vesc_exe();
+    // kickball_exe(); // ÌßÇòÏµÍ³ 
+    Kickball2_EXE();
+    chassis_exe(); // µ×ÅÌ£¬¼°×ø±ê¸üĞÂ
+
+    if (time_5ms_cnt == 1)
     {
-      HAL_Delay(100);
-      if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == RESET)
+      time_5ms_cnt = 0;
+      // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+      // can_send_msg(103,&msg1);
+      // RoboconMaster_RPMControl(); // ÅÜËÙ¶È»·
+    }
+
+    if (time_20ms_flag == 1)
+    {
+      time_20ms_flag = 0;
+      // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+      // can_send_msg(103,&msg1);
+      // Robomaster_PrintInfo(0);
+    }
+
+    if (time_1s_flag == 1)
+    {
+      time_1s_flag = 0;
+      // Robomaster_PrintInfo(0);
+    }
+
+    // key1°´ÏÂ
+    if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET)
+    {
+      HAL_Delay(80);
+      if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET)
       {
-        uint32_t mailbox;
         uprintf("key1 pressed!\n");
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-        // robomaster_set_current(3,0,0,0);
-        // chassis_canset_motorduty(0, 0, 0);
-        // CAN_FM1R_FBM0 = 0;
+        Chassis_MoterDuty[0] = 0;
+        Chassis_MoterDuty[1] = 0;
+        Chassis_MoterDuty[2] = 0;
       }
     }
-    
-    // key2æŒ‰ä¸‹
-    if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == RESET)  
+
+    // key2°´ÏÂ
+    if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
     {
-      HAL_Delay(100);
-      if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == RESET)
+      HAL_Delay(80);
+      if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
       {
-        Chassis_MoterDuty = (Chassis_MoterDuty + 10) % 50;
-        uprintf("key2 pressed!\n");
-        // chassis_canset_motorduty(Chassis_MoterDuty, Chassis_MoterDuty, Chassis_MoterDuty);
-
+        duty = (duty + 10) % 100;
+        chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+        uprintf("--key2 pressed!\r\n");
+        uprintf("--motor duty is %d%%.\r\n", Chassis_MoterDuty[0]);
       }
     }
-
-    //åŠ å…¥åº•ç›˜ï¼Œä¸‹æ–¹çš„æµ‹è¯•å‡½æ•°å¼ƒç”¨ï¼Œæ•…æ”¹ä¸º2,--czh
-    // if(test_flag0 == 1) {
-    //   test_flag0 = 0;
-    //   vega_print_pos_can();
-    //   //chassis_move((int)test_value[0],ANGLE2RAD(test_value[1]),test_value[2]);
-    //   // chassis_canset_motorspeed(test_value[0],test_value[1],test_value[2]);
-    // }
 
     /* USER CODE END WHILE */
 
@@ -265,19 +276,22 @@ void inc(void)
     if (time_1ms_cnt % 1000 == 0)
     {
       flag.clock_1s_flag = 1;
+      time_1s_flag = 1;
     }
     //500ms
     if (time_1ms_cnt % 500 == 0)
     {
-      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin); //ledé—ªçƒ
+      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin); //ledÉÁË¸
     }
     //20ms
     if (time_1ms_cnt % 20 == 0)
     {
+      time_20ms_flag = 1;
     }
+
+    //10ms
     if (time_1ms_cnt % 10 == 0)
     {
-
       clock.m_sec++;
     }
 
@@ -297,14 +311,14 @@ void inc(void)
       flag.m2006_flag = 1;
     }
 
-    //vegaï¼ˆå…¨åœºå®šä½ï¼‰åˆå§‹åŒ–æ—¶é—´è®¾å®šï¼Œéœ€è¦æœ‰15sçš„å¯åŠ¨æ—¶é—´
+    //vega£¨È«³¡¶¨Î»£©³õÊ¼»¯Ê±¼äÉè¶¨£¬ÒªÓĞ15sµÄÆô¶¯Ê±¼ä?
     if (time_1ms_cnt % 15000 == 0 && chassis_status.vega_is_ready == 0)
     {
       chassis_status.vega_is_ready = 1;
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
       uprintf("Vega init done!!!\r\n");
     }
-    if (time_1ms_cnt >= 60000) // é˜²æ­¢intç±»å‹æº¢å‡º
+    if (time_1ms_cnt >= 60000) // ·ÀÖ¹intÀàĞÍÒç³ö
     {
       time_1ms_cnt = 0;
     }

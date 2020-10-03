@@ -1,6 +1,10 @@
 #ifndef _MOTOR_DRIVER_H
 #define _MOTOR_DRIVER_H
 #include "can_utils.h"
+#include "main.h"
+#include "robomaster.h"
+#include "vesc_can.h"
+#include "kickball.h"
 
 void motor_init();
 //vesc
@@ -15,7 +19,7 @@ typedef struct
 } VESC_STATE;
 
 extern VESC_STATE vesc;
-void vsec_exe();
+void vesc_exe();
 //m2006
 extern float touchdown_current;
 extern float MoterDriver_M2006_Current;

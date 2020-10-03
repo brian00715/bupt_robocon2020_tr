@@ -4,6 +4,7 @@
 #include "cmd.h"
 #include "chassis_handle.h"
 #include "mtr_driver.h"
+#include "robomaster.h"
 
 void can_get_mag_mtr(can_msg *data);
 
@@ -12,7 +13,7 @@ void can_func_init()
     can_callback_add(230, can_suc_rx);
     can_callback_add(324, handle_rocker);
     can_callback_add(325, handle_button);
-    //can_callback_add(324, can_show_rocker);
+    can_callback_add(0x201, can_robomaster_rcv_1); // 电机反馈消息的回调函数
 
 #ifdef SL_DEBUG
     can_callback_add(1, can_suc_rx);

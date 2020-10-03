@@ -15,9 +15,11 @@
 #include "motor_driver.h"
 #include "vesc_can.h"
 
+#define KICKBALL_GEN 2 // 选择踢球装置的代数,置1选择第一代，置2选择第二代
+
 void CMD_Hello(int argc, char *argv[])
 {
-    uprintf("Hello!\r\n");
+    uprintf("--Hello!\r\n");
 }
 
 //vega
@@ -62,6 +64,7 @@ void CMD_Point_PrintPath(int argc, char *argv[])
     point_print_path();
 }
 
+/********************************[电机上位机控制]***********************************/
 /*设置m2006的参数，用以手动控制*/
 void CMD_M2006_SetCurrent(int argc, char *argv[])
 {
@@ -122,18 +125,71 @@ void CMD_VESC_SetParam(int argc, char *argv[])
     }
 }
 
-//gpio
+void CMD_Robomaster_SetRPM(int argc, char *argv[])
+{
+    Robomaster_RPMControl_Flag = 1;
+    Robomaster_PosControl_Flag = 0;
+    if (argc <= 4)
+    {
+        uprintf("##param num(4) error!##\r\n");
+        return;
+    }
+    for (int i = 0; i < 4; i++)
+    {
+        Robomaster_RPMValue[i] = atoi(argv[i + 1]);
+    }
+    uprintf("--Robomaster speed set to: %d,%d,%d,%d.\r\n",
+            Robomaster_RPMValue[0], Robomaster_RPMValue[1], Robomaster_RPMValue[2], Robomaster_RPMValue[3]);
+}
+
+void CMD_Robomaster_SetPosition(int argc, char *argv[])
+{
+    Robomaster_RPMControl_Flag = 0;
+    Robomaster_PosControl_Flag = 1;
+    if (argc <= 4)
+    {
+        uprintf("##param num(4) error!##\r\n");
+        return;
+    }
+    for (int i = 0; i < 4; i++)
+    {
+        robomaster[i].target_position = (int)((atoi(argv[i + 1]) * 8192 / 360) + robomaster[i].total_angle);
+    }
+    uprintf("--Robomaster position set to: %d,%d,%d,%d.\r\n",
+            robomaster[0].target_position, robomaster[1].target_position,
+            robomaster[2].target_position, robomaster[3].target_position);
+}
+
+void CMD_Robomater_StopByAngle(int argc, char *argv[])
+{
+    Robomaster_OpenAngleControl_Flag = 1;
+    Robomaster_TargetOffsetAngle = (uint32_t)atoi(argv[1]);
+    // MoterDriver_M2006_Current = atof(argv[2]);
+    uprintf("--motor will stop when rotated by %d angles.\r\n", Robomaster_TargetOffsetAngle);
+}
+
+/*输入0关闭串口打印，输入1开启*/
+void CMD_Robomaster_SwitchPrintInfo(int argc, char *argv[])
+{
+    if (atoi(argv[1]) == 0)
+    {
+        Robomaster_PrintInfo_Flag = 0;
+        uprintf("--Robomaster PrintInfo Closed!\r\n");
+    }
+    else if (atoi(argv[1]) == 1)
+    {
+        Robomaster_PrintInfo_Flag = 1;
+        uprintf("--Robomaster PrintInfo Opened!\r\n");
+    }
+}
+/********************************END***********************************/
+
+/********************************[IO端口控制]***********************************/
 void CMD_GPIO_Magnet_SetStatus(int argc, char *argv[])
 {
     magnet_state = atoi(argv[1]);
-    uprintf("Magnet state is %d\r\n", atoi(argv[1]));
+    uprintf("Magnet state set to %d\r\n", atoi(argv[1]));
 }
-
-// void cmd_gpio_cylinder(int argc, char *argv[])
-// {
-//     cylinder_state = atoi(argv[1]);
-//     uprintf("Cylinder state is %d\r\n", atoi(argv[1]));
-// }
 
 void CMD_GPIO_Microswitch_GetStatus(int argc, char *argv[])
 {
@@ -145,6 +201,12 @@ void CMD_GPIO_Microswitch_GetStatus(int argc, char *argv[])
 //     uprintf("Infrared state is %d\r\n", infrared_state);
 // }
 
+// void cmd_gpio_cylinder(int argc, char *argv[])
+// {
+//     cylinder_state = atoi(argv[1]);
+//     uprintf("Cylinder state is %d\r\n", atoi(argv[1]));
+// }
+
 void CMD_GPIO_GetAllStatus(int argc, char *argv[])
 {
     uprintf("\r\n--Microswitch state is %d\r\n", microswitch_state);
@@ -152,12 +214,13 @@ void CMD_GPIO_GetAllStatus(int argc, char *argv[])
     uprintf("  Magnet      state is %d\r\n", magnet_state);
     uprintf("  Cylinder    state is %d\r\n", cylinder_state);
 }
+/********************************END***********************************/
 
 
-//kickball
+/********************************[第一代踢球动作控制]***********************************/
 void CMD_Kickball_SetControlMode(int argc, char *argv[])
 {
-    if (atof(argv[1]) == 1) // 输入1启动自动控制模式
+    if (atoi(argv[1]) == 1) // 输入1启动自动控制模式
     {
         // 状态机清零
         kickball_ready_flag = 0;
@@ -166,12 +229,12 @@ void CMD_Kickball_SetControlMode(int argc, char *argv[])
         kickball_stop_magnet_flag = 0;
         kickball_kick_flag = 0;
         Kickball_ControlMode = AUTO;
-        uprintf("--Kickball switch to auto mode.\r\n");
+        uprintf("--Kickball control mode switch to auto mode.\r\n");
     }
     else // 输入0启动手动控制模式
     {
         Kickball_ControlMode = MANUAL;
-        uprintf("--Kickball switch to manual mode.\r\n");
+        uprintf("--Kickball control mode switch to manual mode.\r\n");
         uprintf("  kicknum = %d\r\n", kickball_num + 1); // 踢第几颗球
     }
 }
@@ -205,12 +268,12 @@ void CMD_Kickball_VESC(int argc, char *argv[])
     if (atof(argv[1]) < 0) // 参数小于0则是收线电流
     {
         kickball_vesc_pull_current5 = (atof(argv[1]));
-        uprintf("--kickball VESC pull current set to %.2f. \r\n", atof(argv[1]));
+        uprintf("--kickball VESC pull current set to %.2f. \r\n", kickball_vesc_pull_current5);
     }
     else // 参数大于0则是放线占空比
     {
         kickball_vesc_lossen_duty = (atof(argv[1]));
-        uprintf("--kickball VESC lossen duty set to %.2f A. \r\n", atof(argv[1]));
+        uprintf("--kickball VESC lossen duty set to %.2f. \r\n", kickball_vesc_lossen_duty);
     }
 }
 
@@ -247,11 +310,15 @@ void CMD_Kickball_PullMagnet(int argc, char *argv[])
  **/
 void CMD_Kickball_StopPullMagnet(int argc, char *argv[])
 {
-    if (Kickball_ControlMode == MANUAL)
-    {
-        uprintf("##please change to auto mode!##\r\n");
-        return;
-    }
+    // 注释掉，随时控制停止
+    // if (Kickball_ControlMode == MANUAL)
+    // {
+    //     uprintf("##please change to auto mode!##\r\n");
+    //     return;
+    // }
+    comm_can_set_rpm(vesc.id, 0); // 立即执行
+    vesc.mode = 0;
+    vesc.rpm = 0;
     kickball_stop_magnet_flag = 1;
     uprintf("--Magnet stopped!\r\n  Ready to kick.\r\n");
 }
@@ -276,7 +343,7 @@ void CMD_Kickball_StopAll(int argc, char *argv[])
     comm_can_set_rpm(vesc.id, vesc.rpm); // 立即执行
     MoterDriver_M2006_Current = 0;
     robomaster_set_current(0, 0, 0, 0); // 立即执行
-    uprintf("##All Moter Stoped!##\r\n");
+    uprintf("\r\n##All Moter Stoped!##\r\n");
 
     // 状态机复位
     kickball_ready_flag = 0;
@@ -285,12 +352,15 @@ void CMD_Kickball_StopAll(int argc, char *argv[])
     kickball_stop_magnet_flag = 0;
     kickball_kick_flag = 0;
     Kickball_ControlMode = MANUAL;
-    uprintf("##Status Machine Reseted! Now is Maunal Mode##\r\n");
-    uprintf("--you can enter <kickball_reset_megnet> to continue.\r\n");
+    kickball_status = KICKBALL_NONE;
+    magnet_state = 0;
+    uprintf("==Status Machine Reseted! Now is Maunal Mode==\r\n");
+    uprintf("--You can enter <kickball_reset_megnet> to continue.\r\n\r\n");
     kickball_stoped_flag = 1;
 }
 
 /*将钢丝收回，重新准备下一次踢球动作*/
+/*可以手动设置收线电流，或使用默认值*/
 void CMD_Kickball_ResetMegnet(int argc, char *argv[])
 {
     if (kickball_stoped_flag == 0)
@@ -298,18 +368,84 @@ void CMD_Kickball_ResetMegnet(int argc, char *argv[])
         uprintf("##Please Call <CMD_Kickball_StopAll> at first!##\r\n");
         return;
     }
-    kickball_stoped_flag = 0;           // 标志复位
+    kickball_stoped_flag = 0; // 标志复位
     uprintf("--megnet start reset.\r\n");
     uprintf("  please enter <vesc 0 0> at proper time.\r\n");
-    kickball_VESC_set_pull_current(-2); // 收线
+    vesc.mode = 1;
+    vesc.current = argc < 2 ? -1 : atof(argv[1]);
+}
+/********************************第一代踢球END***********************************/
+
+/********************************[第二代踢球动作控制]***********************************/
+void CMD_Kickball2_Ready(int argc, char *argv[])
+{
+    if (Kickball2_ControlMode == MANUAL)
+    {
+        uprintf("##please change to auto mode!##\r\n");
+        return;
+    }
+    Kickball2_Ready_Flag = 1;
+    uprintf("--CMD:set Kickball2_Ready_Flag to %d!\r\n", Kickball2_Ready_Flag);
 }
 
+void CMD_Kickball2_Kick(int argc, char *argv[])
+{
+    if (Kickball2_ControlMode == MANUAL)
+    {
+        uprintf("##please change to auto mode!##\r\n");
+        return;
+    }
+    Kickball2_Kick_Flag = 1;
+    uprintf("--CMD:set Kickball2_Kick_Flag to %d!\r\n", Kickball2_Kick_Flag);
+    if (argc == 2)
+    {
+        Kickball2_KickCurrent = atof(argv[1]);
+        uprintf("      set Kickball2_KickCurrent to %.2f!\r\n", Kickball2_KickCurrent);
+    }
+}
+
+void CMD_Kickball2_StopRotate(int atgc, char *argv[])
+{
+    if (Kickball2_ControlMode == MANUAL)
+    {
+        uprintf("##please change to auto mode!##\r\n");
+        return;
+    }
+    Kickball2_StopRotate_Flag = 1;
+    uprintf("--CMD:set Kickball2_StopRotate_Flag to %d!\r\n", Kickball2_StopRotate_Flag);
+}
+
+void CMD_Kickball2_SetControlMode(int argc, char *argv[])
+{
+    if (atoi(argv[1]) == 1) // 输入1启动自动控制模式
+    {
+        // 状态机清零
+        Kickball2_Kick_Flag = 0;
+        Kickball2_Ready_Flag = 0;
+        Kickball2_StopRotate_Flag = 0;
+        Kickball2_ControlMode = AUTO;
+        uprintf("--Kickball control mode switch to auto mode.\r\n");
+    }
+    else // 输入0启动手动控制模式
+    {
+        Kickball2_ControlMode = MANUAL;
+        uprintf("--Kickball control mode switch to manual mode.\r\n");
+        uprintf("  ball num = %d\r\n", Kickball2_BallNum); // 踢第几颗球
+    }
+}
+/********************************END***********************************/
+
+/********************************[底盘控制]***********************************/
 void CMD_Chassis_Move(int argc, char *argv[])
 {
-    test_value[0] = atof(argv[1]);
-    test_value[1] = atof(argv[2]);
-    test_value[2] = atof(argv[3]);
-    uprintf("move in %f  %f  %f\r\n", atoi(argv[1]), atof(argv[2]), atof(argv[3]));
+    // test_value[0] = atof(argv[1]);
+    // test_value[1] = atof(argv[2]);
+    // test_value[2] = atof(argv[3]);
+    Chassis_MoterDuty[0] = atoi(argv[1]);
+    Chassis_MoterDuty[1] = atoi(argv[2]);
+    Chassis_MoterDuty[2] = atoi(argv[3]);
+    uprintf("move in duty of %d  %d %d\r\n", Chassis_MoterDuty[0],
+            Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
 }
 
 //打印实际的底盘坐标
@@ -317,6 +453,7 @@ void CMD_Chassis_PrintPos(int argc, char *argv[])
 {
     uprintf("Chassis:\r\nx:%5f y:%5f angle:%5f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
 }
+/********************************END***********************************/
 
 void cmd_func_init(void)
 {
@@ -332,7 +469,7 @@ void cmd_func_init(void)
     // cmd_add("vega_calibrate", "BAN!", cmd_vega_calibrate);
 
     //gpio
-    cmd_add("gpio_set_magnet_status", "", CMD_GPIO_Magnet_SetStatus);
+    cmd_add("gpio_set_magnet_status", "<1 to on;0 to off>", CMD_GPIO_Magnet_SetStatus);
     // cmd_add("gpio_cylinder", "set cylinder state", cmd_gpio_cylinder);
     cmd_add("gpio_microswitch", "get microswitch state", CMD_GPIO_Microswitch_GetStatus);
     // cmd_add("gpio_infrared", "get infrared state", cmd_gpio_infrared);
@@ -340,18 +477,31 @@ void cmd_func_init(void)
 
     //motor
     cmd_add("vesc", "<mode(0,1,2)> <value>", CMD_VESC_SetParam);
-    cmd_add("m2006", "<touchdown;kickball current>", CMD_M2006_SetCurrent);
+    cmd_add("m2006", "<current>", CMD_M2006_SetCurrent);
+    cmd_add("robomaster_set_rpm", "", CMD_Robomaster_SetRPM);
+    cmd_add("robomaster_set_pos", "", CMD_Robomaster_SetPosition);
+    cmd_add("robomaster_switch_print_info", "0 to close;1 to open", CMD_Robomaster_SwitchPrintInfo);
+    cmd_add("robomaster_stop_by_angle", "<target offset angle(°)>", CMD_Robomater_StopByAngle);
 
     //kickball
     cmd_add("kickball_set_control_mode", "0 to handle; 1 to auto", CMD_Kickball_SetControlMode);
+#if KICKBALL_GEN == 1 // 旧版踢球车上位机控制
     cmd_add("kickball_m2006", "<current value>", CMD_Kickball_M2006Current);
     cmd_add("kickball_vesc", "<current value>(<0pull;>0loose)", CMD_Kickball_VESC);
     cmd_add("kickball_prepare", "turn magnet to board", CMD_Kickball_Prepare);
-    cmd_add("kickball_pull_magnet", "", CMD_Kickball_Prepare);
+    cmd_add("kickball_pull_magnet", "", CMD_Kickball_PullMagnet);
     cmd_add("kickball_stop_pull_magnet", "", CMD_Kickball_StopPullMagnet);
     cmd_add("kickball_kick", "", CMD_Kickball_Kick);
     cmd_add("kickball_stop_all", "stop moter & reset status", CMD_Kickball_StopAll);
     cmd_add("kickball_reset_megnet", "pull megnet after stop motor", CMD_Kickball_ResetMegnet);
+#endif
+
+#if KICKBALL_GEN == 2
+    cmd_add("kickball2_set_control_mode","",CMD_Kickball2_SetControlMode);
+    cmd_add("kickball2_ready", "", CMD_Kickball2_Ready);
+    cmd_add("kickball2_kick", "", CMD_Kickball2_Kick);
+    cmd_add("kickball2_stop_rotate", "", CMD_Kickball2_StopRotate);
+#endif
 
     //chassis
     cmd_add("chassis_move", "<speed of 3 motors>", CMD_Chassis_Move);
