@@ -27,7 +27,7 @@ CAN_RxHeaderTypeDef RxHeader;
 uint32_t TxMailbox;
 can_msg can_rx_data;
 can_msg can_tx_data;
-uint32_t std_id[] = {230, 324, 325}; // 本杰明驱动和手柄的id
+uint32_t std_id[] = {230, 324, 325, 0x201}; // 本杰明驱动和手柄的id
 //uint32_t ext_id[] = {};
 
 static can_msg rx_buffer = {0};
@@ -87,7 +87,7 @@ void can_exc_callback(void)
  */
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-    HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, can_rx_data.ui8);
+    HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, can_rx_data.ui8); // RxHeader属于临时变量
     rx_id = (RxHeader.IDE == CAN_ID_STD) ? RxHeader.StdId : RxHeader.ExtId;
     rx_buffer.df = can_rx_data.df; // copyt can_rx_data to rx_buffer
     can_exc_callback_flag = 1;

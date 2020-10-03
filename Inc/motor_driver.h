@@ -1,6 +1,10 @@
 #ifndef _MOTOR_DRIVER_H
 #define _MOTOR_DRIVER_H
 #include "can_utils.h"
+#include "main.h"
+#include "robomaster.h"
+#include "vesc_can.h"
+#include "kickball.h"
 
 void motor_init();
 //vesc

@@ -38,6 +38,7 @@
 #include "kickball.h"
 #include "touchdown.h"
 #include "motor_driver.h"
+#include "robomaster.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,6 +93,7 @@ Flag flag = {
 float test_value[10] = {0};
 int time_5ms_cnt = 0;
 int time_20ms_flag = 0;
+int time_1s_flag = 0;
 int Chassis_MoterDuty[3] = {0};
 
 /* USER CODE END 0 */
@@ -105,7 +107,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -145,10 +146,6 @@ int main(void)
   flag.main_flag = 1;
   flag.chassis_auto_flag = 0; // 配置底盘运动手动/自动模式
   flag.chassis_handle_flag = 1;
-
-  can_msg msg1;
-  msg1.in[0] = 0;  // pwm模式
-  msg1.in[1] = 0;  // 占空比
   int duty = 0;
 
   HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
@@ -162,20 +159,19 @@ int main(void)
     simplelib_run();
     clock_exe(); // 时钟
     // lcd_exe();         // lcd消息
-    gpio_sensor_exe(); // 端口执行函数
-    m2006_exe();       // 大疆电机
-    vesc_exe();
-    kickball_exe(); // 踢球系统
-    // touchdown_exe();
-    // laser_exe();
+    // gpio_sensor_exe(); // 端口执行函数
+    // m2006_exe();       // 大疆电机
+    // vesc_exe();
+    // kickball_exe(); // 踢球系统 
+    Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新
 
-    // msg1.in[1] = Chassis_MoterDuty;
     if (time_5ms_cnt == 1)
     {
       time_5ms_cnt = 0;
       // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
       // can_send_msg(103,&msg1);
+      // RoboconMaster_RPMControl(); // 跑速度环
     }
 
     if (time_20ms_flag == 1)
@@ -183,6 +179,13 @@ int main(void)
       time_20ms_flag = 0;
       // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
       // can_send_msg(103,&msg1);
+      // Robomaster_PrintInfo(0);
+    }
+
+    if (time_1s_flag == 1)
+    {
+      time_1s_flag = 0;
+      // Robomaster_PrintInfo(0);
     }
 
     // key1按下
@@ -211,14 +214,6 @@ int main(void)
         uprintf("--motor duty is %d%%.\r\n", Chassis_MoterDuty[0]);
       }
     }
-
-    //加入底盘，下方的测试函数弃用，故改为2,--czh
-    // if(test_flag0 == 1) {
-    //   test_flag0 = 0;
-    //   vega_print_pos_can();
-    //   //chassis_move((int)test_value[0],ANGLE2RAD(test_value[1]),test_value[2]);
-    //   // chassis_canset_motorspeed(test_value[0],test_value[1],test_value[2]);
-    // }
 
     /* USER CODE END WHILE */
 
@@ -257,8 +252,7 @@ void SystemClock_Config(void)
   }
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -282,6 +276,7 @@ void inc(void)
     if (time_1ms_cnt % 1000 == 0)
     {
       flag.clock_1s_flag = 1;
+      time_1s_flag = 1;
     }
     //500ms
     if (time_1ms_cnt % 500 == 0)
@@ -344,7 +339,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -353,7 +348,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

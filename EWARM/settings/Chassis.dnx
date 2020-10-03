@@ -18,7 +18,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>60756318</Checksum>
+        <Checksum>224004439</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -149,7 +149,8 @@
         <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\Src\simplelib.c}.47.9" 0 0 1 "" 0 "" 0</Bp1>
         <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\stm32f4xx_it.c}.278.3" 0 0 1 "" 0 "" 0</Bp2>
         <Bp3>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\kickball.c}.125.3" 0 0 1 "" 0 "" 0</Bp3>
-        <Count>4</Count>
+        <Bp4>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\main.c}.164.5" 0 0 1 "" 0 "" 0</Bp4>
+        <Count>5</Count>
     </Breakpoints2>
     <Aliases>
         <A0>_ "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A0>

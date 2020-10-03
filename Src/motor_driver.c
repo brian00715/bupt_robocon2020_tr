@@ -1,7 +1,3 @@
-#include "main.h"
-#include "robomaster.h"
-#include "vesc_can.h"
-#include "kickball.h"
 #include "motor_driver.h"
 
 /**
@@ -43,20 +39,21 @@ void vesc_exe()
     comm_can_set_rpm(vesc.id, vesc.rpm);
   }
   if (vesc.mode == 3)
-    ; //位置环
+    comm_can_set_pos(vesc.id, vesc.position); //位置环
 }
 
-//float touchdown_current = 0; // 达阵电流,单位毫安
-float MoterDriver_M2006_Current = 0;      // 踢球电流
+// float touchdown_current = 0; // 达阵电流,单位毫安
+float MoterDriver_M2006_Current = 0; // 踢球电流
 /**
  * @brief m2006大疆电机的执行函数,从cmd获取目标电流
  *        已弃用达阵，转踢球板的为1号电调
  **/
 void m2006_exe()
 {
-  if (flag.m2006_flag == 0)  // 控制5ms发一次
+  if (flag.m2006_flag == 0) // 控制5ms发一次
     return;
   int16_t kick_I = (int16_t)(MoterDriver_M2006_Current * 1000);
   robomaster_set_current(kick_I, 0, 0, 0);
+  // Robomaster_StopByAngle(0);
   flag.m2006_flag = 0;
 }
