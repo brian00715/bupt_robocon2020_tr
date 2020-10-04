@@ -15,7 +15,7 @@ void can_func_init()
     can_callback_add(325, handle_button);
     can_callback_add(0x201, can_robomaster_rcv_1); // 电机反馈消息的回调函数
 
-#ifdef SL_DEBUG
+#ifdef SL_DEBU--vesc rx data:G
     can_callback_add(1, can_suc_rx);
     can_callback_add(325, can_show_button);
     can_callback_add(324, can_show_rocker);

@@ -57,3 +57,17 @@ void m2006_exe()
   // Robomaster_StopByAngle(0);
   flag.m2006_flag = 0;
 }
+
+int16_t VESC_Angle = 0;  // 编码器反馈的角度值
+/**
+ * @brief 本杰明电调反馈状态包解析函数
+ **/
+void VESC_RX_Handle(can_msg *data)
+{
+  if (0 == flag.main_flag)
+    return; 
+  int32_t index = 0;
+  VESC_Angle = buffer_get_int16(data->ui8,&index)/50;
+  uprintf("--vesc angle: %d\r\n",VESC_Angle);
+
+}
