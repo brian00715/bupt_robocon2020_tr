@@ -267,6 +267,7 @@ void Kickball2_StateMachine()
     {
       Kickball2_Kick_Flag = 0;
       uprintf("--StateMachine: start kicking the ball!\r\n");
+      VESC_SwitchStopByAngle_Flag = 1;
       Kickball2_SetState(KICKBALL2_KICK);
     }
     break;
@@ -274,19 +275,14 @@ void Kickball2_StateMachine()
   case KICKBALL2_KICK: // 开始踢球
     vesc.mode = 1;
     vesc.current = Kickball2_KickCurrent;
-    if (Kickball2_StopRotate_Flag)
+    if (VESC_SwitchStopByAngle_Flag == 0) // 由StopByAngle（）函数置0
     {
-      Kickball2_StopRotate_Flag = 0;
-      Kickball2_SetState(KICKBALL2_STOP_ROTATE);
+      vesc.mode = 1;
+      vesc.current = 0;
+      Kickball2_SetState(KICKBALL2_NONE);
     }
     break;
 
-  case KICKBALL2_STOP_ROTATE: // 通过编码器读取到的角度确定，要旋转至弹簧原长对应的角度
-    uprintf("--StateMachine: stop rotate.\r\n");
-    vesc.mode = 1;
-    vesc.current = 0;
-    Kickball2_SetState(KICKBALL2_NONE); // 循环
-    break;
 
   default:
     break;
@@ -300,9 +296,7 @@ void Kickball2_SetState(KICKBALL2_STATUS status)
     state_wrong = 1;
   if (status == KICKBALL2_KICK && kickball2_status != KICKBALL2_READY)
     state_wrong = 1;
-  if (status == KICKBALL2_STOP_ROTATE && kickball2_status != KICKBALL2_KICK)
-    state_wrong = 1;
-  if (status == KICKBALL2_NONE && kickball2_status != KICKBALL2_STOP_ROTATE)
+  if (status == KICKBALL2_NONE && kickball2_status != KICKBALL2_KICK)
     state_wrong = 1;
   if (state_wrong == 1)
   {
