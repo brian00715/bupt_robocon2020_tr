@@ -161,7 +161,7 @@ int main(void)
     // lcd_exe();         // lcd消息
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
-    // vesc_exe();
+    vesc_exe();
     // kickball_exe(); // 踢球系统 
     Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新
@@ -180,12 +180,14 @@ int main(void)
       // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
       // can_send_msg(103,&msg1);
       // Robomaster_PrintInfo(0);
+      VESC_PrintInfo();
     }
 
     if (time_1s_flag == 1)
     {
       time_1s_flag = 0;
       // Robomaster_PrintInfo(0);
+      // VESC_PrintInfo();
     }
 
     // key1按下

@@ -18,6 +18,7 @@
 #include "cmd.h"
 #include "can_func.h"
 #include <stdlib.h>
+#include "motor_driver.h"
 
 CAN_HandleTypeDef HCAN;
 
@@ -27,8 +28,8 @@ CAN_RxHeaderTypeDef RxHeader;
 uint32_t TxMailbox;
 can_msg can_rx_data;
 can_msg can_tx_data;
-uint32_t std_id[] = {230, 324, 325, 0x201}; // 本杰明驱动和手柄的id
-//uint32_t ext_id[] = {};
+uint32_t std_id[] = {230, 324, 325, 0x201, 89};
+// uint32_t ext_id[] = {0x963};  // 0x963是本杰明电调的状态包ID，第四位是转速
 
 static can_msg rx_buffer = {0};
 static uint32_t rx_id = 0;
@@ -68,7 +69,7 @@ void can_exc_callback(void)
     void (*callback_func)(can_msg *) = (void (*)(can_msg *))HashTable_get(can_callback_table, &rx_id);
     if (callback_func)
     {
-        callback_func(&rx_buffer);
+        callback_func(&rx_buffer); // 执行中断回调函数
     }
     if (can_rx_callback_flag)
     {
@@ -82,6 +83,7 @@ void can_exc_callback(void)
     }
 }
 
+int first_flag = 1;
 /**
  * @brief can接收中断函数
  */
@@ -90,6 +92,16 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, can_rx_data.ui8); // RxHeader属于临时变量
     rx_id = (RxHeader.IDE == CAN_ID_STD) ? RxHeader.StdId : RxHeader.ExtId;
     rx_buffer.df = can_rx_data.df; // copyt can_rx_data to rx_buffer
+    if (rx_id == 89)
+    {
+        first_flag = 0;
+        VESC_RX_Handle(&can_rx_data);
+        if (first_flag)
+        {
+            uprintf("--vesc status bag ok.\r\n");
+        }
+    }
+
     can_exc_callback_flag = 1;
 }
 
@@ -172,6 +184,7 @@ void CAN_config(CAN_HandleTypeDef *hcan)
 
     // FIXME: ZeroVoid	2019/11/13	 len 无法为零, 从而不过滤CAN
     can_std_mask_filter_conf(hcan, std_id, sizeof(std_id) / sizeof(std_id[0]), 0);
+
     //can_std_list_filter_conf(hcan, 325, 0);
 
     /* Start the CAN peripheral */

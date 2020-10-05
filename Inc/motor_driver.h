@@ -25,5 +25,14 @@ extern float touchdown_current;
 extern float MoterDriver_M2006_Current;
 void m2006_exe();
 void motor_init();
+void VESC_RX_Handle(can_msg *pRxMsg);
+void VESC_StopByAngle();
+void VESC_PrintInfo();
+extern int16_t VESC_CurrentAngle;
+extern int16_t VESC_TargetAngle;
+extern int32_t VESC_CurrentRPM;
+extern int VESC_StatusBag_Flag;
+extern int VESC_SwitchPrintInfo_Flag;
+extern int VESC_SwitchStopByAngle_Flag;
 
 #endif //_MOTOR_DRIVER_H

@@ -21,11 +21,11 @@ VESC_STATE vesc = {0}; // 本杰明电调的状态机状态表
  **/
 void vesc_exe()
 {
-  // flag.vesc_flag = 0;
   if (flag.vesc_flag == 0)
   {
     return;
   }
+  VESC_StopByAngle(); // 旋转到指定角度后停止
   if (vesc.mode == 0)
   {
     comm_can_set_duty(vesc.id, vesc.duty);
@@ -40,6 +40,7 @@ void vesc_exe()
   }
   if (vesc.mode == 3)
     comm_can_set_pos(vesc.id, vesc.position); //位置环
+  flag.vesc_flag = 0;
 }
 
 // float touchdown_current = 0; // 达阵电流,单位毫安
@@ -56,4 +57,73 @@ void m2006_exe()
   robomaster_set_current(kick_I, 0, 0, 0);
   // Robomaster_StopByAngle(0);
   flag.m2006_flag = 0;
+}
+
+int VESC_StatusBag_Flag = 0;
+int16_t VESC_CurrentAngle = 0; // 编码器反馈的角度值
+int32_t VESC_CurrentRPM = 0;
+int VESC_SwitchPrintInfo_Flag = 0;
+/**
+ * @brief 本杰明电调反馈状态包解析函数
+ **/
+void VESC_RX_Handle(can_msg *data)
+{
+  if (0 == flag.main_flag)
+    return;
+  int32_t index = 0;
+  VESC_CurrentAngle = buffer_get_int16(data->ui8, &index) / 50;
+  VESC_CurrentRPM = buffer_get_int32(data->ui8,&index);
+}
+
+int16_t VESC_TargetAngle = 300;
+int VESC_SwitchStopByAngle_Flag = 0;
+float pre_current = 0;
+/**
+ * @brief 旋转到指定角度后停止
+ **/
+void VESC_StopByAngle()
+{
+  if (VESC_SwitchStopByAngle_Flag == 0 )
+  {
+    return;
+  }
+  pre_current = vesc.current;
+  if (abs(VESC_CurrentAngle - VESC_TargetAngle) < 10)
+  {
+    vesc.mode = 1;
+    vesc.current = 0;
+    VESC_SwitchStopByAngle_Flag = 0;
+  }
+  // else
+  // {
+  //   vesc.mode = 1;
+  //   vesc.current = pre_current;
+  // }
+}
+
+void VESC_PrintInfo()
+{
+  if (VESC_SwitchPrintInfo_Flag)
+  {
+    uprintf("--vesc status>>");
+    uprintf(" current_angle:%d current_rpm:%d mode:%d ", VESC_CurrentAngle,VESC_CurrentRPM,vesc.mode);
+    switch (vesc.mode)
+    {
+    case 0:
+      uprintf("duty:%.2f\r\n", vesc.duty);
+      break;
+    case 1:
+      uprintf("current:%.2f\r\n", vesc.current);
+      break;
+    case 2:
+      uprintf("rpm:%.2f\r\n", vesc.rpm);
+      break;
+    case 3:
+      uprintf("pos:%.2f\r\n", vesc.position);
+      break;
+    default:
+      uprintf("##Vesc Mode Error!##\r\n");
+      break;
+    }
+  }
 }

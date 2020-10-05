@@ -68,11 +68,11 @@ void CMD_Point_PrintPath(int argc, char *argv[])
 /*设置m2006的参数，用以手动控制*/
 void CMD_M2006_SetCurrent(int argc, char *argv[])
 {
-    if (Kickball_ControlMode == AUTO)
-    {
-        uprintf("##Please change to manual mode!##\r\n");
-        return;
-    }
+    // if (Kickball_ControlMode == AUTO)
+    // {
+    //     uprintf("##Please change to manual mode!##\r\n");
+    //     return;
+    // }
     //touchdown_current = atof(argv[1]); // 达阵电机电流
     //uprintf("M2006 touchdown current is %f.\r\n", atof(argv[1]));
     MoterDriver_M2006_Current = atof(argv[1]); // 转磁铁电机电流
@@ -82,11 +82,11 @@ void CMD_M2006_SetCurrent(int argc, char *argv[])
 /*设置本杰明电调的参数,用以手动控制*/
 void CMD_VESC_SetParam(int argc, char *argv[])
 {
-    if (Kickball_ControlMode == AUTO)
-    {
-        uprintf("##Please change to manual mode!##\r\n");
-        return;
-    }
+    // if (Kickball_ControlMode == AUTO)
+    // {
+    //     uprintf("##Please change to manual mode!##\r\n");
+    //     return;
+    // }
 
     vesc.mode = atoi(argv[1]);
     switch (vesc.mode)
@@ -123,6 +123,27 @@ void CMD_VESC_SetParam(int argc, char *argv[])
         break;
     }
     }
+}
+
+void CMD_VESC_SwitchPrintInfo(int argc, char *argv[])
+{
+    if (atoi(argv[1]) == 0)
+    {
+        VESC_SwitchPrintInfo_Flag = 0;
+        uprintf("--VESC PrintInfo Closed!\r\n");
+    }
+    else if (atoi(argv[1]) == 1)
+    {
+        VESC_SwitchPrintInfo_Flag = 1;
+        uprintf("--VESC PrintInfo Opened!\r\n");
+    }
+}
+
+void CMD_VESC_StopByAngle(int argc,char* argv[])
+{
+    VESC_SwitchStopByAngle_Flag = 1;
+    VESC_TargetAngle = (int16_t)atoi(argv[1]);
+    uprintf("--vesc motor will stop when rotated to %d degree.\r\n", VESC_TargetAngle);
 }
 
 void CMD_Robomaster_SetRPM(int argc, char *argv[])
@@ -165,7 +186,7 @@ void CMD_Robomater_StopByAngle(int argc, char *argv[])
     Robomaster_OpenAngleControl_Flag = 1;
     Robomaster_TargetOffsetAngle = (uint32_t)atoi(argv[1]);
     // MoterDriver_M2006_Current = atof(argv[2]);
-    uprintf("--motor will stop when rotated by %d angles.\r\n", Robomaster_TargetOffsetAngle);
+    uprintf("--robomaster motor will stop when rotated by %d degrees.\r\n", Robomaster_TargetOffsetAngle);
 }
 
 /*输入0关闭串口打印，输入1开启*/
@@ -404,17 +425,6 @@ void CMD_Kickball2_Kick(int argc, char *argv[])
     }
 }
 
-void CMD_Kickball2_StopRotate(int atgc, char *argv[])
-{
-    if (Kickball2_ControlMode == MANUAL)
-    {
-        uprintf("##please change to auto mode!##\r\n");
-        return;
-    }
-    Kickball2_StopRotate_Flag = 1;
-    uprintf("--CMD:set Kickball2_StopRotate_Flag to %d!\r\n", Kickball2_StopRotate_Flag);
-}
-
 void CMD_Kickball2_SetControlMode(int argc, char *argv[])
 {
     if (atoi(argv[1]) == 1) // 输入1启动自动控制模式
@@ -477,6 +487,8 @@ void cmd_func_init(void)
 
     //motor
     cmd_add("vesc", "<mode(0,1,2)> <value>", CMD_VESC_SetParam);
+    cmd_add("vesc_switch_print_info","0 to close;1 to open",CMD_VESC_SwitchPrintInfo);
+    cmd_add("vesc_stop_by_angle","<target angle>",CMD_VESC_StopByAngle);
     cmd_add("m2006", "<current>", CMD_M2006_SetCurrent);
     cmd_add("robomaster_set_rpm", "", CMD_Robomaster_SetRPM);
     cmd_add("robomaster_set_pos", "", CMD_Robomaster_SetPosition);
@@ -500,7 +512,6 @@ void cmd_func_init(void)
     cmd_add("kickball2_set_control_mode","",CMD_Kickball2_SetControlMode);
     cmd_add("kickball2_ready", "", CMD_Kickball2_Ready);
     cmd_add("kickball2_kick", "", CMD_Kickball2_Kick);
-    cmd_add("kickball2_stop_rotate", "", CMD_Kickball2_StopRotate);
 #endif
 
     //chassis
