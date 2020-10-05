@@ -106,7 +106,7 @@ void VESC_PrintInfo()
   if (VESC_SwitchPrintInfo_Flag)
   {
     uprintf("--vesc status>>");
-    uprintf(" current_angle: %d target_angle:%d mode:%d ", VESC_CurrentAngle, VESC_TargetAngle,vesc.mode);
+    uprintf(" current_angle:%d current_rpm:%d mode:%d ", VESC_CurrentAngle,VESC_CurrentRPM,vesc.mode);
     switch (vesc.mode)
     {
     case 0:
