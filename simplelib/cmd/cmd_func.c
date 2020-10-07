@@ -48,15 +48,16 @@ void CMD_Vega_PrintPos(int argc, char *argv[])
 //     vega_calibration();
 // }
 
-// //laser
-// void cmd_laser_print_diatance(int argc, char *argv[])
-// {
-//     laser_print_distance();
-// }
-// void cmd_laser_print_pos(int argc, char *argv[])
-// {
-//     laser_print_pos();
-// }
+//laser
+void cmd_laser_print_diatance(int argc, char *argv[])
+{
+    laser_print_distance();
+}
+
+void cmd_laser_print_pos(int argc, char *argv[])
+{
+    laser_print_pos();
+}
 
 //point
 void CMD_Point_PrintPath(int argc, char *argv[])
@@ -139,7 +140,7 @@ void CMD_VESC_SwitchPrintInfo(int argc, char *argv[])
     }
 }
 
-void CMD_VESC_StopByAngle(int argc,char* argv[])
+void CMD_VESC_StopByAngle(int argc, char *argv[])
 {
     VESC_SwitchStopByAngle_Flag = 1;
     VESC_TargetAngle = (int16_t)atoi(argv[1]);
@@ -216,17 +217,6 @@ void CMD_GPIO_Microswitch_GetStatus(int argc, char *argv[])
 {
     uprintf("Key state is %d\r\n", microswitch_state);
 }
-
-// void cmd_gpio_infrared(int argc, char *argv[])
-// {
-//     uprintf("Infrared state is %d\r\n", infrared_state);
-// }
-
-// void cmd_gpio_cylinder(int argc, char *argv[])
-// {
-//     cylinder_state = atoi(argv[1]);
-//     uprintf("Cylinder state is %d\r\n", atoi(argv[1]));
-// }
 
 void CMD_GPIO_GetAllStatus(int argc, char *argv[])
 {
@@ -442,6 +432,29 @@ void CMD_Kickball2_SetControlMode(int argc, char *argv[])
         uprintf("  ball num = %d\r\n", Kickball2_BallNum); // 踢第几颗球
     }
 }
+
+void CMD_Kickball2_ShowStateMachineInfo(int argc,char* argv[])
+{
+    uprintf("--kickball2_status_machine: ");
+    switch (kickball2_status)
+    {
+    case KICKBALL2_NONE:
+        uprintf("NONE\r\n");
+        break;
+    case KICKBALL2_READY:
+        uprintf("READY\r\n");
+        break;
+
+    case KICKBALL2_KICK:
+        uprintf("KICKBALL_KICK\r\n");
+        break;
+    case KICKBALL2_SET_SPRING_RAW:
+        uprintf("KICKBALL2_SET_SPRING_RAW\r\n");
+        break;
+    default:
+        break;
+    }
+}
 /********************************END***********************************/
 
 /********************************[底盘控制]***********************************/
@@ -486,8 +499,8 @@ void cmd_func_init(void)
 
     //motor
     cmd_add("vesc", "<mode(0,1,2)> <value>", CMD_VESC_SetParam);
-    cmd_add("vesc_switch_print_info","0 to close;1 to open",CMD_VESC_SwitchPrintInfo);
-    cmd_add("vesc_stop_by_angle","<target angle>",CMD_VESC_StopByAngle);
+    cmd_add("vesc_switch_print_info", "0 to close;1 to open", CMD_VESC_SwitchPrintInfo);
+    cmd_add("vesc_stop_by_angle", "<target angle>", CMD_VESC_StopByAngle);
     cmd_add("m2006", "<current>", CMD_M2006_SetCurrent);
     cmd_add("robomaster_set_rpm", "", CMD_Robomaster_SetRPM);
     cmd_add("robomaster_set_pos", "", CMD_Robomaster_SetPosition);
@@ -508,14 +521,20 @@ void cmd_func_init(void)
 #endif
 
 #if KICKBALL_GEN == 2
-    cmd_add("kickball2_set_control_mode","",CMD_Kickball2_SetControlMode);
+    cmd_add("kickball2_set_control_mode", "", CMD_Kickball2_SetControlMode);
     cmd_add("kickball2_ready", "", CMD_Kickball2_Ready);
     cmd_add("kickball2_kick", "", CMD_Kickball2_Kick);
+    cmd_add("kickball2_state_machine_info","",CMD_Kickball2_ShowStateMachineInfo);
 #endif
 
     //chassis
     cmd_add("chassis_move", "<speed of 3 motors>", CMD_Chassis_Move);
     cmd_add("chassis_print_pos", "", CMD_Chassis_PrintPos);
+
+    //laser
+    cmd_add("laser_print_diatance", "", cmd_laser_print_diatance);
+    cmd_add("laser_print_pos", "", cmd_laser_print_pos);
+    cmd_add("laser_print_raw_value","",laser_print_raw_value);
 
     //touchdown
     // cmd_add("touchdown_auto", "", cmd_touchdown_auto);
@@ -523,10 +542,17 @@ void cmd_func_init(void)
     // cmd_add("touchdown_close", "<current value>", cmd_touchdown_close);
     // cmd_add("touchdown_try", "", cmd_touchdown_try);
     // cmd_add("touchdown_try_finish", "", cmd_touchdown_try_finish);
-    //laser
-    // cmd_add("laser_print_diatance", "", cmd_laser_print_diatance);
-    // cmd_add("laser_print_pos", "", cmd_laser_print_pos);
 }
+
+// void cmd_gpio_infrared(int argc, char *argv[])
+// {
+//     uprintf("Infrared state is %d\r\n", infrared_state);
+// }
+// void cmd_gpio_cylinder(int argc, char *argv[])
+// {
+//     cylinder_state = atoi(argv[1]);
+//     uprintf("Cylinder state is %d\r\n", atoi(argv[1]));
+// }
 
 //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓【达阵CMD函数】↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 // /**

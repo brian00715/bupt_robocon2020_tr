@@ -81,13 +81,13 @@ void SystemClock_Config(void);
 // flag用来决定启用哪些模块，响应模块的执行函数会扫描flag中对应位置的值，??0则不执行
 Flag flag = {
     0, //main_flag
-    1, //chassis_control_flag
+    0, //chassis_control_flag
     0, //chassis_handle_flag
     0, //chassis_auto_flag
     0, //chassis_laser_flag
     0, //lcd_flag
-    1, //m2006_flag
-    1, //vesc_flag
+    0, //m2006_flag
+    0, //vesc_flag
     0  //clock_1s_flag
 };
 float test_value[10] = {0};
@@ -161,8 +161,9 @@ int main(void)
     // lcd_exe();         // lcd消息
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
-    vesc_exe();
+    // vesc_exe();
     // kickball_exe(); // 踢球系统 
+    // laser_exe();
     Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新
 
@@ -197,7 +198,6 @@ int main(void)
       if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET)
       {
         uprintf("key1 pressed!\n");
-        HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
         Chassis_MoterDuty[0] = 0;
         Chassis_MoterDuty[1] = 0;
         Chassis_MoterDuty[2] = 0;
@@ -211,6 +211,7 @@ int main(void)
       if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
       {
         duty = (duty + 10) % 100;
+        HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
         chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
         uprintf("--key2 pressed!\r\n");
         uprintf("--motor duty is %d%%.\r\n", Chassis_MoterDuty[0]);

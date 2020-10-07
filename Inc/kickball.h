@@ -20,7 +20,7 @@ typedef enum
     KICKBALL2_NONE = 0,
     KICKBALL2_READY, // 运动到位后状态机置为READY（全场定位）
     KICKBALL2_KICK,
-    KICKBALL2_STOP_ROTATE // 根据编码器的角度值确定什么时候停止
+    KICKBALL2_SET_SPRING_RAW // 让弹簧恢复原长
 } KICKBALL2_STATUS;
 
 typedef enum
@@ -62,10 +62,10 @@ void kickball_exe();
 //======================第二代踢球======================
 extern KICKBALL2_STATUS kickball2_status;
 extern CONTROL_MODE Kickball2_ControlMode;
-extern float Kickball2_KickCurrent; // CMD设置或使用默认值-5
-extern int Kickball2_Ready_Flag;    // 由全场定位置1
-extern int Kickball2_Kick_Flag;     // 由CMD置1
-extern int Kickball2_StopRotate_Flag;     // 根据旋转角度值来确定,或使用CMD
+extern float Kickball2_KickCurrent;   // CMD设置或使用默认值-5
+extern int Kickball2_Ready_Flag;      // 由全场定位置1
+extern int Kickball2_Kick_Flag;       // 由CMD置1
+extern int Kickball2_StopRotate_Flag; // 根据旋转角度值来确定,或使用CMD
 extern int Kickball2_BallNum;
 void Kickball2_StateMachine();
 void Kickball2_SetState(KICKBALL2_STATUS status);
