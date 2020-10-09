@@ -92,7 +92,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, can_rx_data.ui8); // RxHeader属于临时变量
     rx_id = (RxHeader.IDE == CAN_ID_STD) ? RxHeader.StdId : RxHeader.ExtId;
     rx_buffer.df = can_rx_data.df; // copyt can_rx_data to rx_buffer
-    if (rx_id == 89)
+    if (rx_id == 89) // 89是本杰明电调反馈状态包的id
     {
         first_flag = 0;
         VESC_RX_Handle(&can_rx_data);

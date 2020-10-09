@@ -10,9 +10,9 @@ void can_get_mag_mtr(can_msg *data);
 
 void can_func_init()
 {
-    can_callback_add(230, can_suc_rx);
-    can_callback_add(324, handle_rocker);
-    can_callback_add(325, handle_button);
+    can_callback_add(230, can_suc_rx);  // 测试用can id
+    can_callback_add(324, Handle_Rocker);
+    can_callback_add(325, Handle_Button_New);
     can_callback_add(0x201, can_robomaster_rcv_1); // 大疆电机反馈消息的回调函数
 
 #ifdef SL_DEBU

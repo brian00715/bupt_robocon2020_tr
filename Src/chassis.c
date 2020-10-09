@@ -461,14 +461,14 @@ void chassis_pos_update()
 void chassis_exe()
 {
   chassis_pos_update();  // 更新底盘位姿
-  /*if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)  // 使用自动控制
+  if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)  // 使用自动控制
   {
-    chassis_move_traces(chassis_status.trace_count);
+    // chassis_move_traces(chassis_status.trace_count);
   }
   if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0)  // 使用手动控制
   {
     handle_exe();
-  }*/
+  }
 }
 
 /********************************************跑轨迹 改*******************************

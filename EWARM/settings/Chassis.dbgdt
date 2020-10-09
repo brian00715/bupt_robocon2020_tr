@@ -928,7 +928,7 @@
             <IarPane-34102>
                 <expressions>
                     <item>laser_adc[i].adc_r</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>
@@ -1017,7 +1017,7 @@
                     <item>laser_adc[i].adc_l</item>
                     <item>laser_adc[i].adc_r</item>
                     <item>hdma</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

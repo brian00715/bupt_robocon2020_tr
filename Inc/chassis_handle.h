@@ -38,7 +38,8 @@ extern "C"
 
   /*Function Area*/
   void handle_button(can_msg *data);
-  void handle_rocker(can_msg *data);
+  void Handle_Rocker(can_msg *data);
+  void Handle_Button_New(can_msg *data);
   void handle_exe();
 
 #ifdef __cplusplus

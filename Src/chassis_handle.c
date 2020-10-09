@@ -8,10 +8,12 @@
 *******************************************************************************/
 #include "chassis_handle.h"
 #include "touchdown.h"
-Chassis_Handle chassis_handle;  // 手柄数据结构体，包含摇杆位置数据、模式等
+#include "kickball.h"
+
+Chassis_Handle chassis_handle;                                 // 手柄数据结构体，包含摇杆位置数据、模式等
 PID_Struct handle_angle_pid = {1, 0, 0, 0, 0, 5000, 0, 0.005}; //手柄偏高角控制
 
-void handle_button(can_msg *data)
+/*void handle_button(can_msg *data)
 {
   if (0 == flag.main_flag)
     return;
@@ -21,11 +23,14 @@ void handle_button(can_msg *data)
   switch (id)
   {
   case 0:
+    uprintf("--Handle RX OK!\r\n");
+    break;
   case 10:
   case 20:
     flag.chassis_handle_flag = 0;
     flag.chassis_auto_flag = 1;
     uprintf("Change to Auto_mode\r\n");
+
     break;
   case 1:
   case 11:
@@ -122,6 +127,69 @@ void handle_button(can_msg *data)
   default:
     break;
   }
+}*/
+
+void Handle_Button_New(can_msg *data)
+{
+  if (0 == flag.main_flag)
+    return;
+  if ((uint8_t)data->ui8[2] == 0) // 按键按下时才解析指令
+    return;
+  uint8_t id = (uint8_t)((data->ui8[1]) * 10 + (data->ui8[0])); // data的前两位储存id、
+  switch (id)
+  {
+  // 十位为0系指令用于测试功能
+  case 0:
+    uprintf("--Handle RX OK!\r\n");
+    break;
+  // 十位为1系指令用于底盘控制
+  case 10:
+    flag.chassis_auto_flag = 0;
+    flag.chassis_handle_flag = 1;
+    uprintf("--Chassis control mode change to ManualMode.\r\n");
+    break;
+  case 11:
+    flag.chassis_handle_flag = 0;
+    flag.chassis_auto_flag = 1;
+    uprintf("--Chassis control mode change to AutoMode.\r\n");
+    break;
+
+  // 十位为2系指令用于踢球动作控制
+  case 20: // 设置手动控制踢球
+    // 状态机清零
+    Kickball2_Kick_Flag = 0;
+    Kickball2_Ready_Flag = 0;
+    Kickball2_StopRotate_Flag = 0;
+    Kickball2_ControlMode = AUTO;
+    uprintf("--Kickball control mode switch to auto mode.\r\n");
+    break;
+  case 21: // 设置自动控制踢球
+    Kickball2_ControlMode = MANUAL;
+    uprintf("--Kickball control mode switch to manual mode.\r\n");
+    uprintf("  ball num = %d\r\n", Kickball2_BallNum); // 踢第几颗球
+    break;
+  case 22: // 设置踢球状态机为READY状态
+    if (Kickball2_ControlMode == MANUAL)
+    {
+      uprintf("##please change to auto mode!##\r\n");
+      return;
+    }
+    Kickball2_Ready_Flag = 1;
+    uprintf("--Hangle: set Kickball2_Ready_Flag to %d!\r\n", Kickball2_Ready_Flag);
+    break;
+  case 23: // 设置踢球状态机为KICK状态(手柄无法设置踢球电流，要通过串口助手设置)
+    if (Kickball2_ControlMode == MANUAL)
+    {
+      uprintf("##please change to auto mode!##\r\n");
+      return;
+    }
+    Kickball2_Kick_Flag = 1;
+    uprintf("--Hangle: set Kickball2_Kick_Flag to %d!\r\n", Kickball2_Kick_Flag);
+    break;
+
+  default:
+    break;
+  }
 }
 
 /**
@@ -129,7 +197,7 @@ void handle_button(can_msg *data)
  *        左摇杆的深浅控制速度，方向控制偏航角。
  * @param data 手柄摇杆的数据使用int16,can可以一次发送4个
  **/
-void handle_rocker(can_msg *data)
+void Handle_Rocker(can_msg *data)
 {
   if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
     return;

@@ -161,8 +161,8 @@ int main(void)
     // lcd_exe();         // lcd消息
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
-    // vesc_exe();
-    // kickball_exe(); // 踢球系统 
+    vesc_exe();
+    // kickball_exe(); // 踢球系统
     // laser_exe();
     Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新
@@ -170,16 +170,13 @@ int main(void)
     if (time_5ms_cnt == 1)
     {
       time_5ms_cnt = 0;
-      // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
-      // can_send_msg(103,&msg1);
+      chassis_canset_motorduty(duty, duty, duty);
       // RoboconMaster_RPMControl(); // 跑速度环
     }
 
     if (time_20ms_flag == 1)
     {
       time_20ms_flag = 0;
-      // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
-      // can_send_msg(103,&msg1);
       // Robomaster_PrintInfo(0);
       VESC_PrintInfo();
     }
@@ -198,9 +195,8 @@ int main(void)
       if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET)
       {
         uprintf("key1 pressed!\n");
-        Chassis_MoterDuty[0] = 0;
-        Chassis_MoterDuty[1] = 0;
-        Chassis_MoterDuty[2] = 0;
+        duty = 0;
+        chassis_canset_motorduty(0, 0, 0);
       }
     }
 
@@ -210,11 +206,12 @@ int main(void)
       HAL_Delay(80);
       if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
       {
-        duty = (duty + 10) % 100;
+        duty = (duty + 10) % 80;
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-        chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+        // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+        Chassis_MoterDuty[0] = Chassis_MoterDuty[1] = Chassis_MoterDuty[2] = duty;
         uprintf("--key2 pressed!\r\n");
-        uprintf("--motor duty is %d%%.\r\n", Chassis_MoterDuty[0]);
+        uprintf("--motor duty is %d%%.\r\n", duty);
       }
     }
 
@@ -319,7 +316,7 @@ void inc(void)
     {
       chassis_status.vega_is_ready = 1;
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-      uprintf("Vega init done!!!\r\n");
+      uprintf("--Vega Init Done!!!\r\n");
     }
     if (time_1ms_cnt >= 60000) // 防止int类型溢出
     {
