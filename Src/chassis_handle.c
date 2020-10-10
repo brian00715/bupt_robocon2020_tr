@@ -219,10 +219,10 @@ void handle_exe()
 {
   if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
     return;
-  // 速度为零时，应不读取角度，故将此处的角度先读为temp,
+  //速度为零时，应不读取角度，故将此处的角度先读为temp,
   float temp_fangle = atan2(chassis_handle.ly, chassis_handle.lx);
-  // 加减速用线性变化，此处将速度值设为temp--czh add
-  int temp_fspeed = 4 * (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx));
+  //加减速用线性变化，此处将速度值设为temp--czh add
+  int temp_fspeed = 2 * (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx));
   if (temp_fspeed < CHASSIS_HANDLE_MIN_SPEED)
   {
     temp_fspeed = 0;
@@ -257,7 +257,6 @@ void handle_exe()
   {
     temp_fturn = 0;
   }
-
   float fturn_diff = temp_fturn - chassis.fturn;
   if (fturn_diff > 5)
   {

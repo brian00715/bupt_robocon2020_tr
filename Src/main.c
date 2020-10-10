@@ -147,6 +147,7 @@ int main(void)
   flag.chassis_auto_flag = 0; // 配置底盘运动手动/自动模式
   flag.chassis_handle_flag = 1;
   int duty = 0;
+  int speed = 0;
 
   HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
 
@@ -165,13 +166,18 @@ int main(void)
     // kickball_exe(); // 踢球系统
     // laser_exe();
     Kickball2_EXE();
-    chassis_exe(); // 底盘，及坐标更新
+    // chassis_exe(); // 底盘，及坐标更新
 
     if (time_5ms_cnt == 1)
     {
       time_5ms_cnt = 0;
-      chassis_canset_motorduty(duty, duty, duty);
+      // chassis_canset_motorduty(duty, duty, duty);
+      chassis_canset_motorspeed(speed, speed, speed);
       // RoboconMaster_RPMControl(); // 跑速度环
+      // can_msg msg1;
+      // msg1.in[0]=0;
+      // msg1.in[1]=20;
+      // can_send_msg(103,&msg1);
     }
 
     if (time_20ms_flag == 1)
@@ -196,7 +202,8 @@ int main(void)
       {
         uprintf("key1 pressed!\n");
         duty = 0;
-        chassis_canset_motorduty(0, 0, 0);
+        speed = 0;
+        // chassis_canset_motorduty(0, 0, 0);
       }
     }
 
@@ -207,6 +214,7 @@ int main(void)
       if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
       {
         duty = (duty + 10) % 80;
+        speed = (speed + 100) % 2000;
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
         // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
         Chassis_MoterDuty[0] = Chassis_MoterDuty[1] = Chassis_MoterDuty[2] = duty;
@@ -299,14 +307,14 @@ void inc(void)
     if (time_1ms_cnt % 5 == 0)
     {
       flag.lcd_flag = 1;
-
+      flag.vesc_flag = 1;
       time_5ms_cnt = 1;
 
       if (chassis_status.vega_is_ready == 1)
       {
         flag.chassis_control_flag = 1;
       }
-      flag.vesc_flag = 1;
+
       flag.chassis_laser_flag = 1;
       flag.m2006_flag = 1;
     }

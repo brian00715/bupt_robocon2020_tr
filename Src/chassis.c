@@ -89,27 +89,23 @@ float chassis_calculate_traceangle(float point_x, float point_y)
 /**计算直线跑点速度*/
 int chassis_calculate_linespeed(float point_x, float point_y, int start_speed, int final_speed, int max_speed)
 {
-  float distance_to_target = 1000 * sqrtf((point_x - chassis.pos_x) * (point_x - chassis.pos_x) + 
+  float distance_to_target = 1000 * sqrtf((point_x - chassis.pos_x) * (point_x - chassis.pos_x) +
                                           (point_y - chassis.pos_y) * (point_y - chassis.pos_y));
 
   //int int_speed = (int)((start_speed - final_speed)*distance_to_target + final_speed);
 
-  int int_speed = (int)distance_to_target;  // 直接用
+  int int_speed = (int)distance_to_target; // 直接用
 
   // if(int_speed < 0) int_speed = -int_speed;
   Limit_From_To(int_speed, 0, max_speed);
   return int_speed;
 }
 
-
-
-
 /***********************************【驱动】***********************************
 * 控制架构为：
 * 顶层驱动（跑所有点）→上层驱动（当前点跑到下一个目标点）→中层驱动（跑向量，如何跑到下一个点）→
   底层驱动（跑速度，实时速度与方向调整）
 */
-
 
 /**
  * @brief 底盘电机驱动（设置占空比）
@@ -125,9 +121,9 @@ void chassis_canset_motorduty(int s1, int s2, int s3)
   can_TX_data[1].in[1] = s2;
   can_TX_data[2].in[1] = s3;
 
+  can_send_msg(send_id.motor2_id, &can_TX_data[2]);
   can_send_msg(send_id.motor0_id, &can_TX_data[0]);
   can_send_msg(send_id.motor1_id, &can_TX_data[1]);
-  can_send_msg(send_id.motor2_id, &can_TX_data[2]);
 }
 
 /**
@@ -145,9 +141,11 @@ void chassis_canset_motorspeed(int s1, int s2, int s3)
   can_TX_data[1].in[1] = s2;
   can_TX_data[2].in[1] = s3;
 
-  can_send_msg(send_id.motor0_id, &can_TX_data[0]);
+  
   can_send_msg(send_id.motor1_id, &can_TX_data[1]);
   can_send_msg(send_id.motor2_id, &can_TX_data[2]);
+  can_send_msg(send_id.motor0_id, &can_TX_data[0]);
+  can_send_msg(10, NULL);
 }
 
 /**
@@ -163,8 +161,8 @@ void chassis_move(int speed, float direction, float target_angle)
   Limit(speed, MAX_CHASSIS_MOVE_SPEED);
 
   float speed_out_0 = -(speed * cos((ERR_angle_m0 + chassis.angle) - direction));
-  float speed_out_1 = -(speed * cos((ERR_angle_m1 + chassis.angle) - direction));
-  float speed_out_2 = -(speed * cos((ERR_angle_m2 + chassis.angle) - direction));
+  float speed_out_2 = -(speed * cos((ERR_angle_m1 + chassis.angle) - direction));
+  float speed_out_1 = -(speed * cos((ERR_angle_m2 + chassis.angle) - direction));
   float angle_output = 0;
   // 此处将angle_output改为了两种，即自动时为偏航角，手动时为自旋角速度，后续需改成根据MODE再判断，
   if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)
@@ -183,7 +181,6 @@ void chassis_move(int speed, float direction, float target_angle)
   float motor2 = speed_out_2 + angle_output;
   chassis_canset_motorspeed((int)motor0, (int)motor1, (int)motor2);
 }
-
 
 vec output;
 vec nor;
@@ -383,10 +380,6 @@ void chassis_move_traces(int trace_num)
   }
 }
 
-
-
-
-
 /****************************测试**************************/
 
 /**测试用：随距离减速到某一目标点*/
@@ -419,9 +412,6 @@ void chassis_goto_vector(vec target_position)
   chassis_move_vector(now_speed_vec, target_speed_vec, distance_vec, chassis.angle);
 }
 
-
-
-
 /****************************状态&执行**************************/
 
 /**跑完每一段路径后,标志位的改变*/
@@ -447,9 +437,9 @@ void chassis_pos_update()
   chassis.angle = (chassis.vega_angle / 180.f) * PI + chassis.vega_init_angle; //弧度
 
   // 全场定位can的发送时间间隔为5ms，因此用坐标差除以0.005就是瞬时速度
-  chassis.speed_x = (chassis.pos_x - chassis.last_pos_x) / 0.005;     // m/s
-  chassis.speed_y = (chassis.pos_y - chassis.last_pos_y) / 0.005;     // m/s
-  chassis.speed_angle = (chassis.angle - chassis.last_angle) / 0.005; // 弧度/s
+  chassis.speed_x = (chassis.pos_x - chassis.last_pos_x) / 0.005;              // m/s
+  chassis.speed_y = (chassis.pos_y - chassis.last_pos_y) / 0.005;              // m/s
+  chassis.speed_angle = (chassis.angle - chassis.last_angle) / 0.005;          // 弧度/s
   chassis.now_speed = vec_model(vec_create(chassis.speed_x, chassis.speed_y)); // 合成速度
 
   chassis.last_pos_x = chassis.pos_x;
@@ -460,14 +450,14 @@ void chassis_pos_update()
 /**底盘执行函数*/
 void chassis_exe()
 {
-  chassis_pos_update();  // 更新底盘位姿
-  if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)  // 使用自动控制
+  chassis_pos_update();                                             // 更新底盘位姿
+  if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0) // 使用自动控制
   {
     // chassis_move_traces(chassis_status.trace_count);
   }
-  if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0)  // 使用手动控制
+  if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0) // 使用手动控制
   {
-    handle_exe();
+    // handle_exe();
   }
 }
 
