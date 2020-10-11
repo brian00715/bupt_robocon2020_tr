@@ -92,7 +92,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, can_rx_data.ui8); // RxHeader属于临时变量
     rx_id = (RxHeader.IDE == CAN_ID_STD) ? RxHeader.StdId : RxHeader.ExtId;
     rx_buffer.df = can_rx_data.df; // copyt can_rx_data to rx_buffer
-    if (rx_id == 89)
+    if (rx_id == 89)               // 89是本杰明电调反馈状态包的id
     {
         first_flag = 0;
         VESC_RX_Handle(&can_rx_data);
@@ -149,12 +149,12 @@ int can_send_msg(uint16_t std_id, can_msg *msg)
             }
             else
             {
-                //uprintf("Error: CAN can't send msg.\r\n");
+                uprintf("Error: CAN can't send msg.\r\n");
                 return 1;
             }
         }
-    }; // TODO:为什么会有分号？
-    //return 0;
+    };
+    return 0;
 }
 
 /**
@@ -169,6 +169,8 @@ int can_ext_send_msg(uint32_t id, can_msg *msg)
     {
         return 1;
     }
+    uint32_t timecnt = 0;
+    uint32_t can_tsr = 0;
     return 0;
 }
 

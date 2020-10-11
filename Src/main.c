@@ -39,6 +39,7 @@
 #include "touchdown.h"
 #include "motor_driver.h"
 #include "robomaster.h"
+#include "chassis_handle.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -81,13 +82,13 @@ void SystemClock_Config(void);
 // flag用来决定启用哪些模块，响应模块的执行函数会扫描flag中对应位置的值，??0则不执行
 Flag flag = {
     0, //main_flag
-    1, //chassis_control_flag
+    0, //chassis_control_flag
     0, //chassis_handle_flag
     0, //chassis_auto_flag
     0, //chassis_laser_flag
     0, //lcd_flag
-    1, //m2006_flag
-    1, //vesc_flag
+    0, //m2006_flag
+    0, //vesc_flag
     0  //clock_1s_flag
 };
 float test_value[10] = {0};
@@ -147,6 +148,7 @@ int main(void)
   flag.chassis_auto_flag = 0; // 配置底盘运动手动/自动模式
   flag.chassis_handle_flag = 1;
   int duty = 0;
+  int speed = 0;
 
   HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
 
@@ -162,23 +164,26 @@ int main(void)
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
     vesc_exe();
-    // kickball_exe(); // 踢球系统 
+    // kickball_exe(); // 踢球系统
+    // laser_exe();
     Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新
 
     if (time_5ms_cnt == 1)
     {
       time_5ms_cnt = 0;
-      // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
-      // can_send_msg(103,&msg1);
+      // chassis_canset_motorduty(duty, duty, duty);
+      // chassis_canset_motorspeed(speed, speed, speed);
       // RoboconMaster_RPMControl(); // 跑速度环
+      // can_msg msg1;
+      // msg1.in[0]=0;
+      // msg1.in[1]=20;
+      // can_send_msg(103,&msg1);
     }
 
     if (time_20ms_flag == 1)
     {
       time_20ms_flag = 0;
-      // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
-      // can_send_msg(103,&msg1);
       // Robomaster_PrintInfo(0);
       VESC_PrintInfo();
     }
@@ -188,6 +193,8 @@ int main(void)
       time_1s_flag = 0;
       // Robomaster_PrintInfo(0);
       // VESC_PrintInfo();
+      // uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
+      //       chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
     }
 
     // key1按下
@@ -197,10 +204,9 @@ int main(void)
       if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET)
       {
         uprintf("key1 pressed!\n");
-        HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-        Chassis_MoterDuty[0] = 0;
-        Chassis_MoterDuty[1] = 0;
-        Chassis_MoterDuty[2] = 0;
+        duty = 0;
+        speed = 0;
+        // chassis_canset_motorduty(0, 0, 0);
       }
     }
 
@@ -210,10 +216,13 @@ int main(void)
       HAL_Delay(80);
       if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
       {
-        duty = (duty + 10) % 100;
-        chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+        duty = (duty + 10) % 80;
+        speed = (speed + 100) % 2000;
+        HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+        // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+        Chassis_MoterDuty[0] = Chassis_MoterDuty[1] = Chassis_MoterDuty[2] = duty;
         uprintf("--key2 pressed!\r\n");
-        uprintf("--motor duty is %d%%.\r\n", Chassis_MoterDuty[0]);
+        uprintf("--motor duty is %d%%.\r\n", duty);
       }
     }
 
@@ -301,14 +310,14 @@ void inc(void)
     if (time_1ms_cnt % 5 == 0)
     {
       flag.lcd_flag = 1;
-
+      flag.vesc_flag = 1;
       time_5ms_cnt = 1;
 
       if (chassis_status.vega_is_ready == 1)
       {
         flag.chassis_control_flag = 1;
       }
-      flag.vesc_flag = 1;
+
       flag.chassis_laser_flag = 1;
       flag.m2006_flag = 1;
     }
@@ -318,7 +327,7 @@ void inc(void)
     {
       chassis_status.vega_is_ready = 1;
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-      uprintf("Vega init done!!!\r\n");
+      uprintf("--Vega Init Done!!!\r\n");
     }
     if (time_1ms_cnt >= 60000) // 防止int类型溢出
     {

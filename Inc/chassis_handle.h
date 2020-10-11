@@ -19,7 +19,7 @@ extern "C"
 #include "can_utils.h"
 /*Define Area*/
 #define CHASSIS_HANDLE_MAX_SPEED 600
-#define CHASSIS_HANDLE_MIN_SPEED 150
+#define CHASSIS_HANDLE_MIN_SPEED 50  // 默认150
 
   /*Struct Area*/
   typedef struct
@@ -38,7 +38,8 @@ extern "C"
 
   /*Function Area*/
   void handle_button(can_msg *data);
-  void handle_rocker(can_msg *data);
+  void Handle_Rocker(can_msg *data);
+  void Handle_Button_New(can_msg *data);
   void handle_exe();
 
 #ifdef __cplusplus
