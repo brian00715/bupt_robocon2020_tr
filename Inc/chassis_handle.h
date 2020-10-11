@@ -19,7 +19,7 @@ extern "C"
 #include "can_utils.h"
 /*Define Area*/
 #define CHASSIS_HANDLE_MAX_SPEED 600
-#define CHASSIS_HANDLE_MIN_SPEED 150
+#define CHASSIS_HANDLE_MIN_SPEED 50  // 默认150
 
   /*Struct Area*/
   typedef struct

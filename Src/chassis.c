@@ -140,7 +140,6 @@ void chassis_canset_motorspeed(int s1, int s2, int s3)
   can_TX_data[0].in[1] = s1;
   can_TX_data[1].in[1] = s2;
   can_TX_data[2].in[1] = s3;
-
   
   can_send_msg(send_id.motor1_id, &can_TX_data[1]);
   can_send_msg(send_id.motor2_id, &can_TX_data[2]);
@@ -156,13 +155,13 @@ void chassis_canset_motorspeed(int s1, int s2, int s3)
  **/
 void chassis_move(int speed, float direction, float target_angle)
 {
-  float ERR_angle_m2 = PI / 3, ERR_angle_m1 = -PI / 3, ERR_angle_m0 = PI; //三轮与全场定位模块安装偏角
+  float ERR_angle_m2 = PI, ERR_angle_m1 = PI / 3, ERR_angle_m0 = -PI/3; //三轮与全场定位模块安装偏角
 
   Limit(speed, MAX_CHASSIS_MOVE_SPEED);
 
   float speed_out_0 = -(speed * cos((ERR_angle_m0 + chassis.angle) - direction));
-  float speed_out_2 = -(speed * cos((ERR_angle_m1 + chassis.angle) - direction));
-  float speed_out_1 = -(speed * cos((ERR_angle_m2 + chassis.angle) - direction));
+  float speed_out_1 = -(speed * cos((ERR_angle_m1 + chassis.angle) - direction));
+  float speed_out_2 = -(speed * cos((ERR_angle_m2 + chassis.angle) - direction));
   float angle_output = 0;
   // 此处将angle_output改为了两种，即自动时为偏航角，手动时为自旋角速度，后续需改成根据MODE再判断，
   if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0)
@@ -457,7 +456,7 @@ void chassis_exe()
   }
   if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0) // 使用手动控制
   {
-    // handle_exe();
+    handle_exe();
   }
 }
 

@@ -39,6 +39,7 @@
 #include "touchdown.h"
 #include "motor_driver.h"
 #include "robomaster.h"
+#include "chassis_handle.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -166,13 +167,13 @@ int main(void)
     // kickball_exe(); // 踢球系统
     // laser_exe();
     Kickball2_EXE();
-    // chassis_exe(); // 底盘，及坐标更新
+    chassis_exe(); // 底盘，及坐标更新
 
     if (time_5ms_cnt == 1)
     {
       time_5ms_cnt = 0;
       // chassis_canset_motorduty(duty, duty, duty);
-      chassis_canset_motorspeed(speed, speed, speed);
+      // chassis_canset_motorspeed(speed, speed, speed);
       // RoboconMaster_RPMControl(); // 跑速度环
       // can_msg msg1;
       // msg1.in[0]=0;
@@ -192,6 +193,8 @@ int main(void)
       time_1s_flag = 0;
       // Robomaster_PrintInfo(0);
       // VESC_PrintInfo();
+      // uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
+      //       chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
     }
 
     // key1按下
