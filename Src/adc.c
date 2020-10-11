@@ -21,7 +21,7 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "cmd.h"
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;
@@ -153,7 +153,18 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-
+/**
+ * @brief 重写中断回调函数
+ **/
+__weak void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
+  /* NOTE : This function Should not be modified, when the callback is needed,
+            the HAL_ADC_ConvCpltCallback could be implemented in the user file
+   */
+  uprintf("--ADC Conversion Completed!\r\n");
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

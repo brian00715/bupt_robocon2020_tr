@@ -52,8 +52,8 @@ extern "C"
   /*Function Declare*/
   void can_robomaster_rcv_1(can_msg *pRxMsg);
   void can_robomaster_rcv_2(can_msg *pRxMsg);
-  void RoboconMaster_RPMControl();
-  void RoboconMaster_PositionControl();
+  void Robomaster_RPMControl();
+  void Robomaster_PositionControl();
   void Robomaster_StopByAngle(int index);
   float robomaster_position_pid_control(int id);
   float robomaster_speed_pid_control(int id);

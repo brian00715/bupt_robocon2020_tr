@@ -72,7 +72,7 @@ void can_robomaster_rcv_2(can_msg *pRxMsg)
 }
 
 /*跑速度环*/
-void RoboconMaster_RPMControl()
+void Robomaster_RPMControl()
 {
   if (Robomaster_RPMControl_Flag == 0)
   {
@@ -87,7 +87,7 @@ void RoboconMaster_RPMControl()
 }
 
 /*跑位置环*/
-void RoboconMaster_PositionControl()
+void Robomaster_PositionControl()
 {
   if (Robomaster_PosControl_Flag == 0)
   {

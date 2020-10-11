@@ -163,18 +163,18 @@ int main(void)
     // lcd_exe();         // lcd消息
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
-    vesc_exe();
+    // vesc_exe();
     // kickball_exe(); // 踢球系统
-    // laser_exe();
+    laser_exe();
     Kickball2_EXE();
-    chassis_exe(); // 底盘，及坐标更新
+    // chassis_exe(); // 底盘，及坐标更新
 
     if (time_5ms_cnt == 1)
     {
       time_5ms_cnt = 0;
       // chassis_canset_motorduty(duty, duty, duty);
       // chassis_canset_motorspeed(speed, speed, speed);
-      // RoboconMaster_RPMControl(); // 跑速度环
+      // Robomaster_RPMControl(); // 跑速度环
       // can_msg msg1;
       // msg1.in[0]=0;
       // msg1.in[1]=20;
@@ -186,6 +186,7 @@ int main(void)
       time_20ms_flag = 0;
       // Robomaster_PrintInfo(0);
       VESC_PrintInfo();
+      laser_print_raw_value();
     }
 
     if (time_1s_flag == 1)

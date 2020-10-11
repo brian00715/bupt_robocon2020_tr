@@ -154,7 +154,7 @@ int can_send_msg(uint16_t std_id, can_msg *msg)
             }
         }
     };
-    return 0;
+    // return 0;
 }
 
 /**
@@ -169,8 +169,6 @@ int can_ext_send_msg(uint32_t id, can_msg *msg)
     {
         return 1;
     }
-    uint32_t timecnt = 0;
-    uint32_t can_tsr = 0;
     return 0;
 }
 

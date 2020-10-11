@@ -301,8 +301,6 @@ int chassis_move_trace(Point points_pos[], int point_num)
  **/
 void chassis_move_traces(int trace_num)
 {
-  vec test0 = {0};
-  vec test;
   switch (trace_num)
   {
   case -2:

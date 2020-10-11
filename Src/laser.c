@@ -111,7 +111,8 @@ void laser_init()
   {
     uprintf("Laser DMA wrong!!!\r\n");
     while (1)
-      ;
+    {
+    }
   }
 }
 
@@ -160,6 +161,6 @@ void laser_print_raw_value()
   //   uprintf("%.2f ",laser_adc[i].adc_l);
   // }
   // uprintf("\r\n");
-  uprintf("%d\r\n",HAL_ADC_GetValue(&hadc1));
+  uprintf("--adc1 value: %d \r\n",HAL_ADC_GetValue(&hadc1));
   
 }
