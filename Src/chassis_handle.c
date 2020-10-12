@@ -9,6 +9,7 @@
 #include "chassis_handle.h"
 #include "touchdown.h"
 #include "kickball.h"
+#include "motor_driver.h"
 
 Chassis_Handle chassis_handle;                                 // 手柄数据结构体，包含摇杆位置数据、模式等
 PID_Struct handle_angle_pid = {1, 0, 0, 0, 0, 5000, 0, 0.005}; //手柄偏高角控制
@@ -27,10 +28,19 @@ void Handle_Button_New(can_msg *data)
     uprintf("--Handle RX OK!\r\n");
     break;
   case 1:
-    uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
+    uprintf("--lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
             chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
     break;
-  
+  case 5: // 急停
+    uprintf("\r\n##All Motor Stoped!##\r\n");
+    chassis.fspeed = 0;
+    vesc.mode = 1;
+    vesc.current = 0;
+    chassis_canset_motorspeed(0, 0, 0);
+    kickball2_status = KICKBALL2_NONE;
+    flag.chassis_handle_flag = 1;
+    flag.chassis_auto_flag = 0;
+    break;
 
   // 十位为1系指令用于底盘控制
   case 11:

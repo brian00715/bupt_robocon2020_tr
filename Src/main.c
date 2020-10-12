@@ -207,7 +207,6 @@ int main(void)
         uprintf("key1 pressed!\n");
         duty = 0;
         speed = 0;
-        // chassis_canset_motorduty(0, 0, 0);
       }
     }
 
@@ -218,7 +217,7 @@ int main(void)
       if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
       {
         duty = (duty + 10) % 80;
-        speed = (speed + 100) % 2000;
+        speed = (speed + 50) % 700;
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
         // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
         Chassis_MoterDuty[0] = Chassis_MoterDuty[1] = Chassis_MoterDuty[2] = duty;
