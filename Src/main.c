@@ -193,8 +193,8 @@ int main(void)
       time_1s_flag = 0;
       // Robomaster_PrintInfo(0);
       // VESC_PrintInfo();
-      uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
-            chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
+      // uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
+      //       chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
     }
 
     // key1°´ÏÂ
@@ -206,7 +206,6 @@ int main(void)
         uprintf("key1 pressed!\n");
         duty = 0;
         speed = 0;
-        // chassis_canset_motorduty(0, 0, 0);
       }
     }
 
@@ -217,7 +216,7 @@ int main(void)
       if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
       {
         duty = (duty + 10) % 80;
-        speed = (speed + 100) % 2000;
+        speed = (speed + 50) % 700;
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
         Chassis_MoterDuty[0] = Chassis_MoterDuty[1] = Chassis_MoterDuty[2] = duty;
         uprintf("--key2 pressed!\r\n");
