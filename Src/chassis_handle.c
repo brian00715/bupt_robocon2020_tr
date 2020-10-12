@@ -9,125 +9,10 @@
 #include "chassis_handle.h"
 #include "touchdown.h"
 #include "kickball.h"
+#include "motor_driver.h"
 
 Chassis_Handle chassis_handle;                                 // 手柄数据结构体，包含摇杆位置数据、模式等
 PID_Struct handle_angle_pid = {1, 0, 0, 0, 0, 5000, 0, 0.005}; //手柄偏高角控制
-
-/*void handle_button(can_msg *data)
-{
-  if (0 == flag.main_flag)
-    return;
-  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));  // data的前两位储存id
-  //  CAN_ID 20和21切换手动/自动模式
-  //         2/3，32/33检测达阵功能
-  switch (id)
-  {
-  case 0:
-    uprintf("--Handle RX OK!\r\n");
-    break;
-  case 10:
-  case 20:
-    flag.chassis_handle_flag = 0;
-    flag.chassis_auto_flag = 1;
-    uprintf("Change to Auto_mode\r\n");
-
-    break;
-  case 1:
-  case 11:
-  case 21:
-    flag.chassis_handle_flag = 1;
-    flag.chassis_auto_flag = 0;
-    uprintf("Change to handle_mode\r\n");
-    break;
-  case 2:  // 检测达阵状态是否正常
-    if (data->ui8[2] == 'u')
-    {
-      touchdown_status = TOUCHDOWN_GETBALL;
-      touchdown_ready_flag = 1;
-      touchdown_try_flag = 1;
-      uprintf("Touchdown try\r\n");
-    }
-    break;
-  case 3:
-    if (data->ui8[2] == 'u')
-    {
-      touchdown_try_finish_flag = 1;
-      uprintf("Touchdown try finish\r\n");
-    }
-    break;
-  case 6:
-    chassis_status.trace_count = 1;
-    break;
-  case 7:
-    chassis_status.trace_count = 10;
-    break;
-  case 8:
-    break;
-  case 9:
-    break;
-  case 4:
-  case 14:
-  case 24:
-  case 34:
-    chassis_status.trace_count = -1;
-    break;
-  case 5:
-  case 15:
-  case 25:
-  case 35:
-    chassis_status.trace_count = -1;
-    break;
-
-  case 30:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 7;
-    break;
-  case 31:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 6;
-    break;
-  case 32:
-    if (data->ui8[2] == 'u')
-    {
-      touchdown_status = TOUCHDOWN_GETBALL;
-      touchdown_ready_flag = 1;
-      touchdown_try_flag = 1;
-      uprintf("Touchdown try\r\n");
-    }
-    break;
-  case 33:
-    if (data->ui8[2] == 'u')
-    {
-      touchdown_try_finish_flag = 1;
-      uprintf("Touchdown try finish\r\n");
-    }
-    break;
-  case 36:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 2;
-    break;
-  case 37:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 3;
-    break;
-  case 38:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 4;
-    break;
-  case 39:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 5;
-    break;
-  default:
-    break;
-  }
-}*/
 
 void Handle_Button_New(can_msg *data)
 {
@@ -143,10 +28,20 @@ void Handle_Button_New(can_msg *data)
     uprintf("--Handle RX OK!\r\n");
     break;
   case 1:
-    uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
+    uprintf("--lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
             chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
     break;
-    
+  case 5: // 急停
+    uprintf("\r\n##All Motor Stoped!##\r\n");
+    chassis.fspeed = 0;
+    vesc.mode = 1;
+    vesc.current = 0;
+    chassis_canset_motorspeed(0, 0, 0);
+    kickball2_status = KICKBALL2_NONE;
+    flag.chassis_handle_flag = 1;
+    flag.chassis_auto_flag = 0;
+    break;
+
   // 十位为1系指令用于底盘控制
   case 11:
     flag.chassis_auto_flag = 0;
