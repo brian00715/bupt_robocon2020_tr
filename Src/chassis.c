@@ -11,7 +11,7 @@ Data:           2019/12/09
 #include "laser.h"
 #include "point_parser.h"
 
-#define MAX_CHASSIS_MOVE_SPEED 500  //! chassis_move中对移动速度做限幅
+#define MAX_CHASSIS_MOVE_SPEED 700  //! chassis_move中对移动速度做限幅
 #define MAX_CHASSIS_ANGLE_SPEED 350 //! chassis_move中对自转速度做限幅
 
 Chassis chassis;
@@ -20,7 +20,7 @@ Chassis_Status chassis_status;
 PID_Struct y_pid = {3000, 125000, 0, 0, 0, 5000, 0, 0.005}; //速度方向控制
 PID_Struct angle_pid = {1000, 0, 0, 0, 0, 5000, 0, 0.005};  //偏高角控制
 
-float Arrive_distance = 0.005;
+float Arrive_distance = 0.05; // 目标点范围半径
 /*****************************初始化*************************/
 
 /**底盘状态机初始化*/
@@ -28,7 +28,7 @@ void chassis_init_status()
 {
   chassis_status.go_to_point = -1; // go_to_point_for_test函数控制变量，1为开启，0为关闭
   chassis_status.count = 0;        // 跑点计数，初试为0
-  chassis_status.trace_count = 0;
+  chassis_status.trace_count = -1; //初始值为-1，设置轮子速度为0
   chassis_status.run_point = 0;
   chassis_status.run_point_test = 0;
   chassis_status.vega_is_ready = 0; // 初始化前不ready
@@ -140,11 +140,11 @@ void chassis_canset_motorspeed(int s1, int s2, int s3)
   can_TX_data[0].in[1] = s1;
   can_TX_data[1].in[1] = s2;
   can_TX_data[2].in[1] = s3;
-  
+
   can_send_msg(send_id.motor1_id, &can_TX_data[1]);
   can_send_msg(send_id.motor2_id, &can_TX_data[2]);
   can_send_msg(send_id.motor0_id, &can_TX_data[0]);
-  can_send_msg(10, NULL);
+  // can_send_msg(10, NULL); // 发空can消息避免本杰明消息的干扰,此问题已通过修改驱动卡代码解决
 }
 
 /**
@@ -155,7 +155,7 @@ void chassis_canset_motorspeed(int s1, int s2, int s3)
  **/
 void chassis_move(int speed, float direction, float target_angle)
 {
-  float ERR_angle_m2 = PI, ERR_angle_m1 = PI / 3, ERR_angle_m0 = -PI/3; //三轮与全场定位模块安装偏角
+  float ERR_angle_m2 = PI, ERR_angle_m1 = PI / 3, ERR_angle_m0 = -PI / 3; // 底盘正方向与三个全向轮转动方向的夹角
 
   Limit(speed, MAX_CHASSIS_MOVE_SPEED);
 
@@ -299,7 +299,7 @@ int chassis_move_trace(Point points_pos[], int point_num)
  * @brief  底盘顶层驱动(跑全场轨迹)
  * @param trace_num 
  **/
-void chassis_move_traces(int trace_num)
+/*void chassis_move_traces(int trace_num)
 {
   switch (trace_num)
   {
@@ -372,6 +372,32 @@ void chassis_move_traces(int trace_num)
 
   case 10:
     chassis_goto_point(0, 0);
+  default:
+    break;
+  }
+}*/
+
+void chassis_move_traces(int trace_num)
+{
+  switch (trace_num)
+  {
+  case -2:
+    break;
+
+  case -1:
+    chassis_canset_motorspeed(0, 0, 0);
+    break;
+
+  case 0:
+    chassis_goto_point(0, 0);
+    break;
+
+  case 1:
+    chassis_goto_point(1, 0);
+
+  case 2:
+    chassis_goto_point(1, 0.5);
+
   default:
     break;
   }
@@ -450,7 +476,7 @@ void chassis_exe()
   chassis_pos_update();                                             // 更新底盘位姿
   if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0) // 使用自动控制
   {
-    // chassis_move_traces(chassis_status.trace_count);
+    chassis_move_traces(chassis_status.trace_count); // chassis_status.trace_count控制跑第几个点集，由cmd或手柄改变
   }
   if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0) // 使用手动控制
   {
