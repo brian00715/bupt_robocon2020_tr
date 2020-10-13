@@ -146,6 +146,7 @@ void Handle_Button_New(can_msg *data)
     uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
             chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
     break;
+    
   // 十位为1系指令用于底盘控制
   case 11:
     flag.chassis_auto_flag = 0;
