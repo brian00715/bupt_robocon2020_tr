@@ -167,7 +167,7 @@ int main(void)
     // kickball_exe(); // 踢球系统
     laser_exe();
     Kickball2_EXE();
-    // chassis_exe(); // 底盘，及坐标更新
+    chassis_exe(); // 底盘，及坐标更新
 
     if (time_5ms_cnt == 1)
     {
@@ -186,7 +186,7 @@ int main(void)
       time_20ms_flag = 0;
       // Robomaster_PrintInfo(0);
       VESC_PrintInfo();
-      laser_print_raw_value();
+      // laser_print_raw_value();
     }
 
     if (time_1s_flag == 1)

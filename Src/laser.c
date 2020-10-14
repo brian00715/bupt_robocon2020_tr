@@ -14,6 +14,8 @@ Data:           2019/12/9
 #define ERROR_ON_SIDE 0
 #define DIS_BTW_LR 0.45
 
+float DISTANCE_LASERHL_AND_LASERHR = 0.272; // 单位m
+
 LASER laser_left;
 LASER laser_side;
 LASER laser_right;
@@ -52,7 +54,7 @@ float laser_calculate_distance(LASER *sensor, Kal_Struct *kal_laser_distance, Ka
   {
     sum_up += sensor->ADC_value[i];
   }
-  sensor->ADC_final = (int)sum_up / AVERAGE_AMOUNT;  // 均值滤波
+  sensor->ADC_final = (int)sum_up / AVERAGE_AMOUNT; // 均值滤波
   sensor->ADC_final = (int)KalMan(kal_laser_adc, sensor->ADC_final);
   distance = sensor->ADC_final * sensor->k_param + sensor->b_param;
   distance = KalMan(kal_laser_distance, distance);
@@ -63,20 +65,21 @@ float laser_calculate_distance(LASER *sensor, Kal_Struct *kal_laser_distance, Ka
 /**激光计算x*/
 float laser_calculate_x()
 {
-  float laser_x = 0;
+  float laser_x = laser_side.distance * cosf(chassis.laser_angle);
   return laser_x;
 }
 /**激光计算y*/
 float laser_calculate_y()
 {
-  float laser_y = 0;
+  float laser_y = (laser_left.distance + laser_right.distance) / 2 * cosf(chassis.laser_angle);
   return laser_y;
 }
 
 /**激光计算角度*/
 float laser_calculate_angle()
 {
-  float laser_angle = 0;
+  float laser_offset = laser_right.distance - laser_left.distance;
+  float laser_angle = atan(laser_offset/DISTANCE_LASERHL_AND_LASERHR);
   return laser_angle;
 }
 
@@ -123,15 +126,17 @@ void laser_exe()
   {
     return;
   }
-
   laser_adc_split(&laser_left, &laser_right, &laser_side);
+  // left和right分别时左后和右后的激光
   laser_left.distance = laser_calculate_distance(&laser_left, &kal_distance_L, &kal_adc_L) + ERROR_ON_LEFT;
   laser_right.distance = laser_calculate_distance(&laser_right, &kal_distance_R, &kal_adc_R) + ERROR_ON_RIGHT;
+  // side是右边的激光
   laser_side.distance = laser_calculate_distance(&laser_side, &kal_distance_S, &kal_adc_S) + ERROR_ON_SIDE;
 
+  // 坐标系定义为水平向左为x轴正方向，垂直向上为y轴正方向
+  chassis.laser_angle = laser_calculate_angle(); // 需要首先计算偏航角以供x和y换算，是与x轴的夹角
   chassis.laser_pos_x = laser_calculate_x();
   chassis.laser_pos_y = laser_calculate_y();
-  chassis.laser_angle = laser_calculate_angle();
 
   flag.chassis_laser_flag = 0;
 }
@@ -161,6 +166,5 @@ void laser_print_raw_value()
   //   uprintf("%.2f ",laser_adc[i].adc_l);
   // }
   // uprintf("\r\n");
-  uprintf("--adc1 value: %d \r\n",HAL_ADC_GetValue(&hadc1));
-  
+  uprintf("--adc1 value: %d \r\n", HAL_ADC_GetValue(&hadc1));
 }

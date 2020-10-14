@@ -317,71 +317,46 @@ void chassis_move_traces(int trace_num)
 
 }
 
-/****************************测试**************************/
-
-/**测试用：随距离减速到某一目标点*/
-void chassis_goto_point(float point_x, float point_y)
+#define LASER_DISTANCE_BEHINDL_5M 
+#define LASER_DISTANCE_BEHINDR_5M
+#define LASER_DISTANCE_RIGHT_5M
+#define LASER_DISTANCE_BEHINDL_6M 
+#define LASER_DISTANCE_BEHINDR_6M
+#define LASER_DISTANCE_RIGHT_6M
+float Chassis_ProperLaserDistance_BehindL = 0;
+float Chassis_ProperLaserDistance_BehindR = 0;
+float Chassis_ProperLaserDistance_Right = 0;
+/**
+ * @brief 使用激光精确调整到踢球点
+ **/
+void Chassis_AdjustToKickPoint()
 {
-  float distance = sqrtf((chassis.pos_x - point_x) * (chassis.pos_x - point_x) + (chassis.pos_y - point_y) * (chassis.pos_y - point_y));
-  if (distance >= ARRIVE_CIRCLE)
+  if(Chassis_ProperLaserDistance_BehindL<Chassis_ProperLaserDistance_BehindR)
   {
-    chassis_status.go_to_point = 1;
-    chassis.fangle = chassis_calculate_traceangle(point_x, point_y);
-    chassis.fspeed = chassis_calculate_linespeed(point_x, point_y, 150, 0, 300);
-    chassis_move(chassis.fspeed, chassis.fangle, 0);
+    chassis_move(0,0,0);
+  }
+  else if (Chassis_ProperLaserDistance_BehindL>Chassis_ProperLaserDistance_BehindR)
+  {
+
   }
   else
   {
-    chassis_status.go_to_point = 0;
-    uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
-    chassis_move(0, 0, chassis.angle);
+
   }
-  return;
+
 }
 
-/**测试用：按向量跑*/
-void chassis_goto_vector(vec target_position)
+/*运动到5米线*/
+void Chassis_MoveTo5m()
 {
-  chassis.fturn = 0;
-  vec distance_vec = vec_create(target_position.x - chassis.pos_x, target_position.y - chassis.pos_y);
-  vec target_speed_vec = vec_create(0, 0);
-  vec now_speed_vec = vec_create(chassis.speed_x, chassis.speed_y);
-  chassis_move_vector(now_speed_vec, target_speed_vec, distance_vec, chassis.angle);
-}
-
-/****************************状态&执行**************************/
-
-/**跑完每一段路径后,标志位的改变*/
-void chassis_finish_onetrace()
-{
-  //TODO: 内容待更改
-  chassis_status.run_point = 0;
-  chassis_status.count = 0;
-  chassis.fspeed = 0;
-  chassis_status.is_begin = 1; //开始下一段时使用
-  flag.chassis_laser_flag = 0;
-  // chassis_status.trace_count += 1;
-  //测试用
-  chassis_status.trace_count = -1;
   chassis_goto_point(0.0000,1.0000);
   float angle_output = -PID_Release(&angle_pid, 0, chassis.angle); // 控制偏航角
   Limit(angle_output, MAX_CHASSIS_ANGLE_SPEED);
 
 }
-
-/**更新底盘位姿*/
-void chassis_pos_update()
+/*运动到6米线*/
+void Chassis_MoveTo6m()
 {
-  // 使用全场定位装置更新底盘坐标
-  chassis.pos_x = chassis.vega_pos_x + chassis.vega_init_pos_x;                //m
-  chassis.pos_y = chassis.vega_pos_y + chassis.vega_init_pos_y;                //m
-  chassis.angle = (chassis.vega_angle / 180.f) * PI + chassis.vega_init_angle; //弧度
-
-  // 全场定位can的发送时间间隔为5ms，因此用坐标差除以0.005就是瞬时速度
-  chassis.speed_x = (chassis.pos_x - chassis.last_pos_x) / 0.005;              // m/s
-  chassis.speed_y = (chassis.pos_y - chassis.last_pos_y) / 0.005;              // m/s
-  chassis.speed_angle = (chassis.angle - chassis.last_angle) / 0.005;          // 弧度/s
-  chassis.now_speed = vec_model(vec_create(chassis.speed_x, chassis.speed_y)); // 合成速度
   chassis_goto_point(0.0000,0.0000);
   float angle_output = -PID_Release(&angle_pid, 0, chassis.angle); // 控制偏航角
   Limit(angle_output, MAX_CHASSIS_ANGLE_SPEED);
