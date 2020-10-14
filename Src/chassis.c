@@ -20,7 +20,7 @@ Chassis_Status chassis_status;
 PID_Struct y_pid = {3000, 125000, 0, 0, 0, 5000, 0, 0.005}; //速度方向控制
 PID_Struct angle_pid = {1000, 0, 0, 0, 0, 5000, 0, 0.005};  //偏航角控制
 
-float ARRIVE_CIRCLE =  0.005; // 到达终点的范围阈值
+float ARRIVE_CIRCLE =  0.05; // 到达终点的范围阈值
 
 /*****************************初始化*************************/
 /**底盘状态机初始化*/
@@ -28,7 +28,7 @@ void chassis_init_status()
 {
   chassis_status.go_to_point = -1; // go_to_point_for_test函数控制变量，1为开启，0为关闭
   chassis_status.count = 0;        // 跑点计数，初试为0
-  chassis_status.trace_count = 0;
+  chassis_status.trace_count = -1; //初始值为-1，设置轮子速度为0
   chassis_status.run_point = 0;
   chassis_status.run_point_test = 0;
   chassis_status.vega_is_ready = 0; // 初始化前不ready
@@ -140,11 +140,11 @@ void chassis_canset_motorspeed(int s1, int s2, int s3)
   can_TX_data[0].in[1] = s1;
   can_TX_data[1].in[1] = s2;
   can_TX_data[2].in[1] = s3;
-  
+
   can_send_msg(send_id.motor1_id, &can_TX_data[1]);
   can_send_msg(send_id.motor2_id, &can_TX_data[2]);
   can_send_msg(send_id.motor0_id, &can_TX_data[0]);
-  can_send_msg(10, NULL);
+  // can_send_msg(10, NULL); // 发空can消息避免本杰明消息的干扰,此问题已通过修改驱动卡代码解决
 }
 
 /**
@@ -155,7 +155,7 @@ void chassis_canset_motorspeed(int s1, int s2, int s3)
  **/
 void chassis_move(int speed, float direction, float target_angle)
 {
-  float ERR_angle_m2 = PI, ERR_angle_m1 = PI / 3, ERR_angle_m0 = -PI/3; //三轮与全场定位模块安装偏角
+  float ERR_angle_m2 = PI, ERR_angle_m1 = PI / 3, ERR_angle_m0 = -PI / 3; // 底盘正方向与三个全向轮转动方向的夹角
 
   Limit(speed, MAX_CHASSIS_MOVE_SPEED);
 
@@ -587,6 +587,114 @@ void chassis_getball_back()
     break;
   }
 }*/
+
+void chassis_move_traces(int trace_num)
+{
+  switch (trace_num)
+  {
+  case -2:
+    break;
+
+  case -1:
+    chassis_canset_motorspeed(0, 0, 0);
+    break;
+
+  case 0:
+    chassis_goto_point(0, 0);
+    break;
+
+  case 1:
+    chassis_goto_point(1, 0);
+
+  case 2:
+    chassis_goto_point(1, 0.5);
+
+  default:
+    break;
+  }
+}
+
+/****************************测试**************************/
+
+/**测试用：随距离减速到某一目标点*/
+void chassis_goto_point(float point_x, float point_y)
+{
+  float distance = sqrtf((chassis.pos_x - point_x) * (chassis.pos_x - point_x) + (chassis.pos_y - point_y) * (chassis.pos_y - point_y));
+  if (distance >= Arrive_distance)
+  {
+    chassis_status.go_to_point = 1;
+    chassis.fangle = chassis_calculate_traceangle(point_x, point_y);
+    chassis.fspeed = chassis_calculate_linespeed(point_x, point_y, 150, 0, 300);
+    chassis_move(chassis.fspeed, chassis.fangle, 0);
+  }
+  else
+  {
+    chassis_status.go_to_point = 0;
+    uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
+    chassis_move(0, 0, chassis.angle);
+  }
+  return;
+}
+
+/**测试用：按向量跑*/
+void chassis_goto_vector(vec target_position)
+{
+  chassis.fturn = 0;
+  vec distance_vec = vec_create(target_position.x - chassis.pos_x, target_position.y - chassis.pos_y);
+  vec target_speed_vec = vec_create(0, 0);
+  vec now_speed_vec = vec_create(chassis.speed_x, chassis.speed_y);
+  chassis_move_vector(now_speed_vec, target_speed_vec, distance_vec, chassis.angle);
+}
+
+/****************************状态&执行**************************/
+
+/**跑完每一段路径后,标志位的改变*/
+void chassis_finish_onetrace()
+{
+  //TODO: 内容待更改
+  chassis_status.run_point = 0;
+  chassis_status.count = 0;
+  chassis.fspeed = 0;
+  chassis_status.is_begin = 1; //开始下一段时使用
+  flag.chassis_laser_flag = 0;
+  // chassis_status.trace_count += 1;
+  //测试用
+  chassis_status.trace_count = -1;
+}
+
+/**更新底盘位姿*/
+void chassis_pos_update()
+{
+  // 使用全场定位装置更新底盘坐标
+  chassis.pos_x = chassis.vega_pos_x + chassis.vega_init_pos_x;                //m
+  chassis.pos_y = chassis.vega_pos_y + chassis.vega_init_pos_y;                //m
+  chassis.angle = (chassis.vega_angle / 180.f) * PI + chassis.vega_init_angle; //弧度
+
+  // 全场定位can的发送时间间隔为5ms，因此用坐标差除以0.005就是瞬时速度
+  chassis.speed_x = (chassis.pos_x - chassis.last_pos_x) / 0.005;              // m/s
+  chassis.speed_y = (chassis.pos_y - chassis.last_pos_y) / 0.005;              // m/s
+  chassis.speed_angle = (chassis.angle - chassis.last_angle) / 0.005;          // 弧度/s
+  chassis.now_speed = vec_model(vec_create(chassis.speed_x, chassis.speed_y)); // 合成速度
+
+  chassis.last_pos_x = chassis.pos_x;
+  chassis.last_pos_y = chassis.pos_y;
+  chassis.last_angle = chassis.angle;
+}
+
+
+/**底盘执行函数*/
+void chassis_exe()
+{
+  chassis_pos_update();                                             // 更新底盘位姿
+  if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0) // 使用自动控制
+  {
+    chassis_move_traces(chassis_status.trace_count); // chassis_status.trace_count控制跑第几个点集，由cmd或手柄改变
+  }
+  if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0) // 使用手动控制
+  {
+    handle_exe();
+  }
+}
 
 /********************************************跑轨迹 改*******************************
 PID_Struct tang_pid = {3000,175000,0,0,0,5000,0,0.005}; 

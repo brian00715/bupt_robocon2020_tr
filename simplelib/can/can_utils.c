@@ -126,6 +126,7 @@ int can_send_msg(uint16_t std_id, can_msg *msg)
 {
     TxHeader.StdId = std_id;
     TxHeader.IDE = CAN_ID_STD;
+    TxHeader.ExtId = 0;
 #ifdef DEBUG
     uprintf("%d %d %d\r\n", std_id, msg->in[0], msg->in[1]);
 #endif                                                            //DEBUG
@@ -165,6 +166,7 @@ int can_ext_send_msg(uint32_t id, can_msg *msg)
 {
     TxHeader.ExtId = id;
     TxHeader.IDE = CAN_ID_EXT;
+    TxHeader.StdId = 0;
     if (HAL_CAN_AddTxMessage(&HCAN, &TxHeader, msg->ui8, &TxMailbox) != HAL_OK)
     {
         return 1;

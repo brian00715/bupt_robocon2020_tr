@@ -240,6 +240,7 @@ void kickball_exe()
 
 //===============================第二代踢球==================================
 #if KICKBALL_GEN == 2
+
 KICKBALL2_STATUS kickball2_status = KICKBALL2_NONE;
 CONTROL_MODE Kickball2_ControlMode = AUTO;
 int16_t Kickball2_StopAngle = 20;               // 需要让电机停电时的角度
@@ -250,6 +251,7 @@ int Kickball2_Ready_Flag = 0;                   // 由全场定位置1，或使�
 int Kickball2_Kick_Flag = 0;                    // 由CMD置1
 int Kickball2_StopRotate_Flag = 0;              // 根据编码器角度值来确定,或使用CMD
 int Kickball2_BallNum = -1;
+
 void Kickball2_StateMachine()
 {
   switch (kickball2_status)

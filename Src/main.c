@@ -151,7 +151,6 @@ int main(void)
   int speed = 0;
 
   HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -163,10 +162,10 @@ int main(void)
     // lcd_exe();         // lcd消息
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
-    // vesc_exe();
+    vesc_exe();
     // kickball_exe(); // 踢球系统
     laser_exe();
-    //Kickball2_EXE();
+    Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新
 
     if (time_5ms_cnt == 1)
@@ -186,6 +185,7 @@ int main(void)
       time_20ms_flag = 0;
       // Robomaster_PrintInfo(0);
       VESC_PrintInfo();
+      // laser_print_raw_value();
     }
 
     if (time_1s_flag == 1)
@@ -219,7 +219,6 @@ int main(void)
         duty = (duty + 10) % 80;
         speed = (speed + 50) % 700;
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-        // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
         Chassis_MoterDuty[0] = Chassis_MoterDuty[1] = Chassis_MoterDuty[2] = duty;
         uprintf("--key2 pressed!\r\n");
         uprintf("--motor duty is %d%%.\r\n", duty);
@@ -346,7 +345,7 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-
+  uprintf("##ErrorOccored!##\r\n");
   /* USER CODE END Error_Handler_Debug */
 }
 

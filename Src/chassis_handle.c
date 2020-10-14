@@ -116,10 +116,10 @@ void Handle_Rocker(can_msg *data)
     return;
 
   // 常数修改零点漂移
-  chassis_handle.ry = (int)data->i16[0] - 15;
-  chassis_handle.rx = (int)data->i16[1] - 5;
-  chassis_handle.ly = (int)data->i16[2] - 1;
-  chassis_handle.lx = (int)data->i16[3];
+  chassis_handle.ry = (int)data->i16[0] - 16;
+  chassis_handle.rx = (int)data->i16[1] - 6;
+  chassis_handle.ly = (int)data->i16[2] - 2;
+  chassis_handle.lx = (int)data->i16[3] - 4;
   // 变换坐标系
   chassis_handle.rx *= -1;
   chassis_handle.lx *= -1;
@@ -134,8 +134,8 @@ void handle_exe()
     return;
   // 速度为零时，应不读取角度，故将此处的角度先读为temp,
   float temp_fangle = atan2(chassis_handle.ly, chassis_handle.lx);
-  // 加减速用线性变化，此处将速度值设为temp--czh add
-  int temp_fspeed = 2 * (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx));
+  // 加减速用线性变化，此处将速度值设为temp--czh add，摇杆最大幅值大约在125左右
+  int temp_fspeed = 3 * (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx)); // 3是线性映射系数
   if (temp_fspeed < CHASSIS_HANDLE_MIN_SPEED)
   {
     temp_fspeed = 0;
@@ -154,9 +154,9 @@ void handle_exe()
   {
     chassis.fspeed = chassis.fspeed + 2;
   }
-  else if (fspeed_diff < -20)
+  else if (fspeed_diff < -5)
   {
-    chassis.fspeed = chassis.fspeed - 20;
+    chassis.fspeed = chassis.fspeed - 5;
   }
   else
   {
@@ -165,9 +165,10 @@ void handle_exe()
 
   // 偏航角控制
   float temp_fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);
-  if (temp_fturn > 100)
+  if (temp_fturn > 25) // 阈值
   {
-    temp_fturn = 100 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI / 2) * (-1);
+    // 通过与pi/2的角度差值来决定自旋速度，而与摇杆幅值无关
+    temp_fturn = 60 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI / 2) * (-1);
   }
   else
   {
@@ -175,9 +176,9 @@ void handle_exe()
   }
   // 控制加速度
   float fturn_diff = temp_fturn - chassis.fturn;
-  if (fturn_diff > 5)
+  if (fturn_diff > 2)
   {
-    chassis.fturn += 5;
+    chassis.fturn += 2;
   }
   else if (fturn_diff < -5)
   {
