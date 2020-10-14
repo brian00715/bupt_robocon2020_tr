@@ -138,7 +138,7 @@ int main(void)
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  simplelib_init(&huart1, &hcan1);
+  simplelib_init(&huart4, &hcan1);
   can_id_init();
   chassis_init();
   motor_init();

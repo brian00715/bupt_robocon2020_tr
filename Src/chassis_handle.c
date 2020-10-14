@@ -13,122 +13,6 @@
 Chassis_Handle chassis_handle;                                 // 手柄数据结构体，包含摇杆位置数据、模式等
 PID_Struct handle_angle_pid = {1, 0, 0, 0, 0, 5000, 0, 0.005}; //手柄偏高角控制
 
-/*void handle_button(can_msg *data)
-{
-  if (0 == flag.main_flag)
-    return;
-  uint8_t id = (uint8_t)((data->ui8[0]) * 10 + (data->ui8[1]));  // data的前两位储存id
-  //  CAN_ID 20和21切换手动/自动模式
-  //         2/3，32/33检测达阵功能
-  switch (id)
-  {
-  case 0:
-    uprintf("--Handle RX OK!\r\n");
-    break;
-  case 10:
-  case 20:
-    flag.chassis_handle_flag = 0;
-    flag.chassis_auto_flag = 1;
-    uprintf("Change to Auto_mode\r\n");
-
-    break;
-  case 1:
-  case 11:
-  case 21:
-    flag.chassis_handle_flag = 1;
-    flag.chassis_auto_flag = 0;
-    uprintf("Change to handle_mode\r\n");
-    break;
-  case 2:  // 检测达阵状态是否正常
-    if (data->ui8[2] == 'u')
-    {
-      touchdown_status = TOUCHDOWN_GETBALL;
-      touchdown_ready_flag = 1;
-      touchdown_try_flag = 1;
-      uprintf("Touchdown try\r\n");
-    }
-    break;
-  case 3:
-    if (data->ui8[2] == 'u')
-    {
-      touchdown_try_finish_flag = 1;
-      uprintf("Touchdown try finish\r\n");
-    }
-    break;
-  case 6:
-    chassis_status.trace_count = 1;
-    break;
-  case 7:
-    chassis_status.trace_count = 10;
-    break;
-  case 8:
-    break;
-  case 9:
-    break;
-  case 4:
-  case 14:
-  case 24:
-  case 34:
-    chassis_status.trace_count = -1;
-    break;
-  case 5:
-  case 15:
-  case 25:
-  case 35:
-    chassis_status.trace_count = -1;
-    break;
-
-  case 30:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 7;
-    break;
-  case 31:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 6;
-    break;
-  case 32:
-    if (data->ui8[2] == 'u')
-    {
-      touchdown_status = TOUCHDOWN_GETBALL;
-      touchdown_ready_flag = 1;
-      touchdown_try_flag = 1;
-      uprintf("Touchdown try\r\n");
-    }
-    break;
-  case 33:
-    if (data->ui8[2] == 'u')
-    {
-      touchdown_try_finish_flag = 1;
-      uprintf("Touchdown try finish\r\n");
-    }
-    break;
-  case 36:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 2;
-    break;
-  case 37:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 3;
-    break;
-  case 38:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 4;
-    break;
-  case 39:
-    flag.chassis_auto_flag = 1;
-    flag.chassis_handle_flag = 0;
-    chassis_status.trace_count = 5;
-    break;
-  default:
-    break;
-  }
-}*/
-
 void Handle_Button_New(can_msg *data)
 {
   if (0 == flag.main_flag)
@@ -146,6 +30,8 @@ void Handle_Button_New(can_msg *data)
     uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
             chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
     break;
+  
+
   // 十位为1系指令用于底盘控制
   case 11:
     flag.chassis_auto_flag = 0;
@@ -156,6 +42,14 @@ void Handle_Button_New(can_msg *data)
     flag.chassis_handle_flag = 0;
     flag.chassis_auto_flag = 1;
     uprintf("--Chassis control mode change to AutoMode.\r\n");
+    break;
+  case 14:
+    SPEED_TRANSFORM_RATIO = 1;
+    uprintf("--Left Rocker speed transform ratio change to 1\r\n");
+    break;
+  case 15:
+    SPEED_TRANSFORM_RATIO = 3;
+    uprintf("--Left Rocker speed transform ratio change to 3\r\n");
     break;
 
   // 十位为2系指令用于踢球动作控制
@@ -216,6 +110,8 @@ void Handle_Rocker(can_msg *data)
   chassis_handle.lx *= -1;
 }
 
+float ROKER_R_ZERO_OFFSET = 0.314; // ±10°内无值，从而让手指可以一直顶着摇杆，避免误操作
+int SPEED_TRANSFORM_RATIO = 3;     // 左摇杆控制速度时摇杆幅值与速度的换算比例,可通过按钮切换从而实现不同的速度调节范围
 /**
  * @brief 手柄执行函数,左摇杆控制速度矢量，深度控制速度大小；右摇杆控制偏航角，深度控制角速度大小
  **/
@@ -226,8 +122,8 @@ void handle_exe()
   // 速度为零时，应不读取角度，故将此处的角度先读为temp,
   float temp_fangle = atan2(chassis_handle.ly, chassis_handle.lx);
   // 加减速用线性变化，此处将速度值设为temp--czh add
-  int temp_fspeed = 2 * (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx));
-  if (temp_fspeed < CHASSIS_HANDLE_MIN_SPEED)
+  int temp_fspeed = SPEED_TRANSFORM_RATIO * (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx));
+  if (temp_fspeed < CHASSIS_HANDLE_MIN_SPEED) // 解决零漂导致的静止速度不为0
   {
     temp_fspeed = 0;
   }
@@ -245,9 +141,9 @@ void handle_exe()
   {
     chassis.fspeed = chassis.fspeed + 2;
   }
-  else if (fspeed_diff < -20)
+  else if (fspeed_diff < -5)
   {
-    chassis.fspeed = chassis.fspeed - 20;
+    chassis.fspeed = chassis.fspeed - 5;
   }
   else
   {
@@ -256,9 +152,23 @@ void handle_exe()
 
   // 偏航角控制
   float temp_fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);
-  if (temp_fturn > 100)
+  if (temp_fturn > 108) // 只有摇杆顶到头才开启转动
   {
-    temp_fturn = 100 * Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI / 2) * (-1);
+    float angle_offset = Angle_Subtract(atan2(chassis_handle.ry, chassis_handle.rx), PI / 2) * (-1);
+    if (fabs(angle_offset) < ROKER_R_ZERO_OFFSET)
+    {
+      angle_offset = 0;
+    }
+    else if (angle_offset > 0)
+    {
+      angle_offset -= ROKER_R_ZERO_OFFSET;
+    }
+    else if (angle_offset < 0)
+    {
+      angle_offset += ROKER_R_ZERO_OFFSET;
+    }
+
+    temp_fturn = 60 * angle_offset;
   }
   else
   {

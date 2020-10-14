@@ -7,7 +7,7 @@ extern "C"
 #include "stm32f4xx_hal.h"
 #include "simplelib.h"
 
-#define VEGA_USART huart5
+#define VEGA_USART huart1
 
   typedef union {
     char ch[16];

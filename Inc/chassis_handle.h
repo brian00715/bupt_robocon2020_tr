@@ -18,8 +18,8 @@ extern "C"
 #include "math.h"
 #include "can_utils.h"
 /*Define Area*/
-#define CHASSIS_HANDLE_MAX_SPEED 600
-#define CHASSIS_HANDLE_MIN_SPEED 50  // 默认150
+#define CHASSIS_HANDLE_MAX_SPEED 400
+#define CHASSIS_HANDLE_MIN_SPEED 28 // 默认150
 
   /*Struct Area*/
   typedef struct
@@ -35,6 +35,7 @@ extern "C"
 
   /*Variable Area*/
   extern Chassis_Handle chassis_handle;
+  extern int SPEED_TRANSFORM_RATIO;
 
   /*Function Area*/
   void handle_button(can_msg *data);
