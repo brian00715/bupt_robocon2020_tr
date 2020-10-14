@@ -377,72 +377,51 @@ void chassis_move_traces(int trace_num)
   }
 }
 
-/****************************测试**************************/
-
-/**测试用：随距离减速到某一目标点*/
-void chassis_goto_point(float point_x, float point_y)
+#define LASER_DISTANCE_BEHINDL_5M 
+#define LASER_DISTANCE_BEHINDR_5M
+#define LASER_DISTANCE_RIGHT_5M
+#define LASER_DISTANCE_BEHINDL_6M 
+#define LASER_DISTANCE_BEHINDR_6M
+#define LASER_DISTANCE_RIGHT_6M
+float Chassis_ProperLaserDistance_BehindL = 0;
+float Chassis_ProperLaserDistance_BehindR = 0;
+float Chassis_ProperLaserDistance_Right = 0;
+/**
+ * @brief 使用激光精确调整到踢球点
+ **/
+void Chassis_AdjustToKickPoint()
 {
-  float distance = sqrtf((chassis.pos_x - point_x) * (chassis.pos_x - point_x) + (chassis.pos_y - point_y) * (chassis.pos_y - point_y));
-  if (distance >= ARRIVE_CIRCLE)
+  if(Chassis_ProperLaserDistance_BehindL<Chassis_ProperLaserDistance_BehindR)
   {
-    chassis_status.go_to_point = 1;
-    chassis.fangle = chassis_calculate_traceangle(point_x, point_y);
-    chassis.fspeed = chassis_calculate_linespeed(point_x, point_y, 150, 0, 300);
-    chassis_move(chassis.fspeed, chassis.fangle, 0);
+    chassis_move(0,0,0);
+  }
+  else if (Chassis_ProperLaserDistance_BehindL>Chassis_ProperLaserDistance_BehindR)
+  {
+
   }
   else
   {
-    chassis_status.go_to_point = 0;
-    uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
-    chassis_move(0, 0, chassis.angle);
+
   }
-  return;
+
 }
 
-/**测试用：按向量跑*/
-void chassis_goto_vector(vec target_position)
+/*运动到5米线*/
+void Chassis_MoveTo5m()
 {
-  chassis.fturn = 0;
-  vec distance_vec = vec_create(target_position.x - chassis.pos_x, target_position.y - chassis.pos_y);
-  vec target_speed_vec = vec_create(0, 0);
-  vec now_speed_vec = vec_create(chassis.speed_x, chassis.speed_y);
-  chassis_move_vector(now_speed_vec, target_speed_vec, distance_vec, chassis.angle);
+  chassis_goto_point(0.0000,1.0000);
+  float angle_output = -PID_Release(&angle_pid, 0, chassis.angle); // 控制偏航角
+  Limit(angle_output, MAX_CHASSIS_ANGLE_SPEED);
+
 }
-
-/****************************状态&执行**************************/
-
-/**跑完每一段路径后,标志位的改变*/
-void chassis_finish_onetrace()
+/*运动到6米线*/
+void Chassis_MoveTo6m()
 {
-  //TODO: 内容待更改
-  chassis_status.run_point = 0;
-  chassis_status.count = 0;
-  chassis.fspeed = 0;
-  chassis_status.is_begin = 1; //开始下一段时使用
-  flag.chassis_laser_flag = 0;
-  // chassis_status.trace_count += 1;
-  //测试用
-  chassis_status.trace_count = -1;
-}
+  chassis_goto_point(0.0000,0.0000);
+  float angle_output = -PID_Release(&angle_pid, 0, chassis.angle); // 控制偏航角
+  Limit(angle_output, MAX_CHASSIS_ANGLE_SPEED);
+} 
 
-/**更新底盘位姿*/
-void chassis_pos_update()
-{
-  // 使用全场定位装置更新底盘坐标
-  chassis.pos_x = chassis.vega_pos_x + chassis.vega_init_pos_x;                //m
-  chassis.pos_y = chassis.vega_pos_y + chassis.vega_init_pos_y;                //m
-  chassis.angle = (chassis.vega_angle / 180.f) * PI + chassis.vega_init_angle; //弧度
-
-  // 全场定位can的发送时间间隔为5ms，因此用坐标差除以0.005就是瞬时速度
-  chassis.speed_x = (chassis.pos_x - chassis.last_pos_x) / 0.005;              // m/s
-  chassis.speed_y = (chassis.pos_y - chassis.last_pos_y) / 0.005;              // m/s
-  chassis.speed_angle = (chassis.angle - chassis.last_angle) / 0.005;          // 弧度/s
-  chassis.now_speed = vec_model(vec_create(chassis.speed_x, chassis.speed_y)); // 合成速度
-
-  chassis.last_pos_x = chassis.pos_x;
-  chassis.last_pos_y = chassis.pos_y;
-  chassis.last_angle = chassis.angle;
-}
 
 /**底盘执行函数*/
 void chassis_exe()
@@ -574,3 +553,136 @@ void chassis_getball_back()
     }
   }
 }
+
+
+/**
+ * @brief  底盘顶层驱动(跑全场轨迹)
+ * @param trace_num 
+ **/
+/*void chassis_move_traces(int trace_num)
+{
+  switch (trace_num)
+  {
+  case -2:
+    chassis_move(0, 0, 0);
+    break;
+  case -1:
+    chassis_canset_motorspeed(0, 0, 0);
+    break;
+  case 0:
+    break;
+  case 1: //起点-接球
+    if (chassis_status.count == chassis_status.point_num - 2)
+    {
+      chassis_status.trace_count = -1;
+      flag.chassis_auto_flag = 0;
+      flag.chassis_handle_flag = 1;
+    }
+    chassis_move_trace(points_pos0, 81);
+
+    break;
+  case 2: //接球-达阵1  mode4 6
+    if (chassis_status.count == chassis_status.point_num - 1)
+    {
+      chassis_status.trace_count = -1;
+      flag.chassis_auto_flag = 0;
+      flag.chassis_handle_flag = 1;
+    }
+    chassis_move_trace(points_pos1, 123); //点数带更改
+
+    break;
+  case 3: // 接球-达阵2 mode4 7
+    if (chassis_status.count == chassis_status.point_num - 1)
+    {
+      chassis_status.trace_count = -1;
+      flag.chassis_auto_flag = 0;
+      flag.chassis_handle_flag = 1;
+    }
+    chassis_move_trace(points_pos2, 123); //点数带更改
+
+    break;
+  case 4: // 接球-达阵3 mode4 8
+    if (chassis_status.count == chassis_status.point_num - 1)
+    {
+      chassis_status.trace_count = -1;
+      flag.chassis_auto_flag = 0;
+      flag.chassis_handle_flag = 1;
+    }
+    chassis_move_trace(points_pos3, 123); //点数带更改
+
+    break;
+  case 5: // 接球-达阵4 mode4 9
+    if (chassis_status.count == chassis_status.point_num - 1)
+    {
+      chassis_status.trace_count = -1;
+      flag.chassis_auto_flag = 0;
+      flag.chassis_handle_flag = 1;
+    }
+    chassis_move_trace(points_pos4, 123); //点数带更改
+
+    break;
+  case 6: // 达阵到接球 mode4 1
+
+    chassis_touchdown_back();
+    break;
+  case 7: // 遥控后到接球 mode4 0
+
+    chassis_getball_back();
+    break;
+
+  case 10:
+    chassis_goto_point(0, 0);
+  default:
+    break;
+  }
+}*/
+
+/********************************************跑轨迹 改*******************************
+PID_Struct tang_pid = {3000,175000,0,0,0,5000,0,0.005}; 
+PID_Struct norm_pid = {3000,175000,0,0,0,5000,0,0.005}; 
+void _chassis_move_vector(vec now_speed_vec, vec target_speed_vec, vec distance_vec, float target_angle){
+  // int is_now_speed_zero = vec_is_zero(now_speed_vec);
+  // int is_target_speed_zero = vec_is_zero(target_speed_vec);
+  // int is_distance_zero = vec_is_zero(distance_vec);
+  // if(is_distance_zero) return;
+  
+  vec tang_vec = vec_unit(target_speed_vec);
+  vec norm_vec = vec_normal(tang_vec);
+
+  float target_on_tang = vec_mul(target_speed_vec,tang_vec);
+  float target_on_norm = vec_mul(target_speed_vec,norm_vec);  
+  float speed_on_tang = vec_mul(now_speed_vec,tang_vec);
+  float speed_on_norm = vec_mul(now_speed_vec,norm_vec);
+  float distance_on_tang = vec_mul(distance_vec,norm_vec);
+  float distance_on_norm = vec_mul(distance_vec,norm_vec);
+
+  int speedup_on_tang = -1;
+  int speedup_on_norm = -1;
+  if(target_on_tang>speed_on_tang) {speedup_on_tang=1;}
+  if(target_on_norm>speed_on_norm) {speedup_on_norm=1;}
+
+  float output_on_tang = target_on_tang - speedup_on_tang * PID_Release(&tang_pid,0,distance_on_tang);
+  float output_on_norm = target_on_norm - speedup_on_norm * PID_Release(&norm_pid,0,distance_on_norm);
+
+  vec output = vec_add(vec_mul_i(norm_vec,output_on_norm),vec_mul_i(tang_vec,output_on_tang));
+  
+  chassis.fspeed = (int)vec_model(output);
+  chassis.fangle = atan2(output.y,output.x);
+  chassis_move(chassis.fspeed ,chassis.fangle, target_angle);
+}
+void _chassis_move_vector_2(vec now_speed_vec, vec target_speed_vec, vec distance_vec, float target_angle){
+
+  vec target_tang_vec = vec_unit(target_speed_vec);
+  vec target_norm_vec = vec_normal(target_tang_vec);
+  vec distance_tang_vec = vec_unit(distance_vec);
+
+  float angle_dis_tar = vec_angle_sub(target_tang_vec,distance_tang_vec);
+  float output_on_tang = vec_model(target_speed_vec);
+  float output_on_norm = -tan(angle_dis_tar) * output_on_tang;
+
+  vec output = vec_add(vec_mul_i(target_norm_vec,output_on_norm),vec_mul_i(target_tang_vec,output_on_tang));
+  
+  chassis.fspeed = (int)vec_model(output);
+  chassis.fangle = atan2(output.y,output.x);
+  chassis_move(chassis.fspeed ,chassis.fangle, target_angle);
+}*/
