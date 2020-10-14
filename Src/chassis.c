@@ -383,7 +383,7 @@ void chassis_move_traces(int trace_num)
 void chassis_goto_point(float point_x, float point_y)
 {
   float distance = sqrtf((chassis.pos_x - point_x) * (chassis.pos_x - point_x) + (chassis.pos_y - point_y) * (chassis.pos_y - point_y));
-  if (distance >= Arrive_distance)
+  if (distance >= ARRIVE_CIRCLE)
   {
     chassis_status.go_to_point = 1;
     chassis.fangle = chassis_calculate_traceangle(point_x, point_y);
