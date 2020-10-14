@@ -186,7 +186,6 @@ int main(void)
       time_20ms_flag = 0;
       // Robomaster_PrintInfo(0);
       VESC_PrintInfo();
-      
     }
 
     if (time_1s_flag == 1)
