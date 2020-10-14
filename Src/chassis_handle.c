@@ -157,6 +157,19 @@ void Handle_Button_New(can_msg *data)
     flag.chassis_auto_flag = 1;
     uprintf("--Chassis control mode change to AutoMode.\r\n");
     break;
+  case 16:
+    uprintf("--Chassis is going to run to trace:0\r\n"); // 速度为0
+    chassis_status.trace_count = 0;
+    break;
+  case 17:
+    uprintf("--Chassis is going to run to trace:1\r\n");  
+    chassis_status.trace_count = 1;
+    break;
+  case 18:
+    uprintf("--Chassis is going to run to trace:2\r\n"); 
+    chassis_status.trace_count = 2;
+    break;
+
 
   // 十位为2系指令用于踢球动作控制
   case 21: // 设置手动控制踢球
