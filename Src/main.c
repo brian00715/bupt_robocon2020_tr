@@ -163,10 +163,10 @@ int main(void)
     // lcd_exe();         // lcd消息
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
-    vesc_exe();
+    // vesc_exe();
     // kickball_exe(); // 踢球系统
-    // laser_exe();
-    Kickball2_EXE();
+    laser_exe();
+    //Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新
 
     if (time_5ms_cnt == 1)
@@ -174,7 +174,7 @@ int main(void)
       time_5ms_cnt = 0;
       // chassis_canset_motorduty(duty, duty, duty);
       // chassis_canset_motorspeed(speed, speed, speed);
-      // RoboconMaster_RPMControl(); // 跑速度环
+      // Robomaster_RPMControl(); // 跑速度环
       // can_msg msg1;
       // msg1.in[0]=0;
       // msg1.in[1]=20;
@@ -191,6 +191,7 @@ int main(void)
     if (time_1s_flag == 1)
     {
       time_1s_flag = 0;
+      laser_print_raw_value();
       // Robomaster_PrintInfo(0);
       // VESC_PrintInfo();
       // uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
@@ -206,7 +207,6 @@ int main(void)
         uprintf("key1 pressed!\n");
         duty = 0;
         speed = 0;
-        // chassis_canset_motorduty(0, 0, 0);
       }
     }
 
@@ -217,7 +217,7 @@ int main(void)
       if (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET)
       {
         duty = (duty + 10) % 80;
-        speed = (speed + 100) % 2000;
+        speed = (speed + 50) % 700;
         HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
         // chassis_canset_motorduty(Chassis_MoterDuty[0], Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
         Chassis_MoterDuty[0] = Chassis_MoterDuty[1] = Chassis_MoterDuty[2] = duty;

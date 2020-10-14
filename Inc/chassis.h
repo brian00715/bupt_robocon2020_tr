@@ -81,7 +81,7 @@ extern "C"
   extern Chassis_Status chassis_status;
   extern PID_Struct position_y_dir_pid;
   extern PID_Struct angle_pid;
-  extern float Arrive_distance;
+  extern float ARRIVE_CIRCLE;
 
   /*Function Area*/
   void chassis_init_status();
@@ -98,6 +98,8 @@ extern "C"
   void chassis_move_vector(vec now_speed_vec, vec target_speed_vec, vec distance_vec, float target_angle);
   int chassis_move_trace(Point points_pos[], int point_num);
   void chassis_move_traces(int trace_rank);
+  void Chassis_MoveTo5m();
+  void Chassis_MoveTo6m();
 
   void chassis_goto_point(float point_x, float point_y);
   void chassis_goto_vector(vec target_position);

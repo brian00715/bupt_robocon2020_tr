@@ -111,7 +111,8 @@ void laser_init()
   {
     uprintf("Laser DMA wrong!!!\r\n");
     while (1)
-      ;
+    {
+    }
   }
 }
 
@@ -153,13 +154,25 @@ void laser_print_pos()
 
 void laser_print_raw_value()
 {
-  // uprintf("--laser:raw adc value\r\n");
-  // uprintf("  left:");
+  uprintf("--laser:raw adc value\r\n");
+  uprintf("  behind_l:");
+  for(int i=0;i<3;i++) // 读取前三个数据
+  {
+    uprintf("%.2f ",laser_adc[i].adc_l);
+  }
+  uprintf("\r\n");
+  // uprintf("  behind_r:");
   // for(int i=0;i<3;i++)
   // {
-  //   uprintf("%.2f ",laser_adc[i].adc_l);
+  //   uprintf("%.2f ",laser_adc[i].adc_r);
+  // }
+  // uprintf("  right:");
+  // for(int i=0;i<3;i++)
+  // {
+  //   uprintf("%.2f ",laser_adc[i].adc_s);
   // }
   // uprintf("\r\n");
-  uprintf("%d\r\n",HAL_ADC_GetValue(&hadc1));
+
+  // uprintf("--adc1 value: %d \r\n",HAL_ADC_GetValue(&hadc1));
   
 }
