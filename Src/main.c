@@ -138,7 +138,7 @@ int main(void)
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  simplelib_init(&huart4, &hcan1);
+  simplelib_init(&huart3, &hcan1);
   can_id_init();
   chassis_init();
   motor_init();
@@ -186,12 +186,13 @@ int main(void)
       time_20ms_flag = 0;
       // Robomaster_PrintInfo(0);
       VESC_PrintInfo();
-      // laser_print_raw_value();
+      // Laser_PrintADCValue();
     }
 
     if (time_1s_flag == 1)
     {
       time_1s_flag = 0;
+      Laser_PrintADCValue();
       // Robomaster_PrintInfo(0);
       // VESC_PrintInfo();
       // uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",

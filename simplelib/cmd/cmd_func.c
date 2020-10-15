@@ -59,6 +59,11 @@ void cmd_laser_print_pos(int argc, char *argv[])
     laser_print_pos();
 }
 
+void CMD_Laser_PrintRawValue(int argc,char* argv[])
+{
+    Laser_PrintRawValue_Flag = (int)argv[1];
+}
+
 //point
 void CMD_Point_PrintPath(int argc, char *argv[])
 {
@@ -534,7 +539,7 @@ void cmd_func_init(void)
     //laser
     cmd_add("laser_print_diatance", "", cmd_laser_print_diatance);
     cmd_add("laser_print_pos", "", cmd_laser_print_pos);
-    cmd_add("laser_print_raw_value","",laser_print_raw_value);
+    cmd_add("laser_print_raw_value","",CMD_Laser_PrintRawValue);
 
     //touchdown
     // cmd_add("touchdown_auto", "", cmd_touchdown_auto);

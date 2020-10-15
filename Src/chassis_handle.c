@@ -61,6 +61,18 @@ void Handle_Button_New(can_msg *data)
     SPEED_TRANSFORM_RATIO = 3;
     uprintf("--Left Rocker speed transform ratio change to 3\r\n");
     break;
+  case 16:
+    uprintf("--Chassis is going to run to trace:0\r\n"); // 速度为0
+    chassis_status.trace_count = 0;
+    break;
+  case 17:
+    uprintf("--Chassis is going to run to trace:1\r\n");  
+    chassis_status.trace_count = 1;
+    break;
+  case 18:
+    uprintf("--Chassis is going to run to trace:2\r\n"); 
+    chassis_status.trace_count = 2;
+    break;
 
   // 十位为2系指令用于踢球动作控制
   case 21: // 设置手动控制踢球
@@ -141,8 +153,9 @@ void handle_exe()
   {
     temp_fspeed = CHASSIS_HANDLE_MAX_SPEED;
   }
-  else
+  else  // 线速度大小在允许的范围之内才允许有角速度
   {
+    temp_fspeed -= CHASSIS_HANDLE_MIN_SPEED; // 使速度从0开始
     chassis.fangle = temp_fangle;
   }
   // 控制加速度

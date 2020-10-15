@@ -79,7 +79,7 @@ float laser_calculate_y()
 float laser_calculate_angle()
 {
   float laser_offset = laser_right.distance - laser_left.distance;
-  float laser_angle = atan(laser_offset/DISTANCE_LASERHL_AND_LASERHR);
+  float laser_angle = atan(laser_offset / DISTANCE_LASERHL_AND_LASERHR);
   return laser_angle;
 }
 
@@ -89,19 +89,19 @@ void laser_init()
 
   //TODO 待校准
   laser_left.FAR_distance = 0.7;
-  laser_left.FAR_voltage = 2663;
+  laser_left.FAR_voltage = 3563;
   laser_left.NEAR_distance = 0.2;
-  laser_left.NEAR_voltage = 464;
+  laser_left.NEAR_voltage = 378;
 
-  laser_right.NEAR_voltage = 457;
+  laser_right.NEAR_voltage = 509;
   laser_right.NEAR_distance = 0.20;
   laser_right.FAR_distance = 0.70;
-  laser_right.FAR_voltage = 2649;
+  laser_right.FAR_voltage = 3059;
 
-  laser_side.NEAR_voltage = 457;
+  laser_side.NEAR_voltage = 280;
   laser_side.NEAR_distance = 0.20;
   laser_side.FAR_distance = 0.70;
-  laser_side.FAR_voltage = 2649;
+  laser_side.FAR_voltage = 3578;
 
   // uprintf("Left---");
   laser_calculate_kb(&laser_left);
@@ -157,14 +157,21 @@ void laser_print_pos()
   uprintf("Laser_A:%6f\r\n", chassis.vega_angle);
 }
 
-void laser_print_raw_value()
+int Laser_PrintRawValue_Flag = 0;
+void Laser_PrintADCValue()
 {
+  if (Laser_PrintRawValue_Flag == 0)
+  {
+    return;
+  }
   // uprintf("--laser:raw adc value\r\n");
-  // uprintf("  left:");
-  // for(int i=0;i<3;i++)
-  // {
-  //   uprintf("%.2f ",laser_adc[i].adc_l);
-  // }
+  uprintf("  left:");
+  uprintf("%d ", laser_left.ADC_final);
   // uprintf("\r\n");
-  uprintf("--adc1 value: %d \r\n", HAL_ADC_GetValue(&hadc1));
+  uprintf("  right:");
+  uprintf("%d ", laser_right.ADC_final);
+  uprintf("  side:");
+  uprintf("%d ", laser_side.ADC_final);
+  uprintf("\r\n");
+  // uprintf("--adc1 value: %d \r\n", HAL_ADC_GetValue(&hadc1));
 }
