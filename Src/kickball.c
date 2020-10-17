@@ -243,9 +243,9 @@ void kickball_exe()
 
 KICKBALL2_STATUS kickball2_status = KICKBALL2_NONE;
 CONTROL_MODE Kickball2_ControlMode = AUTO;
-int16_t Kickball2_StopAngle = 20;               // 需要让电机停电时的角度
+int16_t Kickball2_StopAngle = 120;               // 需要让电机停电时的角度
 int16_t Kickball2_SpringRawAngle = 340;         // 弹簧原长对应的角度
-int16_t Kickball2_SpringAutoRecoverAngle = 310; // 弹簧能自动拉回的角度
+int16_t Kickball2_SpringAutoRecoverAngle = 307; // 弹簧能自动拉回的角度
 float Kickball2_KickCurrent = -6;               // CMD设置或使用默认值-5
 int Kickball2_Ready_Flag = 0;                   // 由全场定位置1，或使用CMD
 int Kickball2_Kick_Flag = 0;                    // 由CMD置1
@@ -260,8 +260,8 @@ void Kickball2_StateMachine()
     if (Kickball2_Ready_Flag)
     {
       Kickball2_Ready_Flag = 0;
-      Kickball2_BallNum = (Kickball2_BallNum + 1) % 5 + 1; // 保证ball_num的范围是[1,5]
-      uprintf("--StateMachine: NO.%d ball\r\n", Kickball2_BallNum);
+      // Kickball2_BallNum = (Kickball2_BallNum + 1) % 5 + 1; // 保证ball_num的范围是[1,5]
+      // uprintf("--StateMachine: NO.%d ball\r\n", Kickball2_BallNum);
       uprintf("--StateMachine: chassis arrived at specified point.\r\n");
       Kickball2_SetState(KICKBALL2_READY);
     }
@@ -281,18 +281,24 @@ void Kickball2_StateMachine()
   case KICKBALL2_KICK: // 开始踢球
     vesc.mode = 1;
     vesc.current = Kickball2_KickCurrent;
+    comm_can_set_current(vesc.id, Kickball2_KickCurrent);
     if (VESC_SwitchStopByAngle_Flag == 0) // 由StopByAngle（）函数置0
     {
       vesc.mode = 1;
-      vesc.current = 0;                     // 电流置0即可，弹簧会把踢球柱拉回去
-      if (abs(VESC_CurrentAngle - Kickball2_SpringAutoRecoverAngle) < 5) 
-      {
-        uprintf("--StateMachine: kick ball finished.\r\n");
-        uprintf("  StateMachine: start setting spring to raw length.\r\n");
-        VESC_SwitchStopByAngle_Flag = 1;
-        VESC_TargetAngle = Kickball2_SpringRawAngle;
-        Kickball2_SetState(KICKBALL2_SET_SPRING_RAW);
-      }
+      vesc.current = 0; // 电流置0即可，弹簧会把踢球柱拉回去
+      comm_can_set_current(vesc.id, 0);
+      uprintf("--StateMachine: kick ball finished.\r\n");
+      Kickball2_SetState(KICKBALL2_NONE);
+
+      // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓取消自动恢复原长的功能↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+      // if (abs(VESC_CurrentAngle - Kickball2_SpringAutoRecoverAngle) < 7)
+      // {
+      //   uprintf("--StateMachine: kick ball finished.\r\n");
+      //   uprintf("  StateMachine: start setting spring to raw length.\r\n");
+      //   VESC_SwitchStopByAngle_Flag = 1;
+      //   VESC_TargetAngle = Kickball2_SpringRawAngle;
+      //   Kickball2_SetState(KICKBALL2_SET_SPRING_RAW);
+      // }
     }
     break;
 

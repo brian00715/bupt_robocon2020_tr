@@ -138,7 +138,7 @@ int main(void)
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  simplelib_init(&huart1, &hcan1);
+  simplelib_init(&huart3, &hcan1);
   can_id_init();
   chassis_init();
   motor_init();
@@ -162,9 +162,9 @@ int main(void)
     // lcd_exe();         // lcd消息
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
-    vesc_exe();
     // kickball_exe(); // 踢球系统
     laser_exe();
+    vesc_exe();
     Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新
 
@@ -185,13 +185,14 @@ int main(void)
       time_20ms_flag = 0;
       // Robomaster_PrintInfo(0);
       VESC_PrintInfo();
-      // laser_print_raw_value();
+      // Laser_PrintADCValue();
     }
 
     if (time_1s_flag == 1)
     {
       time_1s_flag = 0;
-      laser_print_raw_value();
+      Laser_PrintADCValue();
+      Laser_PrintPos();
       // Robomaster_PrintInfo(0);
       // VESC_PrintInfo();
       // uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",

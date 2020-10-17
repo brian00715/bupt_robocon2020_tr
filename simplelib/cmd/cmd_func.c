@@ -54,9 +54,32 @@ void cmd_laser_print_diatance(int argc, char *argv[])
     laser_print_distance();
 }
 
-void cmd_laser_print_pos(int argc, char *argv[])
+void CMD_Laser_SwitchPrintPos(int argc, char *argv[])
 {
-    laser_print_pos();
+    Laser_PrintPos_Flag = atoi(argv[1]);
+    if(Laser_PrintPos_Flag == 1)
+    {
+        uprintf("--CMD:Start print laser pos (%d)\r\n",Laser_PrintPos_Flag);
+    }
+    else
+    {
+        uprintf("--CMD:Stop print laser pos (%d)\r\n",Laser_PrintPos_Flag);
+    }
+    // laser_print_pos();
+}
+
+void CMD_Laser_SwitchPrintADCValue(int argc,char* argv[])
+{
+    Laser_PrintADCValue_Flag = atoi(argv[1]);
+    if(Laser_PrintADCValue_Flag)
+    {
+        uprintf("--CMD:Start print laser adc value (%d)\r\n",Laser_PrintADCValue_Flag);
+    }
+    else
+    {
+        uprintf("--CMD:Stop print laser adc value (%d)\r\n",Laser_PrintADCValue_Flag);
+    }
+    
 }
 
 //point
@@ -534,13 +557,13 @@ void cmd_func_init(void)
 
     //laser
     cmd_add("laser_print_diatance", "", cmd_laser_print_diatance);
-    cmd_add("laser_print_pos", "", cmd_laser_print_pos);
-    cmd_add("laser_print_raw_value","",laser_print_raw_value);
+    cmd_add("laser_switch_print_pos", "", CMD_Laser_SwitchPrintPos);
+    cmd_add("laser_switch_print_adc_value","",CMD_Laser_SwitchPrintADCValue);
 
     //touchdown
     // cmd_add("touchdown_auto", "", cmd_touchdown_auto);
     // cmd_add("touchdown_open", "<current value>", cmd_touchdown_open);
-    // cmd_add("touchdown_close", "<current value>", cmd_touchdown_close);
+    // cmd_add("touchdown_close", Laser_PrintPos"<current value>", cmd_touchdown_close);
     // cmd_add("touchdown_try", "", cmd_touchdown_try);
     // cmd_add("touchdown_try_finish", "", cmd_touchdown_try_finish);
 }

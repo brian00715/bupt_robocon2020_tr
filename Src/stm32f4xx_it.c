@@ -33,7 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
- 
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -76,7 +76,7 @@ extern UART_HandleTypeDef huart3;
 /* USER CODE END EV */
 
 /******************************************************************************/
-/*           Cortex-M4 Processor Interruption and Exception Handlers          */ 
+/*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
   * @brief This function handles Non maskable interrupt.
@@ -301,11 +301,12 @@ void CAN1_RX0_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-// 添加的代�???
-   if(__HAL_UART_GET_FLAG(&CMD_USART, UART_FLAG_IDLE) != RESET){
-     HAL_UART_IDLECallback(&CMD_USART);
-     return ;
-   }
+  // 如果要通过uart1使用全场定位，则需要将下列语句中的参数改成VEGA_USART
+  if (__HAL_UART_GET_FLAG(&CMD_USART, UART_FLAG_IDLE) != RESET)
+  {
+    HAL_UART_IDLECallback(&CMD_USART);
+    return;
+  }
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
@@ -319,11 +320,12 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-// 添加的代�???
-   if(__HAL_UART_GET_FLAG(&VEGA_USART, UART_FLAG_IDLE) != RESET){
-     HAL_UART_IDLECallback(&VEGA_USART);
-     return ;
-   }
+  // æ·»åŠ çš„ä»£ï¿???
+  if (__HAL_UART_GET_FLAG(&VEGA_USART, UART_FLAG_IDLE) != RESET)
+  {
+    HAL_UART_IDLECallback(&VEGA_USART);
+    return;
+  }
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
@@ -337,11 +339,12 @@ void USART2_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-  // 添加的代�???
-   if(__HAL_UART_GET_FLAG(&CMD_USART, UART_FLAG_IDLE) != RESET){
-     HAL_UART_IDLECallback(&CMD_USART);
-     return ;
-   }
+  // æ·»åŠ çš„ä»£ï¿???
+  if (__HAL_UART_GET_FLAG(&CMD_USART, UART_FLAG_IDLE) != RESET)
+  {
+    HAL_UART_IDLECallback(&CMD_USART);
+    return;
+  }
 
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
@@ -369,11 +372,12 @@ void DMA1_Stream7_IRQHandler(void)
 void UART5_IRQHandler(void)
 {
   /* USER CODE BEGIN UART5_IRQn 0 */
-// 添加的代�??
-   if(__HAL_UART_GET_FLAG(&VEGA_USART, UART_FLAG_IDLE) != RESET){
-     HAL_UART_IDLECallback(&VEGA_USART);
-     return ;
-   }
+  // æ·»åŠ çš„ä»£ï¿??
+  if (__HAL_UART_GET_FLAG(&VEGA_USART, UART_FLAG_IDLE) != RESET)
+  {
+    HAL_UART_IDLECallback(&VEGA_USART);
+    return;
+  }
   /* USER CODE END UART5_IRQn 0 */
   HAL_UART_IRQHandler(&huart5);
   /* USER CODE BEGIN UART5_IRQn 1 */

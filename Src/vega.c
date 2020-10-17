@@ -31,7 +31,7 @@ void vega_print_pos()
 {
   if (chassis_status.vega_is_ready == 1)
   {
-    uprintf("Vega:\r\nx:%5f y:%5f angle:%5f\r\n", chassis.vega_pos_x, chassis.vega_pos_y, chassis.vega_angle);
+    uprintf("--Vega Pos:\r\n  x:%5f y:%5f angle:%5f\r\n", chassis.vega_pos_x, chassis.vega_pos_y, chassis.vega_angle);
   }
   else
   {
@@ -52,7 +52,7 @@ void vega_print_pos_can()
   can_msg xy_msg;
   xy_msg.fl[0] = chassis.vega_pos_x;
   xy_msg.fl[1] = chassis.vega_pos_y;
-  can_send_msg(22, &xy_msg);  
+  can_send_msg(22, &xy_msg);
 }
 
 /**vega校准*/
@@ -80,13 +80,12 @@ void vega_print_pos_can()
 // /**vega相对坐标原点位置设置*/
 // // ！！！！禁用！！！！
 // void vega_set_position(float Dx, float Dy, float Dangle)
-// { 
+// {
 //   vega_in_coordinate[0] = Dx;
 //   vega_in_coordinate[1] = Dy;
 //   vega_in_coordinate[2] = Dangle;
 //   uprintf("Vega_position:\r\nx:%5f y:%5f angle:%5f\r\n", vega_in_coordinate[0], vega_in_coordinate[1], vega_in_coordinate[2]);
 // }
-
 
 /**vega赋值修正*/
 // void vega_correct_pos(float x, float y, float angle)
@@ -130,4 +129,3 @@ void vega_print_pos_can()
 //     for(int j=0;j<8;j++)
 //     uprintf_to(&VEGA_USART,"%c",veag_correct.ch[j]);}
 // }
-

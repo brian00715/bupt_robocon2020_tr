@@ -15,7 +15,7 @@ TODO: flag管理,i2c以及一些其他通信,内存管理,小型os
 
 ## 不同开发平台目录配置
 
-### IAR
+### IARSlack Theme
 
 - `git clone https://github.com/ZeroVoid10/simplelib`到Src,Inc同级目录下
 

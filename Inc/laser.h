@@ -49,9 +49,13 @@ extern "C"
   extern PID_Struct laser_ypos_pid;
   extern PID_Struct laser_xpos_pid;
 
-  /*Function Area*/
+  extern int Laser_PrintADCValue_Flag;
+  extern int Laser_PrintPos_Flag;
 
-  void laser_calculate_kb(LASER *sensor);
+      /*Function Area*/
+
+      void
+      laser_calculate_kb(LASER *sensor);
   void laser_adc_split(LASER *laser_l, LASER *laser_r, LASER *laser_s);
 
   float laser_calculate_distance(LASER *sensor, Kal_Struct *kal_laser_distance, Kal_Struct *kal_laser_adc);
@@ -62,8 +66,8 @@ extern "C"
   void laser_init();
   void laser_exe();
   void laser_print_distance();
-  void laser_print_pos();
-  void laser_print_raw_value();
+  void Laser_PrintPos();
+  void Laser_PrintADCValue();
 
 #ifdef __cplusplus
 }

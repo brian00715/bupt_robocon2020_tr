@@ -14,6 +14,8 @@ Data:           2019/12/9
 #define ERROR_ON_SIDE 0
 #define DIS_BTW_LR 0.45
 
+float DISTANCE_LASERHL_AND_LASERHR = 0.279; // 单位m
+
 LASER laser_left;
 LASER laser_side;
 LASER laser_right;
@@ -52,7 +54,7 @@ float laser_calculate_distance(LASER *sensor, Kal_Struct *kal_laser_distance, Ka
   {
     sum_up += sensor->ADC_value[i];
   }
-  sensor->ADC_final = (int)sum_up / AVERAGE_AMOUNT;  // 均值滤波
+  sensor->ADC_final = (int)sum_up / AVERAGE_AMOUNT; // 均值滤波
   sensor->ADC_final = (int)KalMan(kal_laser_adc, sensor->ADC_final);
   distance = sensor->ADC_final * sensor->k_param + sensor->b_param;
   distance = KalMan(kal_laser_distance, distance);
@@ -63,21 +65,24 @@ float laser_calculate_distance(LASER *sensor, Kal_Struct *kal_laser_distance, Ka
 /**激光计算x*/
 float laser_calculate_x()
 {
-  float laser_x = 0;
+  float laser_x = laser_left.distance;
   return laser_x;
 }
 /**激光计算y*/
 float laser_calculate_y()
 {
-  float laser_y = 0;
+  float laser_y = laser_side.distance;
   return laser_y;
 }
 
 /**激光计算角度*/
 float laser_calculate_angle()
 {
-  float laser_angle = 0;
-  return laser_angle;
+  // float laser_offset = laser_right.distance - laser_left.distance;
+  // float laser_angle = atan(laser_offset / DISTANCE_LASERHL_AND_LASERHR);
+  // return laser_angle;
+  // 2020/10/17 根据新的挡板，跑准x和y后偏航角也就跑好了
+  return 0; 
 }
 
 /**激光初始化:计算kb;打开DMA*/
@@ -86,19 +91,19 @@ void laser_init()
 
   //TODO 待校准
   laser_left.FAR_distance = 0.7;
-  laser_left.FAR_voltage = 2663;
+  laser_left.FAR_voltage = 3627;
   laser_left.NEAR_distance = 0.2;
-  laser_left.NEAR_voltage = 464;
+  laser_left.NEAR_voltage = 381;
 
-  laser_right.NEAR_voltage = 457;
+  laser_right.NEAR_voltage = 576;
   laser_right.NEAR_distance = 0.20;
   laser_right.FAR_distance = 0.70;
-  laser_right.FAR_voltage = 2649;
+  laser_right.FAR_voltage = 3069;
 
-  laser_side.NEAR_voltage = 457;
+  laser_side.NEAR_voltage = 277;
   laser_side.NEAR_distance = 0.20;
   laser_side.FAR_distance = 0.70;
-  laser_side.FAR_voltage = 2649;
+  laser_side.FAR_voltage = 3824;
 
   // uprintf("Left---");
   laser_calculate_kb(&laser_left);
@@ -109,7 +114,7 @@ void laser_init()
 
   if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)laser_adc, 3 * AVERAGE_AMOUNT) != HAL_OK)
   {
-    uprintf("Laser DMA wrong!!!\r\n");
+    uprintf("\r\n##Laser DMA Wrong!##\r\n");
     while (1)
     {
     }
@@ -123,15 +128,17 @@ void laser_exe()
   {
     return;
   }
-
   laser_adc_split(&laser_left, &laser_right, &laser_side);
+  // left和right分别时左后和右后的激光
   laser_left.distance = laser_calculate_distance(&laser_left, &kal_distance_L, &kal_adc_L) + ERROR_ON_LEFT;
   laser_right.distance = laser_calculate_distance(&laser_right, &kal_distance_R, &kal_adc_R) + ERROR_ON_RIGHT;
+  // side是右边的激光
   laser_side.distance = laser_calculate_distance(&laser_side, &kal_distance_S, &kal_adc_S) + ERROR_ON_SIDE;
 
+  // 坐标系定义为水平向左为x轴正方向，垂直向上为y轴正方向
+  chassis.laser_angle = laser_calculate_angle(); // 需要首先计算偏航角以供x和y换算，是与x轴的夹角
   chassis.laser_pos_x = laser_calculate_x();
   chassis.laser_pos_y = laser_calculate_y();
-  chassis.laser_angle = laser_calculate_angle();
 
   flag.chassis_laser_flag = 0;
 }
@@ -144,35 +151,34 @@ void laser_print_distance()
   uprintf("Side :%6fm\r\n", laser_side.distance);
 }
 
+int Laser_PrintPos_Flag = 0;
 /**激光打印pos*/
-void laser_print_pos()
+void Laser_PrintPos()
 {
-  uprintf("Laser_X:%6fm\r\n", chassis.vega_pos_x);
-  uprintf("Laser_X:%6fm\r\n", chassis.vega_pos_y);
-  uprintf("Laser_A:%6f\r\n", chassis.vega_angle);
+  if (!Laser_PrintPos_Flag)
+  {
+    return;
+  }
+  // uprintf("--Laser pos:\r\n");
+  uprintf("  Laser_X:%6fm", chassis.laser_pos_x);
+  uprintf("  Laser_Y:%6fm", chassis.laser_pos_y);
+  uprintf("  Laser_Angle:%6f\r\n", chassis.laser_angle);
 }
 
-void laser_print_raw_value()
+int Laser_PrintADCValue_Flag = 0;
+void Laser_PrintADCValue()
 {
-  uprintf("--laser:raw adc value\r\n");
-  uprintf("  behind_l:");
-  for(int i=0;i<3;i++) // 读取前三个数据
+  if (!Laser_PrintADCValue_Flag)
   {
-    uprintf("%.2f ",laser_adc[i].adc_l);
+    return;
   }
-  uprintf("\r\n");
-  // uprintf("  behind_r:");
-  // for(int i=0;i<3;i++)
-  // {
-  //   uprintf("%.2f ",laser_adc[i].adc_r);
-  // }
-  // uprintf("  right:");
-  // for(int i=0;i<3;i++)
-  // {
-  //   uprintf("%.2f ",laser_adc[i].adc_s);
-  // }
+  uprintf("  left:");
+  uprintf("%d ", laser_left.ADC_final);
   // uprintf("\r\n");
-
-  // uprintf("--adc1 value: %d \r\n",HAL_ADC_GetValue(&hadc1));
-  
+  uprintf("  right:");
+  uprintf("%d ", laser_right.ADC_final);
+  uprintf("  side:");
+  uprintf("%d ", laser_side.ADC_final);
+  uprintf("\r\n");
+  // uprintf("--adc1 value: %d \r\n", HAL_ADC_GetValue(&hadc1));
 }

@@ -150,7 +150,7 @@ int can_send_msg(uint16_t std_id, can_msg *msg)
             }
             else
             {
-                uprintf("Error: CAN can't send msg.\r\n");
+                // uprintf("Error: CAN can't send msg.\r\n");
                 return 1;
             }
         }
