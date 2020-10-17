@@ -88,7 +88,7 @@ void VESC_StopByAngle()
     return;
   }
   pre_current = vesc.current;
-  if (abs(VESC_CurrentAngle - VESC_TargetAngle) < 10)
+  if (abs(VESC_CurrentAngle - VESC_TargetAngle) < 8)
   {
     vesc.mode = 1;
     vesc.current = 0;

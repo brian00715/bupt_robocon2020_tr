@@ -134,7 +134,11 @@ void laser_exe()
   laser_right.distance = laser_calculate_distance(&laser_right, &kal_distance_R, &kal_adc_R) + ERROR_ON_RIGHT;
   // side是右边的激光
   laser_side.distance = laser_calculate_distance(&laser_side, &kal_distance_S, &kal_adc_S) + ERROR_ON_SIDE;
-
+  if(laser_side.distance <= 0) // 距离球座的距离合适
+  {
+    DistanceToBallSocketOK_Flag = 1;
+    uprintf("--Laser: distance to ball socket OK!\r\n");
+  }
   // 坐标系定义为水平向左为x轴正方向，垂直向上为y轴正方向
   chassis.laser_angle = laser_calculate_angle(); // 需要首先计算偏航角以供x和y换算，是与x轴的夹角
   chassis.laser_pos_x = laser_calculate_x();
