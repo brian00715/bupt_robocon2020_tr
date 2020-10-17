@@ -14,7 +14,6 @@
 
 Chassis_Handle chassis_handle;                                 // 手柄数据结构体，包含摇杆位置数据、模式等
 PID_Struct handle_angle_pid = {1, 0, 0, 0, 0, 5000, 0, 0.005}; //手柄偏高角控制
-
 void Handle_Button_New(can_msg *data)
 {
   if (0 == flag.main_flag)
@@ -33,7 +32,6 @@ void Handle_Button_New(can_msg *data)
             chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
     break;
   case 2:
-    uprintf("--vega pos:\r\n");
     vega_print_pos();
     break;
   case 3:
@@ -127,23 +125,27 @@ void Handle_Button_New(can_msg *data)
     uprintf("--Kickball control mode switch to manual mode.\r\n");
     uprintf("  ball num = %d\r\n", Kickball2_BallNum); // 踢第几颗球
     break;
-  case 23: // 设置踢球状态机为READY状态
+  case 23: // 恢复左摇杆，可以撤回到5米线
+    DistanceToBallSocketOK_Flag = 0;
+    uprintf("--Handle left rocker recovered\r\n");
+    break;
+  case 26: // 设置踢球状态机为READY状态
     if (Kickball2_ControlMode == MANUAL)
     {
       uprintf("##please change to auto mode!##\r\n");
       return;
     }
     Kickball2_Ready_Flag = 1;
-    uprintf("--Hangle: set Kickball2_Ready_Flag to %d!\r\n", Kickball2_Ready_Flag);
+    uprintf("--Handle: set Kickball2_Ready_Flag to %d!\r\n", Kickball2_Ready_Flag);
     break;
-  case 26: // 设置踢球状态机为KICK状态(手柄无法设置踢球电流，要通过串口助手设置)
+  case 27: // 设置踢球状态机为KICK状态(手柄无法设置踢球电流，要通过串口助手设置)
     if (Kickball2_ControlMode == MANUAL)
     {
       uprintf("##please change to auto mode!##\r\n");
       return;
     }
     Kickball2_Kick_Flag = 1;
-    uprintf("--Hangle: set Kickball2_Kick_Flag to %d!\r\n", Kickball2_Kick_Flag);
+    uprintf("--Handle: set Kickball2_Kick_Flag to %d!\r\n", Kickball2_Kick_Flag);
     break;
 
   default:
@@ -171,6 +173,7 @@ void Handle_Rocker(can_msg *data)
   chassis_handle.lx *= -1;
 }
 
+int DistanceToBallSocketOK_Flag = 0;
 int Chassis_DimReverse_Flag = 0;   // 坐标轴反转标志
 float ROKER_R_ZERO_OFFSET = 0.314; // ±10°内无值，从而让手指可以一直顶着摇杆，避免误操作
 int SPEED_TRANSFORM_RATIO = 3;     // 左摇杆控制速度时摇杆幅值与速度的换算比例,可通过按钮切换从而实现不同的速度调节范围
@@ -255,6 +258,10 @@ void handle_exe()
   {
     chassis.fturn = temp_fturn;
   }
-
+  if (DistanceToBallSocketOK_Flag) // 如果与离球座的距离合适，则禁止左摇杆
+  {
+    chassis.fspeed = 0;
+    chassis.fangle = 0;
+  }
   chassis_move(chassis.fspeed, chassis.fangle, chassis.fturn);
 }

@@ -12,6 +12,7 @@ extern "C"
 #include "adc.h"
 #include "chassis.h"
 #include "utils.h"
+#include "chassis_handle.h"
 
   /*Define Area*/
 
