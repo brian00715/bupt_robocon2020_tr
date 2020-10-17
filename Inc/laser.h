@@ -49,7 +49,8 @@ extern "C"
   extern PID_Struct laser_ypos_pid;
   extern PID_Struct laser_xpos_pid;
 
-  extern int Laser_PrintRawValue_Flag;
+  extern int Laser_PrintADCValue_Flag;
+  extern int Laser_PrintPos_Flag;
 
       /*Function Area*/
 
@@ -65,7 +66,7 @@ extern "C"
   void laser_init();
   void laser_exe();
   void laser_print_distance();
-  void laser_print_pos();
+  void Laser_PrintPos();
   void Laser_PrintADCValue();
 
 #ifdef __cplusplus

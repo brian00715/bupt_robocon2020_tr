@@ -75,7 +75,7 @@ void VESC_RX_Handle(can_msg *data)
   VESC_CurrentRPM = buffer_get_int32(data->ui8,&index);
 }
 
-int16_t VESC_TargetAngle = 355;
+int16_t VESC_TargetAngle = 120;
 int VESC_SwitchStopByAngle_Flag = 0;
 float pre_current = 0;
 /**
@@ -92,6 +92,7 @@ void VESC_StopByAngle()
   {
     vesc.mode = 1;
     vesc.current = 0;
+    comm_can_set_current(vesc.id, 0); // 立即执行
     VESC_SwitchStopByAngle_Flag = 0;
   }
   // else

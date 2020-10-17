@@ -14,7 +14,7 @@ Data:           2019/12/9
 #define ERROR_ON_SIDE 0
 #define DIS_BTW_LR 0.45
 
-float DISTANCE_LASERHL_AND_LASERHR = 0.272; // 单位m
+float DISTANCE_LASERHL_AND_LASERHR = 0.279; // 单位m
 
 LASER laser_left;
 LASER laser_side;
@@ -65,22 +65,24 @@ float laser_calculate_distance(LASER *sensor, Kal_Struct *kal_laser_distance, Ka
 /**激光计算x*/
 float laser_calculate_x()
 {
-  float laser_x = laser_side.distance * cosf(chassis.laser_angle);
+  float laser_x = laser_left.distance;
   return laser_x;
 }
 /**激光计算y*/
 float laser_calculate_y()
 {
-  float laser_y = (laser_left.distance + laser_right.distance) / 2 * cosf(chassis.laser_angle);
+  float laser_y = laser_side.distance;
   return laser_y;
 }
 
 /**激光计算角度*/
 float laser_calculate_angle()
 {
-  float laser_offset = laser_right.distance - laser_left.distance;
-  float laser_angle = atan(laser_offset / DISTANCE_LASERHL_AND_LASERHR);
-  return laser_angle;
+  // float laser_offset = laser_right.distance - laser_left.distance;
+  // float laser_angle = atan(laser_offset / DISTANCE_LASERHL_AND_LASERHR);
+  // return laser_angle;
+  // 2020/10/17 根据新的挡板，跑准x和y后偏航角也就跑好了
+  return 0; 
 }
 
 /**激光初始化:计算kb;打开DMA*/
@@ -89,19 +91,19 @@ void laser_init()
 
   //TODO 待校准
   laser_left.FAR_distance = 0.7;
-  laser_left.FAR_voltage = 3563;
+  laser_left.FAR_voltage = 3627;
   laser_left.NEAR_distance = 0.2;
-  laser_left.NEAR_voltage = 378;
+  laser_left.NEAR_voltage = 381;
 
-  laser_right.NEAR_voltage = 509;
+  laser_right.NEAR_voltage = 576;
   laser_right.NEAR_distance = 0.20;
   laser_right.FAR_distance = 0.70;
-  laser_right.FAR_voltage = 3059;
+  laser_right.FAR_voltage = 3069;
 
-  laser_side.NEAR_voltage = 280;
+  laser_side.NEAR_voltage = 277;
   laser_side.NEAR_distance = 0.20;
   laser_side.FAR_distance = 0.70;
-  laser_side.FAR_voltage = 3578;
+  laser_side.FAR_voltage = 3824;
 
   // uprintf("Left---");
   laser_calculate_kb(&laser_left);
@@ -112,7 +114,7 @@ void laser_init()
 
   if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)laser_adc, 3 * AVERAGE_AMOUNT) != HAL_OK)
   {
-    uprintf("Laser DMA wrong!!!\r\n");
+    uprintf("\r\n##Laser DMA Wrong!##\r\n");
     while (1)
     {
     }
@@ -149,22 +151,27 @@ void laser_print_distance()
   uprintf("Side :%6fm\r\n", laser_side.distance);
 }
 
+int Laser_PrintPos_Flag = 0;
 /**激光打印pos*/
-void laser_print_pos()
+void Laser_PrintPos()
 {
-  uprintf("Laser_X:%6fm\r\n", chassis.vega_pos_x);
-  uprintf("Laser_X:%6fm\r\n", chassis.vega_pos_y);
-  uprintf("Laser_A:%6f\r\n", chassis.vega_angle);
-}
-
-int Laser_PrintRawValue_Flag = 0;
-void Laser_PrintADCValue()
-{
-  if (Laser_PrintRawValue_Flag == 0)
+  if (!Laser_PrintPos_Flag)
   {
     return;
   }
-  // uprintf("--laser:raw adc value\r\n");
+  // uprintf("--Laser pos:\r\n");
+  uprintf("  Laser_X:%6fm", chassis.laser_pos_x);
+  uprintf("  Laser_Y:%6fm", chassis.laser_pos_y);
+  uprintf("  Laser_Angle:%6f\r\n", chassis.laser_angle);
+}
+
+int Laser_PrintADCValue_Flag = 0;
+void Laser_PrintADCValue()
+{
+  if (!Laser_PrintADCValue_Flag)
+  {
+    return;
+  }
   uprintf("  left:");
   uprintf("%d ", laser_left.ADC_final);
   // uprintf("\r\n");

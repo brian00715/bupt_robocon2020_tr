@@ -163,9 +163,9 @@ int main(void)
     // lcd_exe();         // lcd消息
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
-    // vesc_exe();
     // kickball_exe(); // 踢球系统
     laser_exe();
+    vesc_exe();
     Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新
 
@@ -193,6 +193,7 @@ int main(void)
     {
       time_1s_flag = 0;
       Laser_PrintADCValue();
+      Laser_PrintPos();
       // Robomaster_PrintInfo(0);
       // VESC_PrintInfo();
       // uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",

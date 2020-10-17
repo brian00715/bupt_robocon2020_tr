@@ -10,6 +10,7 @@
 #include "touchdown.h"
 #include "kickball.h"
 #include "motor_driver.h"
+#include "vega.h"
 
 Chassis_Handle chassis_handle;                                 // 手柄数据结构体，包含摇杆位置数据、模式等
 PID_Struct handle_angle_pid = {1, 0, 0, 0, 0, 5000, 0, 0.005}; //手柄偏高角控制
@@ -31,6 +32,19 @@ void Handle_Button_New(can_msg *data)
     uprintf("--lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
             chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
     break;
+  case 2:
+    uprintf("--vega pos:\r\n");
+    vega_print_pos();
+    break;
+  case 3:
+    Chassis_PrintPos();
+    break;
+  case 4:
+    Chassis_ResetVegaOrigin_Flag = 1; // 为了安全起见，开启原点重置后就不再关闭
+    Chassis_ResetVegaOrigin();        // 更新原点
+    uprintf("--vega origin point has been reseted.\r\n");
+    break;
+
   case 5: // 急停
     uprintf("\r\n##All Motor Stoped!##\r\n");
     chassis.fspeed = 0;
@@ -41,17 +55,38 @@ void Handle_Button_New(can_msg *data)
     flag.chassis_handle_flag = 1;
     flag.chassis_auto_flag = 0;
     break;
+  case 6:
+    Chassis_DimReverse_Flag = (Chassis_DimReverse_Flag + 1) % 2;
+    if (Chassis_DimReverse_Flag)
+    {
+      uprintf("--chassis move direction has been reversed\r\n");
+    }
+    else
+    {
+      uprintf("--chassis move dierction has been reduction\r\n");
+    }
+    break;
 
   // 十位为1系指令用于底盘控制
   case 11:
-    flag.chassis_auto_flag = 0;
-    flag.chassis_handle_flag = 1;
-    uprintf("--Chassis control mode change to ManualMode.\r\n");
+    flag.chassis_auto_flag = (flag.chassis_auto_flag + 1) % 2;
+    flag.chassis_handle_flag = (flag.chassis_handle_flag + 1) % 2;
+    if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0)
+    {
+      uprintf("--Chassis control mode change to ManualMode.\r\n");
+    }
+    else
+    {
+      uprintf("--Chassis control mode change to AutoMode.\r\n");
+    }
     break;
   case 12:
-    flag.chassis_handle_flag = 0;
-    flag.chassis_auto_flag = 1;
-    uprintf("--Chassis control mode change to AutoMode.\r\n");
+    Chassis_PosMode = ABSOLUTE;
+    uprintf("--Chassis pos mode change to absulute.\r\n");
+    break;
+  case 13:
+    Chassis_PosMode = RELATIVE;
+    uprintf("--Chassis pos mode change to relative.\r\n");
     break;
   case 14:
     SPEED_TRANSFORM_RATIO = 1;
@@ -66,12 +101,16 @@ void Handle_Button_New(can_msg *data)
     chassis_status.trace_count = 0;
     break;
   case 17:
-    uprintf("--Chassis is going to run to trace:1\r\n");  
+    uprintf("--Chassis is going to run to trace:1\r\n");
     chassis_status.trace_count = 1;
     break;
   case 18:
-    uprintf("--Chassis is going to run to trace:2\r\n"); 
+    uprintf("--Chassis is going to run to trace:2\r\n");
     chassis_status.trace_count = 2;
+    break;
+  case 19:
+    uprintf("--Chassis is going to run to trace:3\r\n");
+    chassis_status.trace_count = 3;
     break;
 
   // 十位为2系指令用于踢球动作控制
@@ -132,10 +171,11 @@ void Handle_Rocker(can_msg *data)
   chassis_handle.lx *= -1;
 }
 
+int Chassis_DimReverse_Flag = 0;   // 坐标轴反转标志
 float ROKER_R_ZERO_OFFSET = 0.314; // ±10°内无值，从而让手指可以一直顶着摇杆，避免误操作
 int SPEED_TRANSFORM_RATIO = 3;     // 左摇杆控制速度时摇杆幅值与速度的换算比例,可通过按钮切换从而实现不同的速度调节范围
 /**
- * @brief 手柄执行函数,左摇杆控制速度矢量，深度控制速度大小；右摇杆控制偏航角，深度控制角速度大小
+ * @brief 手柄执行函数,左摇杆控制速度矢量，深度控制速度大小；右摇杆控制偏航角，与y轴的偏差角度大小控制角速度
  **/
 void handle_exe()
 {
@@ -143,6 +183,10 @@ void handle_exe()
     return;
   // 速度为零时，应不读取角度，故将此处的角度先读为temp,
   float temp_fangle = atan2(chassis_handle.ly, chassis_handle.lx);
+  if (Chassis_DimReverse_Flag)
+  {
+    temp_fangle += PI;
+  }
   // 加减速用线性变化，此处将速度值设为temp--czh add
   int temp_fspeed = SPEED_TRANSFORM_RATIO * (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx));
   if (temp_fspeed < CHASSIS_HANDLE_MIN_SPEED) // 解决零漂导致的静止速度不为0
@@ -153,16 +197,16 @@ void handle_exe()
   {
     temp_fspeed = CHASSIS_HANDLE_MAX_SPEED;
   }
-  else  // 线速度大小在允许的范围之内才允许有角速度
+  else // 线速度大小在允许的范围之内才允许有角速度
   {
     temp_fspeed -= CHASSIS_HANDLE_MIN_SPEED; // 使速度从0开始
     chassis.fangle = temp_fangle;
   }
   // 控制加速度
   int fspeed_diff = temp_fspeed - chassis.fspeed;
-  if (fspeed_diff > 2)
+  if (fspeed_diff > 5)
   {
-    chassis.fspeed = chassis.fspeed + 2;
+    chassis.fspeed = chassis.fspeed + 5;
   }
   else if (fspeed_diff < -5)
   {
@@ -211,5 +255,6 @@ void handle_exe()
   {
     chassis.fturn = temp_fturn;
   }
+
   chassis_move(chassis.fspeed, chassis.fangle, chassis.fturn);
 }
