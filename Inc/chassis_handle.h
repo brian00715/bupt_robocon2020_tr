@@ -15,8 +15,13 @@ extern "C"
 #include "chassis.h"
 #include "can.h"
 #include "main.h"
-#include "math.h"
 #include "can_utils.h"
+#include "touchdown.h"
+#include "kickball.h"
+#include "motor_driver.h"
+#include "vega.h"
+#include "vesc_can.h"
+
 /*Define Area*/
 #define CHASSIS_HANDLE_MAX_SPEED 400
 #define CHASSIS_HANDLE_MIN_SPEED 28 // 默认150

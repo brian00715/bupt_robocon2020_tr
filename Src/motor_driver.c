@@ -72,34 +72,37 @@ void VESC_RX_Handle(can_msg *data)
     return;
   int32_t index = 0;
   VESC_CurrentAngle = buffer_get_int16(data->ui8, &index) / 50;
-  VESC_CurrentRPM = buffer_get_int32(data->ui8,&index);
+  VESC_CurrentRPM = buffer_get_int32(data->ui8, &index);
 }
 
 int16_t VESC_TargetAngle = 120;
 int VESC_SwitchStopByAngle_Flag = 0;
-float pre_current = 0;
+int16_t angle_diff_threshold = 10; // 角度偏差阈值
 /**
  * @brief 旋转到指定角度后停止
  **/
 void VESC_StopByAngle()
 {
-  if (VESC_SwitchStopByAngle_Flag == 0 )
+  if (VESC_SwitchStopByAngle_Flag == 0)
   {
     return;
   }
-  pre_current = vesc.current;
-  if (abs(VESC_CurrentAngle - VESC_TargetAngle) < 8)
+  int16_t diff = abs(VESC_CurrentAngle - VESC_TargetAngle);
+  if (VESC_TargetAngle == Kickball2_StopAngle) // 踢球的时候角度变化太快，需要设定不同的阈值
+  {
+    angle_diff_threshold = 15;
+  }
+  else
+  {
+    angle_diff_threshold = 5;
+  }
+  if (diff < angle_diff_threshold)
   {
     vesc.mode = 1;
     vesc.current = 0;
     comm_can_set_current(vesc.id, 0); // 立即执行
     VESC_SwitchStopByAngle_Flag = 0;
   }
-  // else
-  // {
-  //   vesc.mode = 1;
-  //   vesc.current = pre_current;
-  // }
 }
 
 void VESC_PrintInfo()
@@ -107,7 +110,7 @@ void VESC_PrintInfo()
   if (VESC_SwitchPrintInfo_Flag)
   {
     uprintf("--vesc status>>");
-    uprintf(" current_angle:%d current_rpm:%d mode:%d ", VESC_CurrentAngle,VESC_CurrentRPM,vesc.mode);
+    uprintf(" current_angle:%d current_rpm:%d mode:%d ", VESC_CurrentAngle, VESC_CurrentRPM, vesc.mode);
     switch (vesc.mode)
     {
     case 0:

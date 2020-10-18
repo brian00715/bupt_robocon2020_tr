@@ -29,22 +29,24 @@
 
 /* Public Macro---------------------------------------------------*/
 //settings
-#define VESC_CAN_ENABLE	1
+#define VESC_CAN_ENABLE 1
 
 /* Public Types---------------------------------------------------*/
-typedef uint32_t systime_t;//为了与本杰明电调代码保持一致
+typedef uint32_t systime_t; //为了与本杰明电调代码保持一致
 
 /* Datatypes---------------------------------------------------*/
-typedef struct{
-    int id;
-    float rpm;
-    float current;
-    float duty;
-    float position;
-}VESC;
+typedef struct
+{
+	int id;
+	float rpm;
+	float current;
+	float duty;
+	float position;
+} VESC;
 
 //CAN commands
-typedef enum {
+typedef enum
+{
 	CAN_PACKET_SET_DUTY = 0,
 	CAN_PACKET_SET_CURRENT,
 	CAN_PACKET_SET_CURRENT_BRAKE,
@@ -76,7 +78,8 @@ typedef enum {
 } CAN_PACKET_ID;
 
 // CAN status modes
-typedef enum {
+typedef enum
+{
 	CAN_STATUS_DISABLED = 0,
 	CAN_STATUS_1,
 	CAN_STATUS_1_2,
@@ -85,7 +88,8 @@ typedef enum {
 	CAN_STATUS_1_2_3_4_5
 } CAN_STATUS_MODE;
 
-typedef struct {
+typedef struct
+{
 	int id;
 	systime_t rx_time;
 	float rpm;
@@ -93,21 +97,24 @@ typedef struct {
 	float duty;
 } can_status_msg;
 
-typedef struct {
+typedef struct
+{
 	int id;
 	systime_t rx_time;
 	float amp_hours;
 	float amp_hours_charged;
 } can_status_msg_2;
 
-typedef struct {
+typedef struct
+{
 	int id;
 	systime_t rx_time;
 	float watt_hours;
 	float watt_hours_charged;
 } can_status_msg_3;
 
-typedef struct {
+typedef struct
+{
 	int id;
 	systime_t rx_time;
 	float temp_fet;
@@ -116,7 +123,8 @@ typedef struct {
 	float pid_pos_now;
 } can_status_msg_4;
 
-typedef struct {
+typedef struct
+{
 	int id;
 	systime_t rx_time;
 	float v_in;
@@ -124,13 +132,13 @@ typedef struct {
 } can_status_msg_5;
 
 /* Buffer Functions ---------------------------------------------------*/
-void buffer_append_int16(uint8_t* buffer, int16_t number, int32_t *index);
-void buffer_append_uint16(uint8_t* buffer, uint16_t number, int32_t *index);
-void buffer_append_int32(uint8_t* buffer, int32_t number, int32_t *index);
-void buffer_append_uint32(uint8_t* buffer, uint32_t number, int32_t *index);
-void buffer_append_float16(uint8_t* buffer, float number, float scale, int32_t *index);
-void buffer_append_float32(uint8_t* buffer, float number, float scale, int32_t *index);
-void buffer_append_float32_auto(uint8_t* buffer, float number, int32_t *index);
+void buffer_append_int16(uint8_t *buffer, int16_t number, int32_t *index);
+void buffer_append_uint16(uint8_t *buffer, uint16_t number, int32_t *index);
+void buffer_append_int32(uint8_t *buffer, int32_t number, int32_t *index);
+void buffer_append_uint32(uint8_t *buffer, uint32_t number, int32_t *index);
+void buffer_append_float16(uint8_t *buffer, float number, float scale, int32_t *index);
+void buffer_append_float32(uint8_t *buffer, float number, float scale, int32_t *index);
+void buffer_append_float32_auto(uint8_t *buffer, float number, int32_t *index);
 int16_t buffer_get_int16(const uint8_t *buffer, int32_t *index);
 uint16_t buffer_get_uint16(const uint8_t *buffer, int32_t *index);
 int32_t buffer_get_int32(const uint8_t *buffer, int32_t *index);
@@ -141,28 +149,28 @@ float buffer_get_float32_auto(const uint8_t *buffer, int32_t *index);
 
 /* CAN Functions ---------------------------------------------------*/
 //常用
-void comm_can_transmit_eid(uint32_t id, const uint8_t *data, uint8_t len);//拓展帧发送函数
-void comm_can_transmit_sid(uint32_t id, uint8_t *data, uint8_t len);//标准帧发送函数
-void comm_can_set_duty(uint8_t controller_id, float duty);//设置对应ID占空比
-void comm_can_set_current(uint8_t controller_id, float current);//设置对应ID电流环
-void comm_can_set_current_brake(uint8_t controller_id, float current);//设置对应ID刹车电流
-void comm_can_set_rpm(uint8_t controller_id, float rpm);//设置对应ID转速环
-void comm_can_set_pos(uint8_t controller_id, float pos);//设置对应ID位置环
-void comm_can_set_current_rel(uint8_t controller_id, float current_rel);//设置电流限幅
-void comm_can_set_current_brake_rel(uint8_t controller_id, float current_rel);//设置刹车电流限幅
-void comm_can_set_handbrake(uint8_t controller_id, float current);//设置刹车电流
-void comm_can_set_handbrake_rel(uint8_t controller_id, float current_rel);//设置刹车电流限幅
+void comm_can_transmit_eid(uint32_t id, const uint8_t *data, uint8_t len);	   //拓展帧发送函数
+void comm_can_transmit_sid(uint32_t id, uint8_t *data, uint8_t len);		   //标准帧发送函数
+void comm_can_set_duty(uint8_t controller_id, float duty);					   //设置对应ID占空比
+void comm_can_set_current(uint8_t controller_id, float current);			   //设置对应ID电流环
+void comm_can_set_current_brake(uint8_t controller_id, float current);		   //设置对应ID刹车电流
+void comm_can_set_rpm(uint8_t controller_id, float rpm);					   //设置对应ID转速环
+void comm_can_set_pos(uint8_t controller_id, float pos);					   //设置对应ID位置环
+void comm_can_set_current_rel(uint8_t controller_id, float current_rel);	   //设置电流限幅
+void comm_can_set_current_brake_rel(uint8_t controller_id, float current_rel); //设置刹车电流限幅
+void comm_can_set_handbrake(uint8_t controller_id, float current);			   //设置刹车电流
+void comm_can_set_handbrake_rel(uint8_t controller_id, float current_rel);	   //设置刹车电流限幅
 
 //CAN指令命令解析函数，只用于参考解析过程，不可直接调用
 void CAN_Analysis_Reference(void);
 
 //高级功能，没什么用
 void comm_can_conf_current_limits(uint8_t controller_id,
-		bool store, float min, float max);
+								  bool store, float min, float max);
 void comm_can_conf_current_limits_in(uint8_t controller_id,
-		bool store, float min, float max);
+									 bool store, float min, float max);
 void comm_can_conf_foc_erpms(uint8_t controller_id,
-		bool store, float foc_openloop_rpm, float foc_sl_erpm);
+							 bool store, float foc_openloop_rpm, float foc_sl_erpm);
 can_status_msg *comm_can_get_status_msg_index(int index);
 can_status_msg *comm_can_get_status_msg_id(int id);
 can_status_msg_2 *comm_can_get_status_msg_2_index(int index);
@@ -174,8 +182,4 @@ can_status_msg_4 *comm_can_get_status_msg_4_id(int id);
 can_status_msg_5 *comm_can_get_status_msg_5_index(int index);
 can_status_msg_5 *comm_can_get_status_msg_5_id(int id);
 
-
-
 #endif /* VESC_CAN_H_ */
-
-

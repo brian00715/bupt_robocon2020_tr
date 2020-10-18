@@ -7,10 +7,6 @@
 * Data:           2019/10/21
 *******************************************************************************/
 #include "chassis_handle.h"
-#include "touchdown.h"
-#include "kickball.h"
-#include "motor_driver.h"
-#include "vega.h"
 
 Chassis_Handle chassis_handle;                                 // 手柄数据结构体，包含摇杆位置数据、模式等
 PID_Struct handle_angle_pid = {1, 0, 0, 0, 0, 5000, 0, 0.005}; //手柄偏高角控制
@@ -48,6 +44,10 @@ void Handle_Button_New(can_msg *data)
     chassis.fspeed = 0;
     vesc.mode = 1;
     vesc.current = 0;
+    Kickball2_Ready_Flag = 0;
+    Kickball2_Kick_Flag = 0;
+    Kickball2_SetState(KICKBALL2_NONE);
+    comm_can_set_current(vesc.id, 0);
     chassis_canset_motorspeed(0, 0, 0);
     kickball2_status = KICKBALL2_NONE;
     flag.chassis_handle_flag = 1;
@@ -125,9 +125,13 @@ void Handle_Button_New(can_msg *data)
     uprintf("--Kickball control mode switch to manual mode.\r\n");
     uprintf("  ball num = %d\r\n", Kickball2_BallNum); // 踢第几颗球
     break;
-  case 23: // 恢复左摇杆，可以撤回到5米线
+  case 23: // 允许垂直方向位移，可以撤回到5米线
     DistanceToBallSocketOK_Flag = 0;
     uprintf("--Handle left rocker recovered\r\n");
+    break;
+  case 25: // 手动锁定垂直方向的移动，只能水平微调
+    DistanceToBallSocketOK_Flag = 1;
+    uprintf("--Handle: distance to ball socket OK! The left rocker has been locked\r\n");
     break;
   case 26: // 设置踢球状态机为READY状态
     if (Kickball2_ControlMode == MANUAL)
@@ -146,6 +150,15 @@ void Handle_Button_New(can_msg *data)
     }
     Kickball2_Kick_Flag = 1;
     uprintf("--Handle: set Kickball2_Kick_Flag to %d!\r\n", Kickball2_Kick_Flag);
+    break;
+  case 28: // 清空状态标志位，避免电机疯转
+    Kickball2_Ready_Flag = 0;
+    Kickball2_Kick_Flag = 0;
+    Kickball2_SetState(KICKBALL2_NONE);
+    vesc.mode = 1;
+    vesc.current = 0;
+    comm_can_set_current(vesc.id, 0);
+    uprintf("--Handle: Kickball flags have been reseted.\r\n");
     break;
 
   default:
@@ -184,9 +197,10 @@ void handle_exe()
 {
   if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
     return;
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>速度矢量控制<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   // 速度为零时，应不读取角度，故将此处的角度先读为temp,
   float temp_fangle = atan2(chassis_handle.ly, chassis_handle.lx);
-  if (Chassis_DimReverse_Flag)
+  if (Chassis_DimReverse_Flag) // 坐标轴反转
   {
     temp_fangle += PI;
   }
@@ -220,7 +234,7 @@ void handle_exe()
     chassis.fspeed = temp_fspeed;
   }
 
-  // 偏航角控制
+  // >>>>>>>>>>>>>>>>>>>>>>>>偏航角控制<<<<<<<<<<<<<<<<<<<<<<<<<<
   float temp_fturn = (int)sqrt(chassis_handle.ry * chassis_handle.ry + chassis_handle.rx * chassis_handle.rx);
   if (temp_fturn > 108) // 只有摇杆顶到头才开启转动
   {
@@ -258,10 +272,15 @@ void handle_exe()
   {
     chassis.fturn = temp_fturn;
   }
-  if (DistanceToBallSocketOK_Flag) // 如果与离球座的距离合适，则禁止左摇杆
+
+  float delta_theta = 0.122;
+  if (DistanceToBallSocketOK_Flag) // 如果与离球座的距离合适，则禁止左摇杆控制垂直方向位移
   {
-    chassis.fspeed = 0;
-    chassis.fangle = 0;
+    if (!(fabs(chassis.fangle) < delta_theta || fabs(chassis.fangle) > PI - delta_theta))
+    {
+      chassis.fangle = 0;
+      chassis.fspeed = 0;
+    }
   }
   chassis_move(chassis.fspeed, chassis.fangle, chassis.fturn);
 }

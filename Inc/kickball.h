@@ -1,6 +1,10 @@
 #ifndef _KICKBALL_H
 #define _KICKBALL_H
 
+#include "sensor_gpio.h"
+#include "cmd.h"
+#include "motor_driver.h"
+
 #define KICKBALL_GEN 2 // 选择踢球装置的代数,置1选择第一代，置2选择第二代
 
 typedef enum
@@ -67,6 +71,9 @@ extern int Kickball2_Ready_Flag;      // 由全场定位置1
 extern int Kickball2_Kick_Flag;       // 由CMD置1
 extern int Kickball2_StopRotate_Flag; // 根据旋转角度值来确定,或使用CMD
 extern int Kickball2_BallNum;
+extern int16_t Kickball2_StopAngle;              // 需要让电机停电时的角度
+extern int16_t Kickball2_SpringRawAngle;         // 弹簧原长对应的角度,改为往下拉，防止正投影与球接触
+extern int16_t Kickball2_SpringAutoRecoverAngle; // 弹簧能自动拉回的角度
 void Kickball2_StateMachine();
 void Kickball2_SetState(KICKBALL2_STATUS status);
 void Kickball2_EXE();

@@ -20,6 +20,7 @@
     <DebugChecksum>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         <Checksum>3967124914</Checksum>
 =======
         <Checksum>2625605566</Checksum>
@@ -27,6 +28,9 @@
 =======
         <Checksum>2524178503</Checksum>
 >>>>>>> 36fde33289cd16556d98a9a1f0eee5096a036732
+=======
+        <Checksum>2455970542</Checksum>
+>>>>>>> af5fa805ab953c8786b47058c6eb3a5def263125
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -51,8 +55,8 @@
         <CpuClock>72000000</CpuClock>
         <ClockAutoDetect>0</ClockAutoDetect>
         <ClockWanted>2000000</ClockWanted>
-        <JtagSpeed>2250000</JtagSpeed>
-        <Prescaler>32</Prescaler>
+        <JtagSpeed>2000000</JtagSpeed>
+        <Prescaler>36</Prescaler>
         <TimeStampPrescIndex>0</TimeStampPrescIndex>
         <TimeStampPrescData>0</TimeStampPrescData>
         <PcSampCYCTAP>1</PcSampCYCTAP>
@@ -123,6 +127,7 @@
         <SumSortOrder>0</SumSortOrder>
     </EventLog>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     <DisassembleMode>
         <mode>0</mode>
@@ -141,6 +146,8 @@
         <Count>10</Count>
     </Breakpoints2>
 >>>>>>> 36fde33289cd16556d98a9a1f0eee5096a036732
+=======
+>>>>>>> af5fa805ab953c8786b47058c6eb3a5def263125
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
         <LogFile>_ ""</LogFile>
@@ -151,8 +158,11 @@
         <LogFile>_ ""</LogFile>
         <Category>_ 0</Category>
     </LogFile>
+<<<<<<< HEAD
 =======
 >>>>>>> handle_optimize
+=======
+>>>>>>> af5fa805ab953c8786b47058c6eb3a5def263125
     <DriverProfiling>
         <Enabled>0</Enabled>
         <Mode>1</Mode>
@@ -180,6 +190,7 @@
         <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\stm32f4xx_it.c}.278.3" 0 0 1 "" 0 "" 0</Bp2>
         <Bp3>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\kickball.c}.125.3" 0 0 1 "" 0 "" 0</Bp3>
         <Bp4>_ 0 "EMUL_CODE" "{D:\ProgramPractice\RobotTeam\STM\Chassis_TR}.748.1" 0 0 1 "" 0 "" 0</Bp4>
+<<<<<<< HEAD
         <Bp5>_ 0 "EMUL_CODE" "{D:\ProgramPractice\RobotTeam\STM\Chassis_TR}.94.1" 0 0 1 "" 0 "" 0</Bp5>
 <<<<<<< HEAD
         <Bp6>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.96.5" 0 0 1 "" 0 "" 0</Bp6>
@@ -203,6 +214,21 @@
         <A4>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.c" ""</A4>
         <A5>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A5>
         <Count>6</Count>
+=======
+        <Bp5>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.120.5" 0 0 1 "" 0 "" 0</Bp5>
+        <Bp6>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.125.9" 0 0 1 "" 0 "" 0</Bp6>
+        <Bp7>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.96.5" 0 0 1 "" 0 "" 0</Bp7>
+        <Bp8>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.135.9" 0 0 1 "" 0 "" 0</Bp8>
+        <Bp9>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.106.9" 0 0 1 "" 0 "" 0</Bp9>
+        <Count>10</Count>
+    </Breakpoints2>
+    <Aliases>
+        <A0>_ "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A0>
+        <A1>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_can.c" ""</A1>
+        <A2>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.c" ""</A2>
+        <A3>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A3>
+        <Count>4</Count>
+>>>>>>> af5fa805ab953c8786b47058c6eb3a5def263125
         <SuppressDialog>0</SuppressDialog>
     </Aliases>
 </settings>
