@@ -16,9 +16,6 @@
  **/
 
 #include "kickball.h"
-#include "sensor_gpio.h"
-#include "cmd.h"
-#include "motor_driver.h"
 
 //===============================第一代踢球===============================
 /*M2006踢球电流 单位A current为负时把磁铁往上转*/
@@ -279,14 +276,14 @@ void Kickball2_StateMachine()
   case KICKBALL2_KICK: // 开始踢球
     vesc.mode = 1;
     vesc.current = Kickball2_KickCurrent;
-    comm_can_set_current(vesc.id, Kickball2_KickCurrent);
+    // comm_can_set_current(vesc.id, Kickball2_KickCurrent);
 
     if (VESC_SwitchStopByAngle_Flag == 0) // 由StopByAngle（）函数置0
     {
       vesc.mode = 0;
       vesc.current = 0; // 电流置0即可，弹簧会把踢球柱拉回去
       comm_can_set_current(vesc.id, 0);
-      uprintf("--StateMachine: kick ball finished.\r\n");
+      // uprintf("--StateMachine: kick ball finished.\r\n");
       // Kickball2_SetState(KICKBALL2_NONE);
 
       // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓取消自动恢复原长的功能,改为往下拉，避免正投影接触球↓↓↓↓↓↓↓↓↓↓↓↓↓↓
@@ -311,7 +308,7 @@ void Kickball2_StateMachine()
         vesc.mode = 1;
         vesc.current = 0; // 为了使弹簧缩回原长，需要立即停止
         comm_can_set_current(vesc.id, 0);
-        VESC_TargetAngle = Kickball2_StopAngle;
+        // VESC_TargetAngle = Kickball2_StopAngle;
         uprintf("--StateMachine: spring has set to raw length.\r\n");
         Kickball2_SetState(KICKBALL2_NONE);
       }

@@ -137,7 +137,8 @@ void laser_exe()
   if(laser_side.distance <= 0) // 距离球座的距离合适
   {
     DistanceToBallSocketOK_Flag = 1;
-    uprintf("--Laser: distance to ball socket OK!\r\n");
+    chassis_canset_motorspeed(0,0,0);
+    uprintf("--Laser: distance to ball socket OK! The left rocker has been locked\r\n");
   }
   // 坐标系定义为水平向左为x轴正方向，垂直向上为y轴正方向
   chassis.laser_angle = laser_calculate_angle(); // 需要首先计算偏航角以供x和y换算，是与x轴的夹角
