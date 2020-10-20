@@ -144,6 +144,7 @@ int main(void)
   motor_init();
   laser_init();
   lcd_init();
+  LED_Init();
   flag.main_flag = 1;
   flag.chassis_auto_flag = 0; // 配置底盘运动手动/自动模式
   flag.chassis_handle_flag = 1;

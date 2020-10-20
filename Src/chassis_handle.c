@@ -52,8 +52,10 @@ void Handle_Button_New(can_msg *data)
     kickball2_status = KICKBALL2_NONE;
     flag.chassis_handle_flag = 1;
     flag.chassis_auto_flag = 0;
+    led_control(5);
     break;
   case 6:
+    led_control(6);
     Chassis_DimReverse_Flag = (Chassis_DimReverse_Flag + 1) % 2;
     if (Chassis_DimReverse_Flag)
     {
@@ -72,9 +74,11 @@ void Handle_Button_New(can_msg *data)
     if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0)
     {
       uprintf("--Chassis control mode change to ManualMode.\r\n");
+      led_control(10);
     }
     else
     {
+      led_control(11);
       uprintf("--Chassis control mode change to AutoMode.\r\n");
     }
     break;
@@ -87,26 +91,36 @@ void Handle_Button_New(can_msg *data)
     uprintf("--Chassis pos mode change to relative.\r\n");
     break;
   case 14:
+    led_control(14);
     SPEED_TRANSFORM_RATIO = 1;
     uprintf("--Left Rocker speed transform ratio change to 1\r\n");
     break;
   case 15:
+    led_control(15);
     SPEED_TRANSFORM_RATIO = 3;
     uprintf("--Left Rocker speed transform ratio change to 3\r\n");
     break;
   case 16:
+    led_control(16);
+    Chassis_AutoArrivedAtSpecifiedPoint_Flag = 0;
     uprintf("--Chassis is going to run to trace:0\r\n"); // 速度为0
     chassis_status.trace_count = 0;
     break;
   case 17:
+    led_control(17);
+    Chassis_AutoArrivedAtSpecifiedPoint_Flag = 0;
     uprintf("--Chassis is going to run to trace:1\r\n");
     chassis_status.trace_count = 1;
     break;
   case 18:
+    led_control(18);
+    Chassis_AutoArrivedAtSpecifiedPoint_Flag = 0;
     uprintf("--Chassis is going to run to trace:2\r\n");
     chassis_status.trace_count = 2;
     break;
   case 19:
+    led_control(19);
+    Chassis_AutoArrivedAtSpecifiedPoint_Flag = 0;
     uprintf("--Chassis is going to run to trace:3\r\n");
     chassis_status.trace_count = 3;
     break;
@@ -118,22 +132,27 @@ void Handle_Button_New(can_msg *data)
     Kickball2_Ready_Flag = 0;
     Kickball2_StopRotate_Flag = 0;
     Kickball2_ControlMode = AUTO;
+    led_control(21);
     uprintf("--Kickball control mode switch to auto mode.\r\n");
     break;
   case 22: // 设置自动控制踢球
+    led_control(22);
     Kickball2_ControlMode = MANUAL;
     uprintf("--Kickball control mode switch to manual mode.\r\n");
     uprintf("  ball num = %d\r\n", Kickball2_BallNum); // 踢第几颗球
     break;
   case 23: // 允许垂直方向位移，可以撤回到5米线
+    led_control(23);
     DistanceToBallSocketOK_Flag = 0;
     uprintf("--Handle left rocker recovered\r\n");
     break;
   case 25: // 手动锁定垂直方向的移动，只能水平微调
+    led_control(25);
     DistanceToBallSocketOK_Flag = 1;
     uprintf("--Handle: distance to ball socket OK! The left rocker has been locked\r\n");
     break;
   case 26: // 设置踢球状态机为READY状态
+    led_control(26);
     if (Kickball2_ControlMode == MANUAL)
     {
       uprintf("##please change to auto mode!##\r\n");
@@ -143,6 +162,7 @@ void Handle_Button_New(can_msg *data)
     uprintf("--Handle: set Kickball2_Ready_Flag to %d!\r\n", Kickball2_Ready_Flag);
     break;
   case 27: // 设置踢球状态机为KICK状态(手柄无法设置踢球电流，要通过串口助手设置)
+    led_control(27);
     if (Kickball2_ControlMode == MANUAL)
     {
       uprintf("##please change to auto mode!##\r\n");
@@ -152,15 +172,18 @@ void Handle_Button_New(can_msg *data)
     uprintf("--Handle: set Kickball2_Kick_Flag to %d!\r\n", Kickball2_Kick_Flag);
     break;
   case 28: // 清空状态标志位，避免电机疯转
+    led_control(28);
     Kickball2_Ready_Flag = 0;
     Kickball2_Kick_Flag = 0;
-    Kickball2_SetState(KICKBALL2_NONE);
+    kickball2_status = KICKBALL2_NONE;
     vesc.mode = 1;
     vesc.current = 0;
     comm_can_set_current(vesc.id, 0);
     uprintf("--Handle: Kickball flags have been reseted.\r\n");
     break;
-
+  case 29: // 按一下跑一个点
+    led_control(29);
+    chassis_status.trace_count = (chassis_status.trace_count + 1) % 2;
   default:
     break;
   }
@@ -186,6 +209,7 @@ void Handle_Rocker(can_msg *data)
   chassis_handle.lx *= -1;
 }
 
+int Handle_LeftRockerAmplitude = 0; // 全局变量，用于告知chassis_move_traces()手柄是否进行了干预
 int DistanceToBallSocketOK_Flag = 0;
 int Chassis_DimReverse_Flag = 0;   // 坐标轴反转标志
 float ROKER_R_ZERO_OFFSET = 0.314; // ±10°内无值，从而让手指可以一直顶着摇杆，避免误操作
@@ -217,6 +241,7 @@ void handle_exe()
   else // 线速度大小在允许的范围之内才允许有角速度
   {
     temp_fspeed -= CHASSIS_HANDLE_MIN_SPEED; // 使速度从0开始
+    Handle_LeftRockerAmplitude = temp_fspeed;
     chassis.fangle = temp_fangle;
   }
   // 控制加速度

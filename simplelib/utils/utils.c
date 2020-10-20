@@ -11,16 +11,16 @@ float PID_Release(PID_Struct *PID, float target, float now)
   float result;
 
   err = target - now;
-  err_dt = err - PID->last_err; 
+  err_dt = err - PID->last_err;
 
   err_dt *= 0.384f;
-  err_dt += PID->last_d * 0.615f;  //低通滤波
+  err_dt += PID->last_d * 0.615f; //低通滤波
 
   PID->last_err = err;
 
-  PID->i += err * PID->I_TIME;  // 积分量
+  PID->i += err * PID->I_TIME; // 积分量
 
-  Limit(PID->i, PID->i_max);  // 限制积分量大小
+  Limit(PID->i, PID->i_max); // 限制积分量大小
   PID->last_d = err_dt;
 
   result = err * PID->KP + err_dt * PID->KD + PID->i * PID->KI;

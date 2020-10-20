@@ -57,18 +57,26 @@ void chassis_init(void)
   chassis_init_status();
 }
 
+extern int Handle_LeftRockerAmplitude;
 /**底盘执行函数*/
 void chassis_exe()
 {
   chassis_pos_update();                                             // 更新底盘位姿
   if (flag.chassis_auto_flag == 1 && flag.chassis_handle_flag == 0) // 使用自动控制
   {
+    // Handle_LeftRockerAmplitude并不干预flag.chassis_handle_flag，故手柄干预后直接按按键就可以继续跑点，无需切换模式
+    // 如果自动跑点期间使用摇杆进行干预，则终止自动跑点,点集序号置-1
+    handle_exe();
+    if (abs(Handle_LeftRockerAmplitude) > 0)
+    {
+      chassis_status.trace_count = -1;
+    }
     chassis_move_traces(chassis_status.trace_count);
   }
   if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0) // 使用手动控制
   {
     chassis_status.trace_count = -2;
-    handle_exe();
+    handle_exe(); // 使用手柄控制底盘，按键始终可用
   }
 }
 
@@ -82,9 +90,9 @@ void chassis_pos_update()
   chassis.angle = (chassis.vega_angle / 180.f) * PI + chassis.vega_init_angle; //角度转为弧度
   if (Chassis_ResetVegaOrigin_Flag)                                            // 开启原点重置
   {
-    chassis.pos_x -= origin_x;
-    chassis.pos_y -= origin_y;
-    chassis.angle -= origin_angle;
+    chassis.pos_x -= Chassis_OriginPosture.x;
+    chassis.pos_y -= Chassis_OriginPosture.y;
+    // chassis.angle -= origin_angle;
   }
 
   // 全场定位can的发送时间间隔为5ms，因此用坐标差除以0.005就是瞬时速度
@@ -98,14 +106,16 @@ void chassis_pos_update()
   chassis.last_angle = chassis.angle;
 }
 
-float origin_x = 0, origin_y = 0, origin_angle = 0;
+ChassisPosture Chassis_OriginPosture; // 相对原点位姿
 int Chassis_ResetVegaOrigin_Flag = 0;
 /*重置全场定位的原点*/
 void Chassis_ResetVegaOrigin()
 {
-  origin_x = chassis.pos_x; // 记录此时的坐标值，作为之后坐标的偏移补偿量
-  origin_y = chassis.pos_y;
-  origin_angle = chassis.angle;
+  Chassis_OriginPosture.x = chassis.vega_pos_x; // 记录此时的坐标值，作为之后坐标的偏移补偿量
+  Chassis_OriginPosture.y = chassis.vega_pos_y;
+  Chassis_OriginPosture.angle = (chassis.vega_angle / 180.f) * PI;
+  uprintf("--origin_x:%.6f origin_y:%.6f origin_angle:%.6f\r\n",
+          Chassis_OriginPosture.x, Chassis_OriginPosture.y, Chassis_OriginPosture.angle);
 }
 
 /*全场定位坐标轴变换,在函数体中定义转换规则*/
@@ -363,28 +373,50 @@ int chassis_move_trace(Point points_pos[], int point_num)
 float Chassis_ProperLaserDistance_BehindL = 0;
 float Chassis_ProperLaserDistance_BehindR = 0;
 float Chassis_ProperLaserDistance_Right = 0;
+extern TwoDimPoint Chassis_MovePoint;
 void chassis_move_traces(int trace_num)
 {
   switch (trace_num)
   {
+  case -1:
+    // 占位，不进行任何操作
+    break;
   case 0:
-    // Chassis_GoToPoint_Plus(0, 0, 0);
-    chassis_goto_point(0,0);
+    if (Chassis_AutoArrivedAtSpecifiedPoint_Flag == 0)
+    {
+      chassis_goto_point(0, 0);
+    }
+    else // 到达终点后调整偏航角
+    {
+      uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
+      chassis_move(0, 0, 0);
+    }
+
     break;
   case 1:
-    // Chassis_MoveTo5m();
-    // Chassis_GoToPoint_Plus(0, 0.5, 0.785);
-    chassis_goto_point(0,0.5);
-    // chassis_move(0,0,1.57);
-    // chassis_goto_point(0, 0.5);
+    if (Chassis_AutoArrivedAtSpecifiedPoint_Flag == 0)
+    {
+      chassis_goto_point(Chassis_MovePoint.x, Chassis_MovePoint.y); // 向前跑
+    }
+    else
+    {
+      uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
+      chassis_move(0, 0, 0);
+    }
     break;
   case 2:
-    // Chassis_MoveTo6m();
-    Chassis_GoToPoint_Plus(0, 0.5, 1.57);
-    // chassis_move(0,0,0.785);
+    if (Chassis_AutoArrivedAtSpecifiedPoint_Flag == 0)
+    {
+      chassis_goto_point(0, 0);
+    }
+    else
+    {
+      uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
+      chassis_move(0, 0, 0); // 调整偏航角
+    }
     break;
   case 3:
-    Chassis_GoToPoint_Plus(0.5, 0, 1.57);
+
     break;
 
   default:
@@ -425,6 +457,7 @@ void Chassis_MoveTo6m()
   Limit(angle_output, MAX_CHASSIS_ANGLE_SPEED);
 }
 
+int Chassis_AutoArrivedAtSpecifiedPoint_Flag = 0; // 由chassis_goto_point置1
 /**测试用：随距离减速到某一目标点*/
 void chassis_goto_point(float point_x, float point_y)
 {
@@ -435,12 +468,15 @@ void chassis_goto_point(float point_x, float point_y)
     chassis.fangle = chassis_calculate_traceangle(point_x, point_y);
     chassis.fspeed = chassis_calculate_linespeed(point_x, point_y, 100, 0, 300);
     chassis_move(chassis.fspeed, chassis.fangle, 0);
+    uprintf("chassis pos:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
   }
   else // 到达终点后锁定偏航角
   {
     chassis_status.go_to_point = 0;
-    uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
-    chassis_move(0, 0, chassis.angle);
+    Chassis_AutoArrivedAtSpecifiedPoint_Flag = 1;
+    // uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
+    // chassis_move(0, 0, chassis.angle);
+    chassis_move(0, 0, 0);
   }
   return;
 }
@@ -453,7 +489,7 @@ void Chassis_GoToPoint_Plus(float point_x, float point_y, float target_angle)
     chassis_status.go_to_point = 1;
     chassis.fangle = chassis_calculate_traceangle(point_x, point_y);
     chassis.fspeed = chassis_calculate_linespeed(point_x, point_y, 150, 0, 300);
-    chassis_move(chassis.fspeed, chassis.fangle, 0);
+    chassis_move(chassis.fspeed, chassis.fangle, target_angle);
   }
   else // 到达终点后调整偏航角
   {

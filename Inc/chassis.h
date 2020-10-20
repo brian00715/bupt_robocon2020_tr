@@ -74,6 +74,26 @@ extern "C"
     int run_point;
   } Chassis_Status; // 底盘的状态机
 
+  typedef struct
+  {
+    float x;
+    float y;
+  } TwoDimPoint; // 二维空间点
+
+  typedef struct
+  {
+    float x;
+    float y;
+    float z;
+  } ThreeDimPoint;
+
+  typedef struct
+  {
+    float x;
+    float y;
+    float angle; // 弧度,相对x轴的转角
+  } ChassisPosture;
+
   typedef enum
   {
     ABSOLUTE = 0,
@@ -88,10 +108,8 @@ extern "C"
   extern float ARRIVE_CIRCLE;
   extern CHASSIS_POS_MODE Chassis_PosMode;
   extern int Chassis_ResetVegaOrigin_Flag;
-  extern float origin_x;
-  extern float origin_y;
-  extern float origin_angle;
-  
+  extern int Chassis_AutoArrivedAtSpecifiedPoint_Flag;
+  extern ChassisPosture Chassis_OriginPosture;
 
   /*Function Area*/
   void chassis_init_status();

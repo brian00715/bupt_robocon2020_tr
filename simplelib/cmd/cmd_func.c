@@ -1,19 +1,4 @@
-#include <stdlib.h>
 #include "cmd_func.h"
-#include "can_utils.h"
-#include "can_func.h"
-#include "flags.h"
-#include "chassis.h"
-#include "vega.h"
-#include "laser.h"
-#include "main.h"
-#include "point_parser.h"
-#include "sensor_gpio.h"
-#include "robomaster.h"
-#include "kickball.h"
-#include "touchdown.h"
-#include "motor_driver.h"
-#include "vesc_can.h"
 
 #define KICKBALL_GEN 2 // 选择踢球装置的代数,置1选择第一代，置2选择第二代
 
@@ -57,29 +42,28 @@ void cmd_laser_print_diatance(int argc, char *argv[])
 void CMD_Laser_SwitchPrintPos(int argc, char *argv[])
 {
     Laser_PrintPos_Flag = atoi(argv[1]);
-    if(Laser_PrintPos_Flag == 1)
+    if (Laser_PrintPos_Flag == 1)
     {
-        uprintf("--CMD:Start print laser pos (%d)\r\n",Laser_PrintPos_Flag);
+        uprintf("--CMD:Start print laser pos (%d)\r\n", Laser_PrintPos_Flag);
     }
     else
     {
-        uprintf("--CMD:Stop print laser pos (%d)\r\n",Laser_PrintPos_Flag);
+        uprintf("--CMD:Stop print laser pos (%d)\r\n", Laser_PrintPos_Flag);
     }
     // laser_print_pos();
 }
 
-void CMD_Laser_SwitchPrintADCValue(int argc,char* argv[])
+void CMD_Laser_SwitchPrintADCValue(int argc, char *argv[])
 {
     Laser_PrintADCValue_Flag = atoi(argv[1]);
-    if(Laser_PrintADCValue_Flag)
+    if (Laser_PrintADCValue_Flag)
     {
-        uprintf("--CMD:Start print laser adc value (%d)\r\n",Laser_PrintADCValue_Flag);
+        uprintf("--CMD:Start print laser adc value (%d)\r\n", Laser_PrintADCValue_Flag);
     }
     else
     {
-        uprintf("--CMD:Stop print laser adc value (%d)\r\n",Laser_PrintADCValue_Flag);
+        uprintf("--CMD:Stop print laser adc value (%d)\r\n", Laser_PrintADCValue_Flag);
     }
-    
 }
 
 //point
@@ -456,7 +440,7 @@ void CMD_Kickball2_SetControlMode(int argc, char *argv[])
     }
 }
 
-void CMD_Kickball2_ShowStateMachineInfo(int argc,char* argv[])
+void CMD_Kickball2_ShowStateMachineInfo(int argc, char *argv[])
 {
     uprintf("--kickball2_status_machine: ");
     switch (kickball2_status)
@@ -491,6 +475,15 @@ void CMD_Chassis_Move(int argc, char *argv[])
     Chassis_MoterDuty[2] = atoi(argv[3]);
     uprintf("move in duty of %d  %d %d\r\n", Chassis_MoterDuty[0],
             Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+}
+
+TwoDimPoint Chassis_MovePoint = {0, 0.7};
+// 上位机跑点
+void CMD_Chassis_MoveToPoint(int argc, char *argv[])
+{
+    Chassis_MovePoint.x = atof(argv[1]);
+    Chassis_MovePoint.y = atof(argv[2]);
+    uprintf("--CMD: Chassis will go to (%.6f,%.6f)\r\n", Chassis_MovePoint.x, Chassis_MovePoint.y);
 }
 
 //打印实际的底盘坐标
@@ -547,17 +540,18 @@ void cmd_func_init(void)
     cmd_add("kickball2_set_control_mode", "", CMD_Kickball2_SetControlMode);
     cmd_add("kickball2_ready", "", CMD_Kickball2_Ready);
     cmd_add("kickball2_kick", "", CMD_Kickball2_Kick);
-    cmd_add("kickball2_state_machine_info","",CMD_Kickball2_ShowStateMachineInfo);
+    cmd_add("kickball2_state_machine_info", "", CMD_Kickball2_ShowStateMachineInfo);
 #endif
 
     //chassis
     cmd_add("chassis_move", "<speed of 3 motors>", CMD_Chassis_Move);
     cmd_add("chassis_print_pos", "", CMD_Chassis_PrintPos);
+    cmd_add("chassis_move_to_point", "<x> <y>", CMD_Chassis_MoveToPoint);
 
     //laser
     cmd_add("laser_print_diatance", "", cmd_laser_print_diatance);
     cmd_add("laser_switch_print_pos", "", CMD_Laser_SwitchPrintPos);
-    cmd_add("laser_switch_print_adc_value","",CMD_Laser_SwitchPrintADCValue);
+    cmd_add("laser_switch_print_adc_value", "", CMD_Laser_SwitchPrintADCValue);
 
     //touchdown
     // cmd_add("touchdown_auto", "", cmd_touchdown_auto);

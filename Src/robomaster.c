@@ -173,7 +173,7 @@ void Robomaster_PrintInfo(int index)
 uint32_t Robomaster_OpenAngleControl_Flag = 0; // CMD控制是否启动转角停止，置1开启
 uint32_t Robomaster_TargetOffsetAngle = 0;     // CMD指定目标转角变化量，单位度（不是弧度）
 static uint32_t now_angle = 0;
-static uint32_t origin_angle = 0;
+static uint32_t robomaster_origin_angle = 0;
 static int first_flag = 0;
 /**
  * @brief 控制大疆电机转过一定角度后停止,需要在m2006_exe()中添加使用
@@ -191,19 +191,19 @@ void Robomaster_StopByAngle(int index)
 
   if (first_flag == 0) // 记录初始角度值
   {
-    origin_angle = (uint32_t)robomaster[index].total_angle * 360 / 8192;
+    robomaster_origin_angle = (uint32_t)robomaster[index].total_angle * 360 / 8192;
     first_flag = 1;
   }
   else
   {
     now_angle = (uint32_t)robomaster[index].total_angle * 360 / 8192;
-    int offset_angle = now_angle - origin_angle; // ！！！这里假定角度值不会溢出！！！
+    int offset_angle = now_angle - robomaster_origin_angle; // ！！！这里假定角度值不会溢出！！！
     if (offset_angle >= Robomaster_TargetOffsetAngle)
     {
       robomaster_set_current(0, 0, 0, 0); // 立即执行
       MoterDriver_M2006_Current = 0;      // 将m2006_exe()中的执行电流置0
       /*TODO:后期可以把上面两行改成发给本杰明电调停止信号*/
-      origin_angle = 0;
+      robomaster_origin_angle = 0;
       offset_angle = 0;
       first_flag = 0;
       Robomaster_OpenAngleControl_Flag = 0; // 如果还需使用，则通过CMD再次置1

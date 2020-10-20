@@ -12,6 +12,7 @@ void can_id_init()
     send_id.motor1_id = 102;
     send_id.motor2_id = 103;  
     send_id.lcd_id = 121;
+    send_id.led_id = 66;
     
     recive_id.handle_button_id = 98;
     recive_id.handle_rocker_id = 99;
