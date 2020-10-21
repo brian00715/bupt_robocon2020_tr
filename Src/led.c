@@ -38,8 +38,8 @@ void led_control(int state)
 {
     if (state <= 100)
     {
-        cmd[7] = state % 10;        // 个位
-        cmd[6] = (int)(state / 10); // 十位
+        cmd[6] = state % 10;        // 个位
+        cmd[7] = (int)(state / 10); // 十位
     }
     LedBoard_send_message(cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6], cmd[7]);
 }

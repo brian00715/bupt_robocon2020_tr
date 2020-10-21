@@ -23,9 +23,9 @@
 
 if ($debugfile -eq "")
 {
-& "D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "D:\ProgramPractice\RobotTeam\Robocon2020\Chassis_TR\EWARM\settings\Chassis.Chassis.general.xcl" --backend -f "D:\ProgramPractice\RobotTeam\Robocon2020\Chassis_TR\EWARM\settings\Chassis.Chassis.driver.xcl" 
+& "D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "D:\ProgramPractice\RobotTeamPrograms\Robocon2020\Chassis_TR\EWARM\settings\Chassis.Chassis.general.xcl" --backend -f "D:\ProgramPractice\RobotTeamPrograms\Robocon2020\Chassis_TR\EWARM\settings\Chassis.Chassis.driver.xcl" 
 }
 else
 {
-& "D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "D:\ProgramPractice\RobotTeam\Robocon2020\Chassis_TR\EWARM\settings\Chassis.Chassis.general.xcl" --debug_file=$debugfile --backend -f "D:\ProgramPractice\RobotTeam\Robocon2020\Chassis_TR\EWARM\settings\Chassis.Chassis.driver.xcl" 
+& "D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "D:\ProgramPractice\RobotTeamPrograms\Robocon2020\Chassis_TR\EWARM\settings\Chassis.Chassis.general.xcl" --debug_file=$debugfile --backend -f "D:\ProgramPractice\RobotTeamPrograms\Robocon2020\Chassis_TR\EWARM\settings\Chassis.Chassis.driver.xcl" 
 }

@@ -58,6 +58,8 @@ void chassis_init(void)
 }
 
 extern int Handle_LeftRockerAmplitude;
+int Chassis_LockYaw_Flag = 0;
+float Chassis_LockYaw_Value = 0;
 /**底盘执行函数*/
 void chassis_exe()
 {
@@ -67,7 +69,7 @@ void chassis_exe()
     // Handle_LeftRockerAmplitude并不干预flag.chassis_handle_flag，故手柄干预后直接按按键就可以继续跑点，无需切换模式
     // 如果自动跑点期间使用摇杆进行干预，则终止自动跑点,点集序号置-1
     handle_exe();
-    if (abs(Handle_LeftRockerAmplitude) > 0)
+    if (abs(Handle_LeftRockerAmplitude) > 40)
     {
       chassis_status.trace_count = -1;
     }
@@ -248,6 +250,10 @@ void chassis_move(int speed, float direction, float target_angle)
   else if (flag.chassis_auto_flag == 0 && flag.chassis_handle_flag == 1)
   {
     angle_output = target_angle;
+    if (Chassis_LockYaw_Flag == 1) // 开启锁定偏航角
+    {
+      angle_output = -PID_Release(&angle_pid, target_angle, chassis.angle);
+    }
     Limit(angle_output, MAX_CHASSIS_ANGLE_SPEED);
   }
 

@@ -4,7 +4,6 @@
 #include "sensor_gpio.h"
 #include "cmd.h"
 #include "motor_driver.h"
-#include "led.h"
 
 #define KICKBALL_GEN 2 // 选择踢球装置的代数,置1选择第一代，置2选择第二代
 

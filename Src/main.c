@@ -40,6 +40,7 @@
 #include "motor_driver.h"
 #include "robomaster.h"
 #include "chassis_handle.h"
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -164,8 +165,8 @@ int main(void)
     // lcd_exe();         // lcd消息
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
-    // kickball_exe(); // 踢球系统
-    laser_exe();
+    // kickball_exe();    // 踢球系统
+    // laser_exe();
     vesc_exe();
     Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新

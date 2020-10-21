@@ -14,8 +14,8 @@ void Handle_Button_New(can_msg *data)
 {
   if (0 == flag.main_flag)
     return;
-  if ((uint8_t)data->ui8[2] == 0) // 按键按下时才解析指令
-    return;
+  // if ((uint8_t)data->ui8[2] == 1) // 按键按下时才解析指令
+  //   return;
   uint8_t id = (uint8_t)((data->ui8[1]) * 10 + (data->ui8[0])); // data的前两位储存id、
   switch (id)
   {
@@ -56,30 +56,36 @@ void Handle_Button_New(can_msg *data)
     break;
   case 6:
     led_control(6);
-    Chassis_DimReverse_Flag = (Chassis_DimReverse_Flag + 1) % 2;
-    if (Chassis_DimReverse_Flag)
+    if ((uint8_t)data->ui8[2] == 0) // 按键按下时才生效
     {
-      uprintf("--chassis move direction has been reversed\r\n");
-    }
-    else
-    {
-      uprintf("--chassis move dierction has been reduction\r\n");
+      Chassis_DimReverse_Flag = (Chassis_DimReverse_Flag + 1) % 2;
+      if (Chassis_DimReverse_Flag)
+      {
+        uprintf("--chassis move direction has been reversed\r\n");
+      }
+      else
+      {
+        uprintf("--chassis move dierction has been reduction\r\n");
+      }
     }
     break;
 
   // 十位为1系指令用于底盘控制
   case 11:
-    flag.chassis_auto_flag = (flag.chassis_auto_flag + 1) % 2;
-    flag.chassis_handle_flag = (flag.chassis_handle_flag + 1) % 2;
-    if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0)
+    if ((uint8_t)data->ui8[2] == 0) // 按键按下时才生效
     {
-      uprintf("--Chassis control mode change to ManualMode.\r\n");
-      led_control(10);
-    }
-    else
-    {
-      led_control(11);
-      uprintf("--Chassis control mode change to AutoMode.\r\n");
+      flag.chassis_auto_flag = (flag.chassis_auto_flag + 1) % 2;
+      flag.chassis_handle_flag = (flag.chassis_handle_flag + 1) % 2;
+      if (flag.chassis_handle_flag == 1 && flag.chassis_auto_flag == 0)
+      {
+        uprintf("--Chassis control mode change to ManualMode.\r\n");
+        led_control(10);
+      }
+      else
+      {
+        led_control(11);
+        uprintf("--Chassis control mode change to AutoMode.\r\n");
+      }
     }
     break;
   case 12:
@@ -126,20 +132,31 @@ void Handle_Button_New(can_msg *data)
     break;
 
   // 十位为2系指令用于踢球动作控制
-  case 21: // 设置手动控制踢球
-    // 状态机清零
-    Kickball2_Kick_Flag = 0;
-    Kickball2_Ready_Flag = 0;
-    Kickball2_StopRotate_Flag = 0;
-    Kickball2_ControlMode = AUTO;
+  // case 21: // 设置手动控制踢球
+  //   // 状态机清零
+  //   Kickball2_Kick_Flag = 0;
+  //   Kickball2_Ready_Flag = 0;
+  //   Kickball2_StopRotate_Flag = 0;
+  //   Kickball2_ControlMode = AUTO;
+  //   led_control(21);
+  //   uprintf("--Kickball control mode switch to auto mode.\r\n");
+  //   break;
+  // case 22: // 设置自动控制踢球
+  //   led_control(22);
+  //   Kickball2_ControlMode = MANUAL;
+  //   uprintf("--Kickball control mode switch to manual mode.\r\n");
+  //   uprintf("  ball num = %d\r\n", Kickball2_BallNum); // 踢第几颗球
+  //   break;
+  case 21: // 开启锁定偏航角
     led_control(21);
-    uprintf("--Kickball control mode switch to auto mode.\r\n");
+    Chassis_LockYaw_Flag = 1;
+    Chassis_LockYaw_Value = chassis.angle; // 从全场定位获取的偏航角
+    uprintf("--Handle: Chassis opened locking yaw! Lock yaw = %.6f\r\n", Chassis_LockYaw_Value);
     break;
-  case 22: // 设置自动控制踢球
+  case 22: // 关闭锁定偏航角
     led_control(22);
-    Kickball2_ControlMode = MANUAL;
-    uprintf("--Kickball control mode switch to manual mode.\r\n");
-    uprintf("  ball num = %d\r\n", Kickball2_BallNum); // 踢第几颗球
+    Chassis_LockYaw_Flag = 0;
+    uprintf("--Handle: Chassis closed locking yaw!\r\n");
     break;
   case 23: // 允许垂直方向位移，可以撤回到5米线
     led_control(23);
@@ -182,8 +199,8 @@ void Handle_Button_New(can_msg *data)
     uprintf("--Handle: Kickball flags have been reseted.\r\n");
     break;
   case 29: // 按一下跑一个点
-    led_control(29);
-    chassis_status.trace_count = (chassis_status.trace_count + 1) % 2;
+           // led_control(29);
+           // chassis_status.trace_count = (chassis_status.trace_count + 1) % 2;
   default:
     break;
   }
@@ -276,7 +293,6 @@ void handle_exe()
     {
       angle_offset += ROKER_R_ZERO_OFFSET;
     }
-
     temp_fturn = 60 * angle_offset;
   }
   else
@@ -306,6 +322,10 @@ void handle_exe()
       chassis.fangle = 0;
       chassis.fspeed = 0;
     }
+  }
+  if (Chassis_LockYaw_Flag == 1) // 开启偏航角锁定
+  {
+    chassis.fturn = Chassis_LockYaw_Value;
   }
   chassis_move(chassis.fspeed, chassis.fangle, chassis.fturn);
 }

@@ -110,6 +110,8 @@ extern "C"
   extern int Chassis_ResetVegaOrigin_Flag;
   extern int Chassis_AutoArrivedAtSpecifiedPoint_Flag;
   extern ChassisPosture Chassis_OriginPosture;
+  extern int Chassis_LockYaw_Flag;
+  extern float Chassis_LockYaw_Value;
 
   /*Function Area*/
   void chassis_init_status();

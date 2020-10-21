@@ -134,5 +134,5 @@ void lcd_send_flag()
 
 void lcd_send_pos()
 {
-    can_msg lcd_pos_msg = {0};
+    // can_msg lcd_pos_msg = {0};
 }
