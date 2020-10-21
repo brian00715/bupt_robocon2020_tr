@@ -477,7 +477,7 @@ void CMD_Chassis_Move(int argc, char *argv[])
             Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
 }
 
-TwoDimPoint Chassis_MovePoint = {0, 0.7};
+Point2D Chassis_MovePoint;
 // 上位机跑点
 void CMD_Chassis_MoveToPoint(int argc, char *argv[])
 {

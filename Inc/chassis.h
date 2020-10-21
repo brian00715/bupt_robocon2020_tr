@@ -78,14 +78,14 @@ extern "C"
   {
     float x;
     float y;
-  } TwoDimPoint; // 二维空间点
+  } Point2D; // 二维空间点
 
   typedef struct
   {
     float x;
     float y;
     float z;
-  } ThreeDimPoint;
+  } Point3D;
 
   typedef struct
   {

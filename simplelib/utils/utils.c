@@ -69,13 +69,13 @@ float Angle_Subtract(float a, float b)
 float Angle_Between_Points(float start_x, float start_y, float end_x, float end_y)
 {
   float angle = 0;
-  if (start_x == end_x) // 如果x点重合
+  if (fabs(start_x - end_x) < 1e-4) // 浮点数不能直接比较大小
   {
-    if (start_y < end_y)
-      angle = PI / 2;
-    if (start_y == end_y)
+    if (fabs(start_y - end_y) < 1e-4)
       angle = 0;
-    if (start_y > end_y)
+    else if (start_y < end_y)
+      angle = PI / 2;
+    else //(start_y > end_y)
       angle = -PI / 2;
   }
   else

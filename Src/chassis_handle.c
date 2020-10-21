@@ -34,12 +34,14 @@ void Handle_Button_New(can_msg *data)
     Chassis_PrintPos();
     break;
   case 4:
+    led_control(4);
     Chassis_ResetVegaOrigin_Flag = 1; // 为了安全起见，开启原点重置后就不再关闭
     Chassis_ResetVegaOrigin();        // 更新原点
     uprintf("--vega origin point has been reseted.\r\n");
     break;
 
   case 5: // 急停
+    led_control(5);
     uprintf("\r\n##All Motor Stoped!##\r\n");
     chassis.fspeed = 0;
     vesc.mode = 1;
@@ -56,18 +58,13 @@ void Handle_Button_New(can_msg *data)
     break;
   case 6:
     led_control(6);
-    if ((uint8_t)data->ui8[2] == 0) // 按键按下时才生效
-    {
-      Chassis_DimReverse_Flag = (Chassis_DimReverse_Flag + 1) % 2;
-      if (Chassis_DimReverse_Flag)
-      {
-        uprintf("--chassis move direction has been reversed\r\n");
-      }
-      else
-      {
-        uprintf("--chassis move dierction has been reduction\r\n");
-      }
-    }
+    Chassis_DimReverse_Flag = 0;
+    uprintf("--chassis move dierction has been reduction\r\n");
+    break;
+  case 7:
+    led_control(7);
+    uprintf("--chassis move direction has been reversed\r\n");
+    Chassis_DimReverse_Flag = 1;
     break;
 
   // 十位为1系指令用于底盘控制
@@ -158,18 +155,30 @@ void Handle_Button_New(can_msg *data)
     Chassis_LockYaw_Flag = 0;
     uprintf("--Handle: Chassis closed locking yaw!\r\n");
     break;
-  case 23: // 允许垂直方向位移，可以撤回到5米线
-    led_control(23);
-    DistanceToBallSocketOK_Flag = 0;
-    uprintf("--Handle left rocker recovered\r\n");
-    break;
-  case 25: // 手动锁定垂直方向的移动，只能水平微调
-    led_control(25);
-    DistanceToBallSocketOK_Flag = 1;
-    uprintf("--Handle: distance to ball socket OK! The left rocker has been locked\r\n");
-    break;
-  case 26: // 设置踢球状态机为READY状态
+  case 26:
     led_control(26);
+    Chassis_AutoArrivedAtSpecifiedPoint_Flag = 0;
+    uprintf("--Chassis is going to run to trace:0\r\n"); // 速度为0
+    chassis_status.trace_count = 0;
+    break;
+  case 27:
+    led_control(27);
+    Chassis_AutoArrivedAtSpecifiedPoint_Flag = 0;
+    uprintf("--Chassis is going to run to trace:1\r\n");
+    chassis_status.trace_count = 1;
+    break;
+  // case 23: // 允许垂直方向位移，可以撤回到5米线
+  //   led_control(23);
+  //   DistanceToBallSocketOK_Flag = 0;
+  //   uprintf("--Handle left rocker recovered\r\n");
+  //   break;
+  // case 25: // 手动锁定垂直方向的移动，只能水平微调
+  //   led_control(25);
+  //   DistanceToBallSocketOK_Flag = 1;
+  //   uprintf("--Handle: distance to ball socket OK! The left rocker has been locked\r\n");
+  //   break;
+  case 28: // 设置踢球状态机为READY状态
+    led_control(28);
     if (Kickball2_ControlMode == MANUAL)
     {
       uprintf("##please change to auto mode!##\r\n");
@@ -178,8 +187,8 @@ void Handle_Button_New(can_msg *data)
     Kickball2_Ready_Flag = 1;
     uprintf("--Handle: set Kickball2_Ready_Flag to %d!\r\n", Kickball2_Ready_Flag);
     break;
-  case 27: // 设置踢球状态机为KICK状态(手柄无法设置踢球电流，要通过串口助手设置)
-    led_control(27);
+  case 29: // 设置踢球状态机为KICK状态(手柄无法设置踢球电流，要通过串口助手设置)
+    led_control(29);
     if (Kickball2_ControlMode == MANUAL)
     {
       uprintf("##please change to auto mode!##\r\n");
@@ -188,8 +197,8 @@ void Handle_Button_New(can_msg *data)
     Kickball2_Kick_Flag = 1;
     uprintf("--Handle: set Kickball2_Kick_Flag to %d!\r\n", Kickball2_Kick_Flag);
     break;
-  case 28: // 清空状态标志位，避免电机疯转
-    led_control(28);
+  case 24: // 清空状态标志位，避免电机疯转
+    led_control(24);
     Kickball2_Ready_Flag = 0;
     Kickball2_Kick_Flag = 0;
     kickball2_status = KICKBALL2_NONE;
@@ -198,9 +207,8 @@ void Handle_Button_New(can_msg *data)
     comm_can_set_current(vesc.id, 0);
     uprintf("--Handle: Kickball flags have been reseted.\r\n");
     break;
-  case 29: // 按一下跑一个点
-           // led_control(29);
-           // chassis_status.trace_count = (chassis_status.trace_count + 1) % 2;
+  case 25:
+    break;
   default:
     break;
   }
@@ -213,8 +221,8 @@ void Handle_Button_New(can_msg *data)
  **/
 void Handle_Rocker(can_msg *data)
 {
-  if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
-    return;
+  // if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
+  //   return;
 
   // 常数修改零点漂移
   chassis_handle.ry = (int)data->i16[0] - 15;
@@ -226,7 +234,7 @@ void Handle_Rocker(can_msg *data)
   chassis_handle.lx *= -1;
 }
 
-int Handle_LeftRockerAmplitude = 0; // 全局变量，用于告知chassis_move_traces()手柄是否进行了干预
+int Handle_LeftRockerLength = 0; // 左摇杆的向量长度
 int DistanceToBallSocketOK_Flag = 0;
 int Chassis_DimReverse_Flag = 0;   // 坐标轴反转标志
 float ROKER_R_ZERO_OFFSET = 0.314; // ±10°内无值，从而让手指可以一直顶着摇杆，避免误操作
@@ -236,8 +244,9 @@ int SPEED_TRANSFORM_RATIO = 3;     // 左摇杆控制速度时摇杆幅值与速
  **/
 void handle_exe()
 {
-  if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
-    return;
+  // if (0 == flag.main_flag || flag.chassis_handle_flag == 0)
+  //   return;
+
   // >>>>>>>>>>>>>>>>>>>>>>>>>>速度矢量控制<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   // 速度为零时，应不读取角度，故将此处的角度先读为temp,
   float temp_fangle = atan2(chassis_handle.ly, chassis_handle.lx);
@@ -246,7 +255,8 @@ void handle_exe()
     temp_fangle += PI;
   }
   // 加减速用线性变化，此处将速度值设为temp--czh add
-  int temp_fspeed = SPEED_TRANSFORM_RATIO * (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx));
+  Handle_LeftRockerLength = (int)(sqrt(chassis_handle.ly * chassis_handle.ly + chassis_handle.lx * chassis_handle.lx));
+  int temp_fspeed = SPEED_TRANSFORM_RATIO * Handle_LeftRockerLength;
   if (temp_fspeed < CHASSIS_HANDLE_MIN_SPEED) // 解决零漂导致的静止速度不为0
   {
     temp_fspeed = 0;
@@ -258,7 +268,6 @@ void handle_exe()
   else // 线速度大小在允许的范围之内才允许有角速度
   {
     temp_fspeed -= CHASSIS_HANDLE_MIN_SPEED; // 使速度从0开始
-    Handle_LeftRockerAmplitude = temp_fspeed;
     chassis.fangle = temp_fangle;
   }
   // 控制加速度

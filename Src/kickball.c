@@ -284,9 +284,10 @@ void Kickball2_StateMachine()
 
     if (VESC_SwitchStopByAngle_Flag == 0) // 由StopByAngle（）函数置0
     {
-      vesc.mode = 0;
+      vesc.mode = 1;
       vesc.current = 0; // 电流置0即可，弹簧会把踢球柱拉回去
       comm_can_set_current(vesc.id, 0);
+      uprintf("--StateMachine: kick ball finished.\r\n");
       Kickball2_SetState(KICKBALL2_NONE);
 
       // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓取消自动恢复原长的功能,改为往下拉，避免正投影接触球↓↓↓↓↓↓↓↓↓↓↓↓↓↓

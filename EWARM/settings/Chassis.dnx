@@ -18,7 +18,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>4143348404</Checksum>
+        <Checksum>3300960975</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -114,6 +114,22 @@
         <ShowTimeSum>1</ShowTimeSum>
         <SumSortOrder>0</SumSortOrder>
     </EventLog>
+    <DisassembleMode>
+        <mode>0</mode>
+    </DisassembleMode>
+    <Breakpoints2>
+        <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\Src\simplelib.c}.33.5" 0 0 1 "" 0 "" 0</Bp0>
+        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\Src\simplelib.c}.47.9" 0 0 1 "" 0 "" 0</Bp1>
+        <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\stm32f4xx_it.c}.278.3" 0 0 1 "" 0 "" 0</Bp2>
+        <Bp3>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\kickball.c}.125.3" 0 0 1 "" 0 "" 0</Bp3>
+        <Bp4>_ 0 "EMUL_CODE" "{D:\ProgramPractice\RobotTeam\STM\Chassis_TR}.748.1" 0 0 1 "" 0 "" 0</Bp4>
+        <Bp5>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.120.5" 0 0 1 "" 0 "" 0</Bp5>
+        <Bp6>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.125.9" 0 0 1 "" 0 "" 0</Bp6>
+        <Bp7>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.96.5" 0 0 1 "" 0 "" 0</Bp7>
+        <Bp8>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.135.9" 0 0 1 "" 0 "" 0</Bp8>
+        <Bp9>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.106.9" 0 0 1 "" 0 "" 0</Bp9>
+        <Count>10</Count>
+    </Breakpoints2>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>
         <LogFile>_ ""</LogFile>
@@ -123,6 +139,14 @@
         <LogFile>_ ""</LogFile>
         <Category>_ 0</Category>
     </LogFile>
+    <Aliases>
+        <A0>_ "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A0>
+        <A1>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_can.c" ""</A1>
+        <A2>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.c" ""</A2>
+        <A3>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A3>
+        <Count>4</Count>
+        <SuppressDialog>0</SuppressDialog>
+    </Aliases>
     <DriverProfiling>
         <Enabled>0</Enabled>
         <Mode>1</Mode>
@@ -141,28 +165,4 @@
         <Probe0>I0</Probe0>
         <ProbeSetup0>2 1 1 2 0 0</ProbeSetup0>
     </PowerProbe>
-    <DisassembleMode>
-        <mode>0</mode>
-    </DisassembleMode>
-    <Breakpoints2>
-        <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\Src\simplelib.c}.33.5" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\Src\simplelib.c}.47.9" 0 0 1 "" 0 "" 0</Bp1>
-        <Bp2>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\stm32f4xx_it.c}.278.3" 0 0 1 "" 0 "" 0</Bp2>
-        <Bp3>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\kickball.c}.125.3" 0 0 1 "" 0 "" 0</Bp3>
-        <Bp4>_ 0 "EMUL_CODE" "{D:\ProgramPractice\RobotTeam\STM\Chassis_TR}.748.1" 0 0 1 "" 0 "" 0</Bp4>
-        <Bp5>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.120.5" 0 0 1 "" 0 "" 0</Bp5>
-        <Bp6>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.125.9" 0 0 1 "" 0 "" 0</Bp6>
-        <Bp7>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.96.5" 0 0 1 "" 0 "" 0</Bp7>
-        <Bp8>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.135.9" 0 0 1 "" 0 "" 0</Bp8>
-        <Bp9>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\simplelib\cmd\cmd.c}.106.9" 0 0 1 "" 0 "" 0</Bp9>
-        <Count>10</Count>
-    </Breakpoints2>
-    <Aliases>
-        <A0>_ "D:\ProgramPractice\RobotTeam\STM\Chassic_TR\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A0>
-        <A1>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_can.c" ""</A1>
-        <A2>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.c" ""</A2>
-        <A3>_ "E:\Robocon_Value\Chassis\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c" ""</A3>
-        <Count>4</Count>
-        <SuppressDialog>0</SuppressDialog>
-    </Aliases>
 </settings>

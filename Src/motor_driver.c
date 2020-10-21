@@ -6,6 +6,10 @@
 void motor_init()
 {
   vesc.id = 88;
+  vesc.mode = 1;
+  vesc.current = 0;
+  vesc.duty = 0;
+  vesc.rpm = 0;
 }
 
 //vesc
@@ -68,8 +72,8 @@ int VESC_SwitchPrintInfo_Flag = 0;
  **/
 void VESC_RX_Handle(can_msg *data)
 {
-  if (0 == flag.main_flag)
-    return;
+  // if (0 == flag.main_flag)
+  //   return;
   int32_t index = 0;
   VESC_CurrentAngle = buffer_get_int16(data->ui8, &index) / 50;
   VESC_CurrentRPM = buffer_get_int32(data->ui8, &index);

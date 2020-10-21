@@ -44,7 +44,7 @@ extern "C"
   extern int SPEED_TRANSFORM_RATIO;
   extern int Chassis_DimReverse_Flag;
   extern int DistanceToBallSocketOK_Flag;
-  extern int Handle_LeftRockerAmplitude;
+  extern int Handle_LeftRockerLength;
 
   /*Function Area*/
   void handle_button(can_msg *data);
