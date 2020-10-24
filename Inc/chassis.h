@@ -112,6 +112,7 @@ extern "C"
   extern ChassisPosture Chassis_OriginPosture;
   extern int Chassis_LockYaw_Flag;
   extern float Chassis_LockYaw_Value;
+  extern Point2D Chassis_MovePoint;
 
   /*Function Area*/
   void chassis_init_status();

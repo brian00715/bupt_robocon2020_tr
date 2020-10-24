@@ -462,6 +462,18 @@ void CMD_Kickball2_ShowStateMachineInfo(int argc, char *argv[])
         break;
     }
 }
+
+void CMD_Kickball2_Clear(int argc,char* argv[])
+{
+    led_control(24);
+    Kickball2_Ready_Flag = 0;
+    Kickball2_Kick_Flag = 0;
+    kickball2_status = KICKBALL2_NONE;
+    vesc.mode = 1;
+    vesc.current = 0;
+    comm_can_set_current(vesc.id, 0);
+    uprintf("--CMD: Kickball flags have been reseted.\r\n");
+}
 /********************************END***********************************/
 
 /********************************[底盘控制]***********************************/
@@ -477,7 +489,7 @@ void CMD_Chassis_Move(int argc, char *argv[])
             Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
 }
 
-Point2D Chassis_MovePoint;
+
 // 上位机跑点
 void CMD_Chassis_MoveToPoint(int argc, char *argv[])
 {
@@ -508,10 +520,10 @@ void cmd_func_init(void)
 
     //gpio
     cmd_add("gpio_set_magnet_status", "<1 to on;0 to off>", CMD_GPIO_Magnet_SetStatus);
-    // cmd_add("gpio_cylinder", "set cylinder state", cmd_gpio_cylinder);
     cmd_add("gpio_microswitch", "get microswitch state", CMD_GPIO_Microswitch_GetStatus);
-    // cmd_add("gpio_infrared", "get infrared state", cmd_gpio_infrared);
     cmd_add("gpio_all", "get all gpio state", CMD_GPIO_GetAllStatus);
+    // cmd_add("gpio_cylinder", "set cylinder state", cmd_gpio_cylinder);
+    // cmd_add("gpio_infrared", "get infrared state", cmd_gpio_infrared);
 
     //motor
     cmd_add("vesc", "<mode(0,1,2)> <value>", CMD_VESC_SetParam);
@@ -540,6 +552,7 @@ void cmd_func_init(void)
     cmd_add("kickball2_set_control_mode", "", CMD_Kickball2_SetControlMode);
     cmd_add("kickball2_ready", "", CMD_Kickball2_Ready);
     cmd_add("kickball2_kick", "", CMD_Kickball2_Kick);
+    cmd_add("kickball2_Clear","",CMD_Kickball2_Clear);
     cmd_add("kickball2_state_machine_info", "", CMD_Kickball2_ShowStateMachineInfo);
 #endif
 
@@ -552,89 +565,4 @@ void cmd_func_init(void)
     cmd_add("laser_print_diatance", "", cmd_laser_print_diatance);
     cmd_add("laser_switch_print_pos", "", CMD_Laser_SwitchPrintPos);
     cmd_add("laser_switch_print_adc_value", "", CMD_Laser_SwitchPrintADCValue);
-
-    //touchdown
-    // cmd_add("touchdown_auto", "", cmd_touchdown_auto);
-    // cmd_add("touchdown_open", "<current value>", cmd_touchdown_open);
-    // cmd_add("touchdown_close", Laser_PrintPos"<current value>", cmd_touchdown_close);
-    // cmd_add("touchdown_try", "", cmd_touchdown_try);
-    // cmd_add("touchdown_try_finish", "", cmd_touchdown_try_finish);
 }
-
-// void cmd_gpio_infrared(int argc, char *argv[])
-// {
-//     uprintf("Infrared state is %d\r\n", infrared_state);
-// }
-// void cmd_gpio_cylinder(int argc, char *argv[])
-// {
-//     cylinder_state = atoi(argv[1]);
-//     uprintf("Cylinder state is %d\r\n", atoi(argv[1]));
-// }
-
-//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓【达阵CMD函数】↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-// /**
-//  * @brief 达阵控制模式 1 自动控制 0 手动控制
-//  **/
-// void cmd_touchdown_auto(int argc, char *argv[])
-// {
-//     if (atof(argv[1]) == 1)
-//     {
-//         touchdown_ready_flag = 0;
-//         touchdown_try_flag = 0;
-//         touchdown_auto_flag = 1;
-//         uprintf("--Touchdwon switch to auto mode--\r\n");
-//     }
-//     else
-//     {
-//         touchdown_auto_flag = 0;
-//         uprintf("--Touchdwon switch to handle mode--\r\n");
-//     }
-// }
-// void cmd_touchdown_open(int argc, char *argv[])
-// {
-//     if (atof(argv[1]) > 0)
-//     {
-//         uprintf("Touchdwon open current should < 0.\r\n");
-//     }
-//     else
-//     {
-//         touchdown_m2006_open(atof(argv[1]));
-//         uprintf("Touchdwon open current is %f.\r\n", atof(argv[1]));
-//     }
-// }
-// void cmd_touchdown_close(int argc, char *argv[])
-// {
-//     if (atof(argv[1]) < 0)
-//     {
-//         uprintf("Touchdwon open current should > 0.\r\n");
-//     }
-//     else
-//     {
-//         touchdown_m2006_close(atof(argv[1]));
-//         uprintf("Touchdwon close current is %f\r\n", atof(argv[1]));
-//     }
-// }
-// void cmd_touchdown_try(int argc, char *argv[])
-// {
-//     if (touchdown_ready_flag == 1)
-//     {
-//         touchdown_try_flag = 1;
-//         uprintf("Try touchdown!!!\r\n");
-//     }
-//     else
-//     {
-//         uprintf("No ball in the basket.\r\n");
-//     }
-// }
-// void cmd_touchdown_try_finish(int argc, char *argv[])
-// {
-//     if (touchdown_try_flag == 1)
-//     {
-//         touchdown_try_finish_flag = 1;
-//         uprintf("Try touchdown finish!!!\r\n");
-//     }
-//     else
-//     {
-//         uprintf("Haven't try\r\n");
-//     }
-// }

@@ -166,7 +166,7 @@ int main(void)
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
     // kickball_exe();    // 踢球系统
-    // laser_exe();
+    laser_exe();
     vesc_exe();
     Kickball2_EXE();
     chassis_exe(); // 底盘，及坐标更新
@@ -174,7 +174,7 @@ int main(void)
     if (time_5ms_cnt == 1)
     {
       time_5ms_cnt = 0;
-      // Robomaster_RPMControl(); // 跑速度环
+      // Robomaster_RPMControl(); // 跑速度环`
     }
 
     if (time_20ms_flag == 1)
@@ -192,6 +192,7 @@ int main(void)
       Laser_PrintPos();
       // Robomaster_PrintInfo(0);
       VESC_PrintInfo();
+      // uprintf("trace count:%d\r\n",chassis_status.trace_count);
     }
 
     // key1按下
@@ -323,7 +324,8 @@ void inc(void)
     {
       chassis_status.vega_is_ready = 1;
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-      uprintf("--Vega Init Done!!!\r\n");
+      uprintf("==Vega Init Done!==\r\n");
+      led_control(1);
     }
     if (time_1ms_cnt >= 60000) // 防止int类型溢出
     {

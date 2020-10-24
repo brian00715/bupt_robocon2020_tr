@@ -25,7 +25,7 @@ extern "C"
 
 /*Define Area*/
 #define CHASSIS_HANDLE_MAX_SPEED 400
-#define CHASSIS_HANDLE_MIN_SPEED 28 // 默认150
+#define CHASSIS_HANDLE_MIN_SPEED 20 // 默认150
 
   /*Struct Area*/
   typedef struct
@@ -41,10 +41,16 @@ extern "C"
 
   /*Variable Area*/
   extern Chassis_Handle chassis_handle;
-  extern int SPEED_TRANSFORM_RATIO;
+  extern float Handle_LeftRocker_SpeedTransRatio;
+  extern float Handle_RightRocker_SpeedTransRatio;
   extern int Chassis_DimReverse_Flag;
   extern int DistanceToBallSocketOK_Flag;
-  extern int Handle_LeftRockerLength;
+  extern int Handle_LeftRocker_Length;
+  extern int Handle_RightRocker_Length;
+  extern int correct_ry;
+  extern int correct_rx;
+  extern int correct_ly;
+  extern int correct_lx;
 
   /*Function Area*/
   void handle_button(can_msg *data);

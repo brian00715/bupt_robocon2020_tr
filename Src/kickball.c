@@ -240,10 +240,10 @@ void kickball_exe()
 #if KICKBALL_GEN == 2
 KICKBALL2_STATUS kickball2_status = KICKBALL2_NONE;
 CONTROL_MODE Kickball2_ControlMode = AUTO;
-int16_t Kickball2_StopAngle = 120;              // 需要让电机停电时的角度
-int16_t Kickball2_SpringRawAngle = 312;         // 弹簧原长对应的角度,改为往下拉，防止正投影与球接触
-int16_t Kickball2_SpringAutoRecoverAngle = 320; // 弹簧能自动拉回的角度
-float Kickball2_KickCurrent = -7;               // CMD设置或使用默认值-5
+int16_t Kickball2_StopAngle = 45;               // 需要让电机停电时的角度
+int16_t Kickball2_SpringRawAngle = 255;         // 弹簧原长对应的角度
+int16_t Kickball2_SpringAutoRecoverAngle = 236; // 弹簧能自动拉回的角度
+float Kickball2_KickCurrent = -6.5;             // CMD设置或使用默认值-5
 int Kickball2_Ready_Flag = 0;                   // 由全场定位置1，或使用CMD
 int Kickball2_Kick_Flag = 0;                    // 由CMD置1
 int Kickball2_StopRotate_Flag = 0;              // 根据编码器角度值来确定,或使用CMD
@@ -257,9 +257,7 @@ void Kickball2_StateMachine()
     if (Kickball2_Ready_Flag)
     {
       Kickball2_Ready_Flag = 0;
-      // Kickball2_BallNum = (Kickball2_BallNum + 1) % 5 + 1; // 保证ball_num的范围是[1,5]
-      // uprintf("--StateMachine: NO.%d ball\r\n", Kickball2_BallNum);
-      uprintf("--StateMachine: chassis arrived at specified point.\r\n");
+      uprintf("--StateMachine: chassis ready.\r\n");
       Kickball2_SetState(KICKBALL2_READY);
     }
     break;
@@ -280,40 +278,36 @@ void Kickball2_StateMachine()
     // led_control(32);
     vesc.mode = 1;
     vesc.current = Kickball2_KickCurrent;
-    // comm_can_set_current(vesc.id, Kickball2_KickCurrent);
+    comm_can_set_current(vesc.id, Kickball2_KickCurrent);
+    chassis_canset_motorduty(0, 0, 0); // 底盘锁死
 
     if (VESC_SwitchStopByAngle_Flag == 0) // 由StopByAngle（）函数置0
     {
       vesc.mode = 1;
       vesc.current = 0; // 电流置0即可，弹簧会把踢球柱拉回去
       comm_can_set_current(vesc.id, 0);
-      uprintf("--StateMachine: kick ball finished.\r\n");
-      Kickball2_SetState(KICKBALL2_NONE);
+      // uprintf("--StateMachine: kick ball finished.\r\n");
+      // Kickball2_SetState(KICKBALL2_NONE);
 
-      // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓取消自动恢复原长的功能,改为往下拉，避免正投影接触球↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-      // if (abs(VESC_CurrentAngle - Kickball2_SpringAutoRecoverAngle) < 5)
-      // {
-      //   uprintf("--StateMachine: kick ball finished.\r\n");
-      //   uprintf("  StateMachine: start setting spring to raw length.\r\n");
-      //   VESC_SwitchStopByAngle_Flag = 1;
-      //   VESC_TargetAngle = Kickball2_SpringRawAngle;
-      //   Kickball2_SetState(KICKBALL2_SET_SPRING_RAW);
-      // }
+      if (VESC_CurrentAngle - Kickball2_SpringAutoRecoverAngle > -5)
+      {
+        uprintf("--StateMachine: kick ball finished.\r\n");
+        uprintf("  StateMachine: start setting spring to raw length.\r\n");
+        VESC_SwitchStopByAngle_Flag = 1;
+        VESC_TargetAngle = Kickball2_SpringRawAngle;
+        Kickball2_SetState(KICKBALL2_SET_SPRING_RAW);
+      }
     }
     break;
 
   case KICKBALL2_SET_SPRING_RAW: // 弹簧返回原长
-    // led_control(33);
     vesc.mode = 0;
-    vesc.duty = -0.4;
-    comm_can_set_duty(vesc.id, -0.5);
+    vesc.duty = 0.4;
 
-    if (VESC_SwitchStopByAngle_Flag == 0) // 由StopByAngle（）函数置0
+    if (VESC_SwitchStopByAngle_Flag == 0) // 由StopByAngle()置0
     {
       vesc.mode = 1;
       vesc.current = 0; // 为了使弹簧缩回原长，需要立即停止
-      comm_can_set_current(vesc.id, 0);
-      // VESC_TargetAngle = Kickball2_StopAngle;
       uprintf("--StateMachine: spring has set to raw length.\r\n");
       Kickball2_SetState(KICKBALL2_NONE);
     }
@@ -332,12 +326,12 @@ void Kickball2_SetState(KICKBALL2_STATUS status)
     state_wrong = 1;
   if (status == KICKBALL2_KICK && kickball2_status != KICKBALL2_READY)
     state_wrong = 1;
-  // if (status == KICKBALL2_SET_SPRING_RAW && kickball2_status != KICKBALL2_KICK)
-  //   state_wrong = 1;
-  // if (status == KICKBALL2_NONE && kickball2_status != KICKBALL2_SET_SPRING_RAW)
-  //   state_wrong = 1;
-  if (status == KICKBALL2_NONE && kickball2_status != KICKBALL2_KICK)
+  if (status == KICKBALL2_SET_SPRING_RAW && kickball2_status != KICKBALL2_KICK)
     state_wrong = 1;
+  if (status == KICKBALL2_NONE && kickball2_status != KICKBALL2_SET_SPRING_RAW)
+    state_wrong = 1;
+  // if (status == KICKBALL2_NONE && kickball2_status != KICKBALL2_KICK)
+  //   state_wrong = 1;
 
   if (state_wrong == 1)
   {
