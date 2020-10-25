@@ -113,6 +113,7 @@ extern "C"
   extern int Chassis_LockYaw_Flag;
   extern float Chassis_LockYaw_Value;
   extern Point2D Chassis_MovePoint;
+  extern int Chassis_GoToPointStart_Flag;
 
   /*Function Area*/
   void chassis_init_status();
@@ -141,6 +142,8 @@ extern "C"
   void _chassis_move_vector_2(vec now_speed_vec, vec target_speed_vec, vec distance_vec, float target_angle);
   void Chassis_ResetVegaOrigin();
   void Chassis_PrintPos();
+  int Chassis_CalculateLineSpeedPlus(float start_x, float start_y, float point_x, float point_y,
+                                     int start_speed, int final_speed, int max_speed);
 #ifdef __cplusplus
 }
 #endif

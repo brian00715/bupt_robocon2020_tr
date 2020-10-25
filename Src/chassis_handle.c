@@ -178,12 +178,13 @@ void Handle_Button_New(can_msg *data)
     uprintf("--Terminal point has been reseted (%.3f,%.3f,%.3f).\r\n", Chassis_MovePoint.x,
             Chassis_MovePoint.y, Chassis_LockYaw_Value);
     break;
-  case 25:                            // 开启重置原点
+  case 25: // 开启重置原点
+    led_control(25);
     Chassis_ResetVegaOrigin_Flag = 1; // 为了安全起见，开启原点重置后就不再关闭
     Chassis_ResetVegaOrigin();        // 更新原点
     uprintf("--Vega origin point has been reseted.\r\n");
     break;
-  case 26: // 自动跑到5米线
+  case 26: // 自动跑到6米线
     led_control(26);
     flag.chassis_auto_flag = 1;
     flag.chassis_handle_flag = 0;
@@ -191,15 +192,16 @@ void Handle_Button_New(can_msg *data)
     uprintf("--Chassis is going to run to trace:0\r\n");
     chassis_status.trace_count = 0;
     DistanceToBallSocketOK_Flag = 0;
+    Chassis_GoToPointStart_Flag = 1;
     break;
-  case 27: // 自动跑到6米线
+  case 27: // 自动跑到5米线
     led_control(27);
     flag.chassis_auto_flag = 1;
     flag.chassis_handle_flag = 0;
     Chassis_AutoArrivedAtSpecifiedPoint_Flag = 0;
     uprintf("--Chassis is going to run to trace:1\r\n");
     chassis_status.trace_count = 1;
-
+    Chassis_GoToPointStart_Flag = 1;
     break;
   case 28: // 设置踢球状态机为READY状态
     led_control(28);
@@ -238,6 +240,22 @@ void Handle_Button_New(can_msg *data)
   //   DistanceToBallSocketOK_Flag = 1;
   //   uprintf("--Handle: distance to ball socket OK! The left rocker has been locked\r\n");
   //   break;
+
+  case 31:  // 踢球异常时紧急补救
+    led_control(31);
+    Kickball2_Ready_Flag = 0;
+    Kickball2_Kick_Flag = 0;
+    kickball2_status = KICKBALL2_NONE;
+    vesc.mode = 1;
+    vesc.current = Kickball2_KickCurrent;
+    comm_can_set_current(vesc.id,Kickball2_KickCurrent);
+    break;
+  case 32:
+    led_control(32);
+    vesc.mode = 1;
+    vesc.current = 0;
+    comm_can_set_current(vesc.id,0);
+    break;
   default:
     break;
   }

@@ -94,11 +94,11 @@ void VESC_StopByAngle()
   int16_t diff = abs(VESC_CurrentAngle - VESC_TargetAngle);
   if (VESC_TargetAngle == Kickball2_StopAngle) // 踢球的时候角度变化太快，需要设定不同的阈值
   {
-    angle_diff_threshold = 12;
+    angle_diff_threshold = 9;
   }
   else
   {
-    angle_diff_threshold = 5;
+    angle_diff_threshold = 4;
   }
   if (diff < angle_diff_threshold)
   {

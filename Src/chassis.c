@@ -53,6 +53,7 @@ void chassis_init_pos(float x, float y)
 void chassis_init(void)
 {
   // chassis_init_pos(points_pos0[1].x , points_pos0[1].y);
+  Chassis_LockYaw_Value = 0;
   chassis_init_pos(0, 0);
   chassis_init_status();
 }
@@ -172,13 +173,45 @@ int chassis_calculate_linespeed(float point_x, float point_y, int start_speed, i
   float distance_to_target = 1000 * sqrtf((point_x - chassis.pos_x) * (point_x - chassis.pos_x) +
                                           (point_y - chassis.pos_y) * (point_y - chassis.pos_y));
 
-  //int int_speed = (int)((start_speed - final_speed)*distance_to_target + final_speed);
+  // int int_speed = (int)((start_speed - final_speed) * distance_to_target + final_speed);
 
   int int_speed = (int)distance_to_target; // 直接用
 
-  // if(int_speed < 0) int_speed = -int_speed;
+  // if (int_speed < 0)
+  // {
+  //   int_speed = -int_speed;
+  // }
   Limit_From_To(int_speed, 0, max_speed);
   return int_speed;
+}
+
+int Chassis_CalculateLineSpeedPlus(float start_x, float start_y, float point_x, float point_y,
+                                   int start_speed, int final_speed, int max_speed)
+{
+  float distance_to_target = 1000 * sqrtf((point_x - chassis.pos_x) * (point_x - chassis.pos_x) +
+                                          (point_y - chassis.pos_y) * (point_y - chassis.pos_y));
+  float total_distance = 1000 * sqrtf((point_x - start_x) * (point_x - start_x) +
+                                      (point_y - start_y) * (point_y - start_y));
+  float distance_offset = fabs(total_distance - distance_to_target); // distance_offset单调递增
+  int speed = 0;
+  if (distance_offset < total_distance / 6) // 前1/6加速过程
+  {
+    speed = (int)((6 * (float)(max_speed - start_speed) / total_distance) * distance_offset + start_speed);
+  }
+  else if (distance_offset < total_distance * 4 / 6) // 匀速过程
+  {
+    speed = max_speed;
+  }
+  else if (distance_offset <= total_distance) //减速过程
+  {
+    // speed = (int)((4 * (float)(max_speed - final_speed) / total_distance) *
+    //              (distance_offset - total_distance * 3 / 4) +
+    //          final_speed);
+    speed = (int)((6 / 2 * (float)(max_speed - final_speed) / total_distance) * distance_to_target);
+  }
+  Limit_From_To(speed, 0, max_speed);
+  // uprintf("speed:%d distance_to_target:%.2f distance_offset:%.2f\r\n", speed, distance_to_target, distance_offset);
+  return speed;
 }
 
 /***********************************【驱动】***********************************
@@ -393,34 +426,37 @@ void chassis_move_traces(int trace_num)
     Chassis_MovePoint.x = 0;
     Chassis_MovePoint.y = -0.756119; // 到达6米线前的距离,待调试
     break;
-  case 0: // 5米线
+  case 0: // 6米线
     Kickball2_Ready_Flag = 0;
     Kickball2_Kick_Flag = 0;
     if (Chassis_AutoArrivedAtSpecifiedPoint_Flag == 0)
     {
-      chassis_goto_point(0, 0);
+      // chassis_goto_point(0, 0);
+      Chassis_GoToPoint_Plus(0, 0, Chassis_LockYaw_Value);
+      print_count = 1;
     }
     else // 到达终点
     {
-      // uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
-      // chassis_move(0, 0, Chassis_LockYaw_Value);
+      if (print_count)
+      {
+        uprintf("--arrive at 6m line.\r\n");
+        print_count = 0;
+      }
       flag.chassis_auto_flag = 0;
       flag.chassis_handle_flag = 1;
       Handle_LeftRocker_SpeedTransRatio = 1;
       DistanceToBallSocketOK_Flag = 0;
     }
     break;
-  case 1: // 6米线
+  case 1: // 前进到5米线
     if (Chassis_AutoArrivedAtSpecifiedPoint_Flag == 0)
     {
-      chassis_goto_point(Chassis_MovePoint.x, Chassis_MovePoint.y);
-      Chassis_GoToPoint_Plus(Chassis_MovePoint.x, Chassis_MovePoint.y,Chassis_LockYaw_Value);
+      // chassis_goto_point(Chassis_MovePoint.x, Chassis_MovePoint.y);
+      Chassis_GoToPoint_Plus(Chassis_MovePoint.x, Chassis_MovePoint.y, Chassis_LockYaw_Value);
       print_count = 1;
     }
     else // 到达终点
     {
-      // uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
-      // chassis_move(0, 0, Chassis_LockYaw_Value);
       if (print_count)
       {
         uprintf("--distance to ball socket is ok.\r\n");
@@ -476,6 +512,8 @@ void Chassis_MoveTo6m()
 }
 
 int Chassis_AutoArrivedAtSpecifiedPoint_Flag = 0; // 由chassis_goto_point置1,手柄置0
+int Chassis_GoToPointStart_Flag = 0;              // 累加标志位，可能会溢出，待修改
+float start_point_x = 0, start_point_y = 0;
 /**测试用：随距离减速到某一目标点*/
 void chassis_goto_point(float point_x, float point_y)
 {
@@ -484,7 +522,14 @@ void chassis_goto_point(float point_x, float point_y)
   {
     chassis_status.go_to_point = 1;
     chassis.fangle = chassis_calculate_traceangle(point_x, point_y);
-    chassis.fspeed = chassis_calculate_linespeed(point_x, point_y, 20, 0, 400);
+    // chassis.fspeed = chassis_calculate_linespeed(point_x, point_y, 0, 0, 340);
+    if (Chassis_GoToPointStart_Flag == 1) // 保存起点
+    {
+      start_point_x = chassis.pos_x;
+      start_point_y = chassis.pos_y;
+      Chassis_GoToPointStart_Flag = 0;
+    }
+    chassis.fspeed = Chassis_CalculateLineSpeedPlus(start_point_x, start_point_y, point_x, point_y, 20, 0, 380);
     chassis_move(chassis.fspeed, chassis.fangle, 0);
     // uprintf("chassis pos:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
   }
@@ -505,8 +550,15 @@ void Chassis_GoToPoint_Plus(float point_x, float point_y, float target_angle)
   {
     chassis_status.go_to_point = 1;
     chassis.fangle = chassis_calculate_traceangle(point_x, point_y);
-    chassis.fspeed = chassis_calculate_linespeed(point_x, point_y, 50, 0, 300);
-    chassis_move(chassis.fspeed, chassis.fangle, 0);
+    // chassis.fspeed = chassis_calculate_linespeed(point_x, point_y, 0, 0, 340);
+    if (Chassis_GoToPointStart_Flag == 1) // 保存起点
+    {
+      start_point_x = chassis.pos_x;
+      start_point_y = chassis.pos_y;
+      Chassis_GoToPointStart_Flag = 0;
+    }
+    chassis.fspeed = Chassis_CalculateLineSpeedPlus(start_point_x, start_point_y, point_x, point_y, 20, 0, 380);
+    chassis_move(chassis.fspeed, chassis.fangle, target_angle);
     // uprintf("chassis pos:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
   }
   else // 到达终点后锁定偏航角
@@ -514,7 +566,7 @@ void Chassis_GoToPoint_Plus(float point_x, float point_y, float target_angle)
     chassis_status.go_to_point = 0;
     Chassis_AutoArrivedAtSpecifiedPoint_Flag = 1;
     // uprintf("arrive:%f,%f,%f\r\n", chassis.pos_x, chassis.pos_y, chassis.angle);
-    chassis_move(0, 0, target_angle);
+    chassis_move(0, 0, 0);
   }
   return;
 }

@@ -240,10 +240,10 @@ void kickball_exe()
 #if KICKBALL_GEN == 2
 KICKBALL2_STATUS kickball2_status = KICKBALL2_NONE;
 CONTROL_MODE Kickball2_ControlMode = AUTO;
-int16_t Kickball2_StopAngle = 45;               // 需要让电机停电时的角度
-int16_t Kickball2_SpringRawAngle = 255;         // 弹簧原长对应的角度
-int16_t Kickball2_SpringAutoRecoverAngle = 236; // 弹簧能自动拉回的角度
-float Kickball2_KickCurrent = -6.5;             // CMD设置或使用默认值-5
+int16_t Kickball2_StopAngle = 85;               // 需要让电机停电时的角度
+int16_t Kickball2_SpringRawAngle = 308;         // 弹簧原长对应的角度
+int16_t Kickball2_SpringAutoRecoverAngle = 288; // 弹簧能自动拉回的角度
+float Kickball2_KickCurrent = -6;               // CMD设置或使用默认值-5
 int Kickball2_Ready_Flag = 0;                   // 由全场定位置1，或使用CMD
 int Kickball2_Kick_Flag = 0;                    // 由CMD置1
 int Kickball2_StopRotate_Flag = 0;              // 根据编码器角度值来确定,或使用CMD
