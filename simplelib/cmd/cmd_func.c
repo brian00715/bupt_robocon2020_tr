@@ -1,19 +1,4 @@
-#include <stdlib.h>
 #include "cmd_func.h"
-#include "can_utils.h"
-#include "can_func.h"
-#include "flags.h"
-#include "chassis.h"
-#include "vega.h"
-#include "laser.h"
-#include "main.h"
-#include "point_parser.h"
-#include "sensor_gpio.h"
-#include "robomaster.h"
-#include "kickball.h"
-#include "touchdown.h"
-#include "motor_driver.h"
-#include "vesc_can.h"
 
 #define KICKBALL_GEN 2 // 选择踢球装置的代数,置1选择第一代，置2选择第二代
 
@@ -57,29 +42,28 @@ void cmd_laser_print_diatance(int argc, char *argv[])
 void CMD_Laser_SwitchPrintPos(int argc, char *argv[])
 {
     Laser_PrintPos_Flag = atoi(argv[1]);
-    if(Laser_PrintPos_Flag == 1)
+    if (Laser_PrintPos_Flag == 1)
     {
-        uprintf("--CMD:Start print laser pos (%d)\r\n",Laser_PrintPos_Flag);
+        uprintf("--CMD:Start print laser pos (%d)\r\n", Laser_PrintPos_Flag);
     }
     else
     {
-        uprintf("--CMD:Stop print laser pos (%d)\r\n",Laser_PrintPos_Flag);
+        uprintf("--CMD:Stop print laser pos (%d)\r\n", Laser_PrintPos_Flag);
     }
     // laser_print_pos();
 }
 
-void CMD_Laser_SwitchPrintADCValue(int argc,char* argv[])
+void CMD_Laser_SwitchPrintADCValue(int argc, char *argv[])
 {
     Laser_PrintADCValue_Flag = atoi(argv[1]);
-    if(Laser_PrintADCValue_Flag)
+    if (Laser_PrintADCValue_Flag)
     {
-        uprintf("--CMD:Start print laser adc value (%d)\r\n",Laser_PrintADCValue_Flag);
+        uprintf("--CMD:Start print laser adc value (%d)\r\n", Laser_PrintADCValue_Flag);
     }
     else
     {
-        uprintf("--CMD:Stop print laser adc value (%d)\r\n",Laser_PrintADCValue_Flag);
+        uprintf("--CMD:Stop print laser adc value (%d)\r\n", Laser_PrintADCValue_Flag);
     }
-    
 }
 
 //point
@@ -457,7 +441,7 @@ void CMD_Kickball2_SetControlMode(int argc, char *argv[])
     }
 }
 
-void CMD_Kickball2_ShowStateMachineInfo(int argc,char* argv[])
+void CMD_Kickball2_ShowStateMachineInfo(int argc, char *argv[])
 {
     uprintf("--kickball2_status_machine: ");
     switch (kickball2_status)
@@ -479,6 +463,18 @@ void CMD_Kickball2_ShowStateMachineInfo(int argc,char* argv[])
         break;
     }
 }
+
+void CMD_Kickball2_Clear(int argc,char* argv[])
+{
+    led_control(24);
+    Kickball2_Ready_Flag = 0;
+    Kickball2_Kick_Flag = 0;
+    kickball2_status = KICKBALL2_NONE;
+    vesc.mode = 1;
+    vesc.current = 0;
+    comm_can_set_current(vesc.id, 0);
+    uprintf("--CMD: Kickball flags have been reseted.\r\n");
+}
 /********************************END***********************************/
 
 /********************************[底盘控制]***********************************/
@@ -492,6 +488,15 @@ void CMD_Chassis_Move(int argc, char *argv[])
     Chassis_MoterDuty[2] = atoi(argv[3]);
     uprintf("move in duty of %d  %d %d\r\n", Chassis_MoterDuty[0],
             Chassis_MoterDuty[1], Chassis_MoterDuty[2]);
+}
+
+
+// 上位机跑点
+void CMD_Chassis_MoveToPoint(int argc, char *argv[])
+{
+    Chassis_MovePoint.x = atof(argv[1]);
+    Chassis_MovePoint.y = atof(argv[2]);
+    uprintf("--CMD: Chassis will go to (%.6f,%.6f)\r\n", Chassis_MovePoint.x, Chassis_MovePoint.y);
 }
 
 //打印实际的底盘坐标
@@ -516,10 +521,10 @@ void cmd_func_init(void)
 
     //gpio
     cmd_add("gpio_set_magnet_status", "<1 to on;0 to off>", CMD_GPIO_Magnet_SetStatus);
-    // cmd_add("gpio_cylinder", "set cylinder state", cmd_gpio_cylinder);
     cmd_add("gpio_microswitch", "get microswitch state", CMD_GPIO_Microswitch_GetStatus);
-    // cmd_add("gpio_infrared", "get infrared state", cmd_gpio_infrared);
     cmd_add("gpio_all", "get all gpio state", CMD_GPIO_GetAllStatus);
+    // cmd_add("gpio_cylinder", "set cylinder state", cmd_gpio_cylinder);
+    // cmd_add("gpio_infrared", "get infrared state", cmd_gpio_infrared);
 
     //motor
     cmd_add("vesc", "<mode(0,1,2)> <value>", CMD_VESC_SetParam);
@@ -548,100 +553,17 @@ void cmd_func_init(void)
     cmd_add("kickball2_set_control_mode", "", CMD_Kickball2_SetControlMode);
     cmd_add("kickball2_ready", "", CMD_Kickball2_Ready);
     cmd_add("kickball2_kick", "", CMD_Kickball2_Kick);
-    cmd_add("kickball2_state_machine_info","",CMD_Kickball2_ShowStateMachineInfo);
+    cmd_add("kickball2_Clear","",CMD_Kickball2_Clear);
+    cmd_add("kickball2_state_machine_info", "", CMD_Kickball2_ShowStateMachineInfo);
 #endif
 
     //chassis
     cmd_add("chassis_move", "<speed of 3 motors>", CMD_Chassis_Move);
     cmd_add("chassis_print_pos", "", CMD_Chassis_PrintPos);
+    cmd_add("chassis_move_to_point", "<x> <y>", CMD_Chassis_MoveToPoint);
 
     //laser
     cmd_add("laser_print_diatance", "", cmd_laser_print_diatance);
     cmd_add("laser_switch_print_pos", "", CMD_Laser_SwitchPrintPos);
-    cmd_add("laser_switch_print_adc_value","",CMD_Laser_SwitchPrintADCValue);
-
-    //touchdown
-    // cmd_add("touchdown_auto", "", cmd_touchdown_auto);
-    // cmd_add("touchdown_open", "<current value>", cmd_touchdown_open);
-    // cmd_add("touchdown_close", Laser_PrintPos"<current value>", cmd_touchdown_close);
-    // cmd_add("touchdown_try", "", cmd_touchdown_try);
-    // cmd_add("touchdown_try_finish", "", cmd_touchdown_try_finish);
+    cmd_add("laser_switch_print_adc_value", "", CMD_Laser_SwitchPrintADCValue);
 }
-
-// void cmd_gpio_infrared(int argc, char *argv[])
-// {
-//     uprintf("Infrared state is %d\r\n", infrared_state);
-// }
-// void cmd_gpio_cylinder(int argc, char *argv[])
-// {
-//     cylinder_state = atoi(argv[1]);
-//     uprintf("Cylinder state is %d\r\n", atoi(argv[1]));
-// }
-
-//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓【达阵CMD函数】↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-// /**
-//  * @brief 达阵控制模式 1 自动控制 0 手动控制
-//  **/
-// void cmd_touchdown_auto(int argc, char *argv[])
-// {
-//     if (atof(argv[1]) == 1)
-//     {
-//         touchdown_ready_flag = 0;
-//         touchdown_try_flag = 0;
-//         touchdown_auto_flag = 1;
-//         uprintf("--Touchdwon switch to auto mode--\r\n");
-//     }
-//     else
-//     {
-//         touchdown_auto_flag = 0;
-//         uprintf("--Touchdwon switch to handle mode--\r\n");
-//     }
-// }
-// void cmd_touchdown_open(int argc, char *argv[])
-// {
-//     if (atof(argv[1]) > 0)
-//     {
-//         uprintf("Touchdwon open current should < 0.\r\n");
-//     }
-//     else
-//     {
-//         touchdown_m2006_open(atof(argv[1]));
-//         uprintf("Touchdwon open current is %f.\r\n", atof(argv[1]));
-//     }
-// }
-// void cmd_touchdown_close(int argc, char *argv[])
-// {
-//     if (atof(argv[1]) < 0)
-//     {
-//         uprintf("Touchdwon open current should > 0.\r\n");
-//     }
-//     else
-//     {
-//         touchdown_m2006_close(atof(argv[1]));
-//         uprintf("Touchdwon close current is %f\r\n", atof(argv[1]));
-//     }
-// }
-// void cmd_touchdown_try(int argc, char *argv[])
-// {
-//     if (touchdown_ready_flag == 1)
-//     {
-//         touchdown_try_flag = 1;
-//         uprintf("Try touchdown!!!\r\n");
-//     }
-//     else
-//     {
-//         uprintf("No ball in the basket.\r\n");
-//     }
-// }
-// void cmd_touchdown_try_finish(int argc, char *argv[])
-// {
-//     if (touchdown_try_flag == 1)
-//     {
-//         touchdown_try_finish_flag = 1;
-//         uprintf("Try touchdown finish!!!\r\n");
-//     }
-//     else
-//     {
-//         uprintf("Haven't try\r\n");
-//     }
-// }

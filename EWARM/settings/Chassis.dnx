@@ -21,6 +21,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         <Checksum>3967124914</Checksum>
 =======
         <Checksum>2625605566</Checksum>
@@ -31,6 +32,9 @@
 =======
         <Checksum>2455970542</Checksum>
 >>>>>>> af5fa805ab953c8786b47058c6eb3a5def263125
+=======
+        <Checksum>3300960975</Checksum>
+>>>>>>> smkk
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>

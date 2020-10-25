@@ -74,6 +74,26 @@ extern "C"
     int run_point;
   } Chassis_Status; // 底盘的状态机
 
+  typedef struct
+  {
+    float x;
+    float y;
+  } Point2D; // 二维空间点
+
+  typedef struct
+  {
+    float x;
+    float y;
+    float z;
+  } Point3D;
+
+  typedef struct
+  {
+    float x;
+    float y;
+    float angle; // 弧度,相对x轴的转角
+  } ChassisPosture;
+
   typedef enum
   {
     ABSOLUTE = 0,
@@ -88,10 +108,12 @@ extern "C"
   extern float ARRIVE_CIRCLE;
   extern CHASSIS_POS_MODE Chassis_PosMode;
   extern int Chassis_ResetVegaOrigin_Flag;
-  extern float origin_x;
-  extern float origin_y;
-  extern float origin_angle;
-  
+  extern int Chassis_AutoArrivedAtSpecifiedPoint_Flag;
+  extern ChassisPosture Chassis_OriginPosture;
+  extern int Chassis_LockYaw_Flag;
+  extern float Chassis_LockYaw_Value;
+  extern Point2D Chassis_MovePoint;
+  extern int Chassis_GoToPointStart_Flag;
 
   /*Function Area*/
   void chassis_init_status();
@@ -120,6 +142,8 @@ extern "C"
   void _chassis_move_vector_2(vec now_speed_vec, vec target_speed_vec, vec distance_vec, float target_angle);
   void Chassis_ResetVegaOrigin();
   void Chassis_PrintPos();
+  int Chassis_CalculateLineSpeedPlus(float start_x, float start_y, float point_x, float point_y,
+                                     int start_speed, int final_speed, int max_speed);
 #ifdef __cplusplus
 }
 #endif

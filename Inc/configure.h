@@ -30,6 +30,7 @@ extern "C"
         uint32_t motor1_id;
         uint32_t motor2_id;
         uint32_t lcd_id;
+        uint32_t led_id;
     } Can_id_send;
 
     typedef struct can_id_recive

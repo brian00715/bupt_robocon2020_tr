@@ -40,6 +40,7 @@
 #include "motor_driver.h"
 #include "robomaster.h"
 #include "chassis_handle.h"
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -144,6 +145,7 @@ int main(void)
   motor_init();
   laser_init();
   lcd_init();
+  LED_Init();
   flag.main_flag = 1;
   flag.chassis_auto_flag = 0; // 配置底盘运动手动/自动模式
   flag.chassis_handle_flag = 1;
@@ -162,7 +164,7 @@ int main(void)
     // lcd_exe();         // lcd消息
     // gpio_sensor_exe(); // 端口执行函数
     // m2006_exe();       // 大疆电机
-    // kickball_exe(); // 踢球系统
+    // kickball_exe();    // 踢球系统
     laser_exe();
     vesc_exe();
     Kickball2_EXE();
@@ -171,20 +173,14 @@ int main(void)
     if (time_5ms_cnt == 1)
     {
       time_5ms_cnt = 0;
-      // chassis_canset_motorduty(duty, duty, duty);
-      // chassis_canset_motorspeed(speed, speed, speed);
-      // Robomaster_RPMControl(); // 跑速度环
-      // can_msg msg1;
-      // msg1.in[0]=0;
-      // msg1.in[1]=20;
-      // can_send_msg(103,&msg1);
+      // Robomaster_RPMControl(); // 跑速度环`
     }
 
     if (time_20ms_flag == 1)
     {
       time_20ms_flag = 0;
+      // VESC_PrintInfo();
       // Robomaster_PrintInfo(0);
-      VESC_PrintInfo();
       // Laser_PrintADCValue();
     }
 
@@ -194,9 +190,8 @@ int main(void)
       Laser_PrintADCValue();
       Laser_PrintPos();
       // Robomaster_PrintInfo(0);
-      // VESC_PrintInfo();
-      // uprintf("lx: %-4d ly: %-4d rx: %-4d ry: %-4d\n",
-      //       chassis_handle.lx, chassis_handle.ly, chassis_handle.rx, chassis_handle.ry);
+      VESC_PrintInfo();
+      // uprintf("trace count:%d\r\n",chassis_status.trace_count);
     }
 
     // key1按下
@@ -327,7 +322,8 @@ void inc(void)
     {
       chassis_status.vega_is_ready = 1;
       HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-      uprintf("--Vega Init Done!!!\r\n");
+      uprintf("==Vega Init Done!==\r\n");
+      led_control(1);
     }
     if (time_1ms_cnt >= 60000) // 防止int类型溢出
     {
